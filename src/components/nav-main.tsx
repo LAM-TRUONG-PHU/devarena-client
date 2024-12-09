@@ -1,7 +1,6 @@
+"use client";
 
-"use client"
-
-import { ChevronRight, type LucideIcon } from "lucide-react"
+import { ChevronRight, type LucideIcon } from "lucide-react";
 
 import {
     SidebarGroup,
@@ -13,34 +12,35 @@ import {
     SidebarMenuSub,
     SidebarMenuSubButton,
     SidebarMenuSubItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import Link from "next/link";
 
 export function NavMain({
     items,
 }: {
     items: {
-        title: string
-        url: string
-        icon?: LucideIcon
-    }[]
+        title: string;
+        url: string;
+        icon?: LucideIcon | React.FC<{}>;
+    }[];
 }) {
     return (
         <SidebarGroup>
-            <SidebarGroupLabel>Application</SidebarGroupLabel>
+            {/* <SidebarGroupLabel>Application</SidebarGroupLabel> */}
             <SidebarGroupContent>
                 <SidebarMenu>
                     {items.map((item) => (
                         <SidebarMenuItem key={item.title}>
                             <SidebarMenuButton asChild>
-                                <a href={item.url}>
-                                    {item.icon && <item.icon />}
+                                <Link href={item.url}>
+                                    {item.icon && <item.icon style={{ width: "20px", height: "20px" }} />}
                                     <span>{item.title}</span>
-                                </a>
+                                </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     ))}
                 </SidebarMenu>
             </SidebarGroupContent>
         </SidebarGroup>
-    )
+    );
 }

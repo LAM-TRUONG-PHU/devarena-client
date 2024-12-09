@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
     AudioWaveform,
     BookOpen,
@@ -16,92 +16,71 @@ import {
     Search,
     Settings,
     Settings2,
+    SquareTerminalIcon,
+    NotebookPenIcon,
+    Trophy,
     SquareTerminal,
-} from "lucide-react"
+} from "lucide-react";
+import { BsDiagram2 } from "react-icons/bs";
 
-import { NavMain } from "@/components/nav-main"
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+
+import { NavMain } from "@/components/nav-main";
 import {
     Sidebar,
     SidebarContent,
     SidebarFooter,
     SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
     SidebarRail,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 // This is sample data.
-const data = {
-    user: {
-        name: "shadcn",
-        email: "m@example.com",
-        avatar: "/avatars/shadcn.jpg",
-    },
-    teams: [
-        {
-            name: "Acme Inc",
-            logo: GalleryVerticalEnd,
-            plan: "Enterprise",
-        },
-        {
-            name: "Acme Corp.",
-            logo: AudioWaveform,
-            plan: "Startup",
-        },
-        {
-            name: "Evil Corp.",
-            logo: Command,
-            plan: "Free",
-        },
-    ],
-    navMain: [
-        {
-            title: "Home",
-            url: "#",
-            icon: Home,
-        },
-        {
-            title: "Inbox",
-            url: "#",
-            icon: Inbox,
-        },
-        {
-            title: "Calendar",
-            url: "#",
-            icon: Calendar,
-        },
-        {
-            title: "Search",
-            url: "#",
-            icon: Search,
-        },
-        {
-            title: "Settings",
-            url: "#",
-            icon: Settings,
-        },
-    ],
-    projects: [
-        {
-            name: "Design Engineering",
-            url: "#",
-            icon: Frame,
-        },
-        {
-            name: "Sales & Marketing",
-            url: "#",
-            icon: PieChart,
-        },
-        {
-            name: "Travel",
-            url: "#",
-            icon: Map,
-        },
-    ],
-}
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+    const pathname = usePathname();
+    const data = {
+        user: {
+            name: "shadcn",
+            email: "m@example.com",
+            avatar: "/avatars/shadcn.jpg",
+        },
+        navMain: [
+            {
+                title: "Study",
+                url: pathname.startsWith("/admin/") ? "/admin/study" : "/study",
+                icon: SquareTerminalIcon,
+            },
+            {
+                title: "Algorithm",
+                url: pathname.startsWith("/admin/") ? "/admin/algorithm" : "/algorithm",
+                icon: BsDiagram2,
+            },
+            {
+                title: "Contest",
+                url: pathname.startsWith("/admin/") ? "/admin/contest" : "/contest",
+                icon: Trophy,
+            },
+        ],
+    };
     return (
         <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
+                <SidebarMenuButton
+                    size="lg"
+                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                >
+                    <Image
+                        className="dark:invert"
+                        src="/logo1.png"
+                        alt="DevArena logo"
+                        width={60}
+                        height={60}
+                    />
+                    <span className="text-xl"> DevArena</span>
+                </SidebarMenuButton>
             </SidebarHeader>
             <SidebarContent>
                 <NavMain items={data.navMain} />
@@ -109,5 +88,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
             <SidebarRail />
         </Sidebar>
-    )
+    );
 }
