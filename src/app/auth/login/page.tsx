@@ -1,16 +1,16 @@
-'use client'
-import React, { useState } from 'react'
+"use client";
+import React, { useState } from "react";
 import Image from "next/image";
-import { Label } from "@/components/ui/label"
-import { Input } from '@/components/ui/input'
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { useToast } from "@/hooks/use-toast"
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useToast } from "@/hooks/use-toast";
 import { FaFacebook, FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-import { Checkbox } from "@/components/ui/checkbox"
-import { Button } from "@/components/ui/button"
-import Link from 'next/link'
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import {
     Form,
     FormControl,
@@ -19,9 +19,9 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "@/components/ui/form"
-import { z } from "zod"
-import { EyeOffIcon, Eye } from 'lucide-react';
+} from "@/components/ui/form";
+import { z } from "zod";
+import { EyeOffIcon, Eye } from "lucide-react";
 const formSchema = z.object({
     username: z.string().min(1, {
         message: "required",
@@ -30,12 +30,11 @@ const formSchema = z.object({
         message: "required",
     }),
     staySignedIn: z.boolean(),
-
-})
+});
 
 export default function LoginPage() {
-    const { toast } = useToast()
-    const [showPassword, setShowPassword] = useState(false)
+    const { toast } = useToast();
+    const [showPassword, setShowPassword] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -44,10 +43,10 @@ export default function LoginPage() {
             password: "",
             staySignedIn: false,
         },
-    })
+    });
 
     function onSubmit(data: z.infer<typeof formSchema>) {
-        console.log(data)
+        console.log(data);
         toast({
             title: "You submitted the following values:",
             description: (
@@ -55,7 +54,7 @@ export default function LoginPage() {
                     <code className="text-white">{JSON.stringify(data, null, 2)}</code>
                 </pre>
             ),
-        })
+        });
     }
 
     return (
@@ -78,7 +77,7 @@ export default function LoginPage() {
                                 <FormItem>
                                     <FormLabel>Username</FormLabel>
                                     <FormControl>
-                                        <Input  {...field} placeholder='Enter your username' />
+                                        <Input {...field} placeholder="Enter your username" />
                                     </FormControl>
                                     <FormMessage className="text-right" />
                                 </FormItem>
@@ -99,7 +98,7 @@ export default function LoginPage() {
                                                 className="pr-10"
                                             />
                                             <Button
-                                                type='button'
+                                                type="button"
                                                 variant="ghost"
                                                 size="icon"
                                                 className="absolute bottom-1 right-1 h-7 w-7"
@@ -111,18 +110,16 @@ export default function LoginPage() {
                                         </div>
                                     </FormControl>
                                     <FormMessage className="text-right" />
-
                                 </FormItem>
                             )}
                         />
-                        <div className='flex flex-col space-y-3 pt-2'>
+                        <div className="flex flex-col space-y-3">
                             <div className="flex space-x-4">
                                 <button
                                     type="button"
                                     className="flex-1 bg-blue_facebook text-white  px-4 py-2 rounded-xl shadow hover:bg-blue-700"
                                 >
                                     <FaFacebook className="w-6 h-6 mx-auto" />
-
                                 </button>
                                 <button
                                     type="button"
@@ -139,22 +136,16 @@ export default function LoginPage() {
                             </button>
                         </div>
 
-
                         <FormField
                             control={form.control}
                             name="staySignedIn"
                             render={({ field }) => (
                                 <FormItem className="flex flex-row items-start space-x-3 space-y-0 ">
                                     <FormControl>
-                                        <Checkbox
-                                            checked={field.value}
-                                            onCheckedChange={field.onChange}
-                                        />
+                                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                                     </FormControl>
                                     <div className="space-y-1 leading-none">
-                                        <FormLabel className='text-foreground'>
-                                            Stay signed in
-                                        </FormLabel>
+                                        <FormLabel className="text-foreground">Stay signed in</FormLabel>
                                     </div>
                                 </FormItem>
                             )}
@@ -162,7 +153,6 @@ export default function LoginPage() {
                         <Button type="submit" className="w-full text-white px-4 py-2 rounded-lg shadow mt-10">
                             Login
                         </Button>
-
                     </form>
                 </Form>
 
@@ -173,11 +163,8 @@ export default function LoginPage() {
                     <Link href="/auth/signup" className="text-sm text-pink-500 hover:underline">
                         CREATE ACCOUNT
                     </Link>
-
                 </div>
             </div>
-
-
         </>
-    )
+    );
 }
