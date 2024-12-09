@@ -9,12 +9,16 @@ export default function AdminContestPage() {
         console.log(contests);
     }, [contests]);
 
+    const autoGenerateId = () => {
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    };
+
     return (
         <>
             <div>
                 <h1>Contests</h1>
                 <button onClick={() => dispatch(createContest({
-                    _id: "1",
+                    _id: autoGenerateId(),
                     title: "Contest 1",
                     description: "Description 1",
                     startDate: "2021-10-10",
