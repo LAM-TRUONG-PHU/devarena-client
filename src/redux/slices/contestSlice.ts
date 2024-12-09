@@ -1,7 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+
+
 type Contest = {
-    id: string;
+    _id: string;
     title: string;
     description: string;
     startDate: string;
@@ -11,30 +13,31 @@ type Contest = {
     participants: number;
 };
 
-const initialState: Contest = {
-    id: "",
-    title: "",
-    description: "",
-    startDate: "",
-    endDate: "",
-    imageUrl: "",
-    status: "",
-    participants: 0,
+
+interface ContestState {
+    contests: Contest[];
+}
+
+const initialState: ContestState = {
+    contests: [],
 };
 
 const contestSlice = createSlice({
     name: "contest",
     initialState,
     reducers: {
-        setContest: (state, action: PayloadAction<Contest>) => {
-            state.id = action.payload.id;
-            state.title = action.payload.title;
-            state.description = action.payload.description;
-            state.startDate = action.payload.startDate;
-            state.endDate = action.payload.endDate;
-            state.imageUrl = action.payload.imageUrl;
-            state.status = action.payload.status;
-            state.participants = action.payload.participants;
+        createContest(state, action: PayloadAction<Contest>) {
+            state.contests.push(action.payload);
+        },
+        updateContest(state, action: PayloadAction<Contest>) {
+            const index = state.contests.findIndex((contest) => contest._id === action.payload._id);
+            state.contests[index] = action.payload;
+        },
+        deleteContest(state, action: PayloadAction<string>) {
+            state.contests = state.contests.filter((contest) => contest._id !== action.payload);
         },
     },
 });
+
+export const { createContest, updateContest, deleteContest } = contestSlice.actions;
+export default contestSlice.reducer;
