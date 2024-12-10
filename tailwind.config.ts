@@ -14,6 +14,7 @@ export default {
             colors: {
                 background: "hsl(var(--background))",
                 foreground: "#475569",
+                background_hover: "#EBEBF3",
                 card: {
                     DEFAULT: "hsl(var(--card))",
                     foreground: "hsl(var(--card-foreground))",
