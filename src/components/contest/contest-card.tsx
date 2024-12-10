@@ -14,7 +14,7 @@ export default function ContestCard(props: ContestCardProps) {
         <div className=" rounded-2xl  p-6  items-center justify-between bg-white hover:bg-background_hover cursor-pointer transition-all	">
             <div className="flex flex-col gap-2">
                 <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{props.title}</h3>
+                    <h3 className="text-lg font-medium text-gray-900">{props.title}</h3>
                     <p className="text-sm text-gray-500">{props.date}</p>
                 </div>
 
