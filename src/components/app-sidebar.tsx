@@ -36,6 +36,7 @@ import {
     SidebarMenuButton,
     SidebarRail,
 } from "@/components/ui/sidebar";
+import NavUser from "./nav-user";
 
 // This is sample data.
 
@@ -45,32 +46,35 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         user: {
             name: "shadcn",
             email: "m@example.com",
-            avatar: "/avatars/shadcn.jpg",
+            avatar: "/avatar.jpg",
         },
         navMain: [
             {
                 title: "Study",
                 url: pathname.startsWith("/admin/") ? "/admin/study" : "/study",
                 icon: SquareTerminalIcon,
+                isActive: pathname.startsWith("/study") || pathname.startsWith("/admin/study"),
             },
             {
                 title: "Algorithm",
                 url: pathname.startsWith("/admin/") ? "/admin/algorithm" : "/algorithm",
                 icon: BsDiagram2,
+                isActive: pathname.startsWith("/algorithm") || pathname.startsWith("/admin/algorithm"),
             },
             {
                 title: "Contest",
                 url: pathname.startsWith("/admin/") ? "/admin/contest" : "/contest",
                 icon: Trophy,
+                isActive: pathname.startsWith("/contest") || pathname.startsWith("/admin/contest"),
             },
         ],
     };
     return (
         <Sidebar collapsible="icon" {...props}>
-            <SidebarHeader>
+            <SidebarHeader className="!border-b-2 !border-gray">
                 <SidebarMenuButton
                     size="lg"
-                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground mx-auto"
                 >
                     <Image
                         className="dark:invert"
@@ -85,6 +89,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarContent>
                 <NavMain items={data.navMain} />
             </SidebarContent>
+            <SidebarFooter>
+                <NavUser user={data.user} />
+            </SidebarFooter>
 
             <SidebarRail />
         </Sidebar>

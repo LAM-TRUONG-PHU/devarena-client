@@ -160,7 +160,7 @@ const Sidebar = React.forwardRef<
         return (
             <div
                 className={cn(
-                    "flex h-full w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground",
+                    "flex h-full w-[--sidebar-width] flex-col bg-white text-sidebar-foreground",
                     className
                 )}
                 ref={ref}
@@ -194,7 +194,7 @@ const Sidebar = React.forwardRef<
     return (
         <div
             ref={ref}
-            className="group peer hidden md:block text-sidebar-foreground"
+            className="group peer hidden md:block text-sidebar-foreground "
             data-state={state}
             data-collapsible={state === "collapsed" ? collapsible : ""}
             data-variant={variant}
@@ -227,7 +227,7 @@ const Sidebar = React.forwardRef<
             >
                 <div
                     data-sidebar="sidebar"
-                    className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
+                    className="flex h-full w-full flex-col bg-white group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
                 >
                     {children}
                 </div>
@@ -483,7 +483,7 @@ const sidebarMenuButtonVariants = cva(
                     "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
             },
             size: {
-                default: "h-12 text-base",
+                default: "h-10 text-base",
                 sm: "h-7 text-xs",
                 lg: "h-12 text-base group-data-[collapsible=icon]:!p-0",
             },

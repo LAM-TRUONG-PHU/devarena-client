@@ -1,11 +1,10 @@
 "use client";
-import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "@/app/globals.css";
-import { Provider } from "react-redux";
-import { store } from "@/redux/store";
 import { AppSidebar } from "@/components/app-sidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import Header from "@/components/header";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { store } from "@/redux/store";
+import { Provider } from "react-redux";
 
 export default function RootLayout({
     children,
@@ -17,7 +16,12 @@ export default function RootLayout({
             <body className={`antialiased`}>
                 <SidebarProvider>
                     <AppSidebar />
-                    <Provider store={store}>{children}</Provider>
+                    <SidebarInset>
+                        <Header />
+                        <div className="flex flex-1 flex-col gap-4 p-8 pt-4">
+                            <Provider store={store}>{children}</Provider>
+                        </div>
+                    </SidebarInset>
                 </SidebarProvider>
             </body>
         </html>

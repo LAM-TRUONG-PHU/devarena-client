@@ -22,6 +22,7 @@ export function NavMain({
         title: string;
         url: string;
         icon?: LucideIcon | React.FC<{}>;
+        isActive: boolean;
     }[];
 }) {
     return (
@@ -31,7 +32,17 @@ export function NavMain({
                 <SidebarMenu>
                     {items.map((item) => (
                         <SidebarMenuItem key={item.title}>
-                            <SidebarMenuButton asChild>
+                            <SidebarMenuButton
+                                asChild
+                                style={{ width: "90%" }}
+                                size="default"
+                                isActive={item.isActive}
+                                className={`${
+                                    item.isActive
+                                        ? "!bg-pink_background !text-pink_primary !font-semibold"
+                                        : ""
+                                } mx-auto !px-4 !rounded-lg`}
+                            >
                                 <Link href={item.url}>
                                     {item.icon && <item.icon style={{ width: "20px", height: "20px" }} />}
                                     <span>{item.title}</span>
