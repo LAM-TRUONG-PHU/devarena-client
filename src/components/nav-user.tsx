@@ -11,6 +11,7 @@ import {
 import { ChevronsUpDown, Sparkles, BadgeCheck, CreditCard, Bell, LogOut } from "lucide-react";
 import React from "react";
 import { SidebarMenuButton, useSidebar } from "./ui/sidebar";
+import { useRouter } from "next/navigation";
 
 export default function NavUser({
     user,
@@ -22,6 +23,7 @@ export default function NavUser({
     };
 }) {
     const { isMobile } = useSidebar();
+    const router = useRouter();
 
     return (
         <>
@@ -70,7 +72,7 @@ export default function NavUser({
                         </DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push("/auth/login")}>
                         <LogOut />
                         Log out
                     </DropdownMenuItem>

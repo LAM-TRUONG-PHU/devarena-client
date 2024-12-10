@@ -1,27 +1,17 @@
-import React from "react";
-import { SidebarMenuButton, SidebarTrigger } from "./ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+import { Heart } from "lucide-react";
+import { usePathname } from "next/navigation";
+import React from "react";
+import NavUser from "./nav-user";
 import {
     Breadcrumb,
-    BreadcrumbList,
     BreadcrumbItem,
     BreadcrumbLink,
+    BreadcrumbList,
     BreadcrumbSeparator,
-    BreadcrumbPage,
 } from "./ui/breadcrumb";
-import {
-    DropdownMenu,
-    DropdownMenuTrigger,
-    DropdownMenuContent,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-} from "@radix-ui/react-dropdown-menu";
-import { ChevronsUpDown, Sparkles, BadgeCheck, CreditCard, Bell, LogOut, Heart } from "lucide-react";
-import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
-import NavUser from "./nav-user";
-import { usePathname } from "next/navigation";
+import Link from "next/link";
+import { SidebarTrigger } from "./ui/sidebar";
 const data = {
     user: {
         name: "shadcn",
@@ -32,7 +22,12 @@ const data = {
 export default function Header() {
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
-    const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+    const capitalize = (str: string) => {
+        return str
+            .split("-")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
+    };
 
     return (
         <>
@@ -52,9 +47,7 @@ export default function Header() {
                                         {isLast ? (
                                             <span>{capitalize(decodeURIComponent(segment))}</span>
                                         ) : (
-                                            <BreadcrumbLink href={path}>
-                                                {capitalize(decodeURIComponent(segment))}
-                                            </BreadcrumbLink>
+                                            <Link href={path}>{capitalize(decodeURIComponent(segment))}</Link>
                                         )}
                                     </BreadcrumbItem>
                                 </React.Fragment>

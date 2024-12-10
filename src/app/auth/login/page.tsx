@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
-import { FaFacebook, FaGithub } from "react-icons/fa";
+import { FaFacebook, FaGithub, FaDiscord } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -114,13 +114,13 @@ export default function LoginPage() {
                                 </FormItem>
                             )}
                         />
-                        <div className="flex flex-col space-y-3">
+                        <div className="flex flex-col space-y-3 mt-2">
                             <div className="flex space-x-4">
                                 <button
                                     type="button"
-                                    className="flex-1 bg-blue_facebook text-white  px-4 py-2 rounded-xl shadow hover:bg-blue-700"
+                                    className="flex-1 bg-blue_discord text-white  px-4 py-2 rounded-xl shadow hover:brightness-110"
                                 >
-                                    <FaFacebook className="w-6 h-6 mx-auto" />
+                                    <FaDiscord className="w-6 h-6 mx-auto" />
                                 </button>
                                 <button
                                     type="button"
@@ -131,7 +131,7 @@ export default function LoginPage() {
                             </div>
                             <button
                                 type="button"
-                                className="flex-1 bg-gray-800 text-white px-4 py-2 rounded-xl shadow hover:bg-gray-900"
+                                className="flex-1 bg-gray-800 text-white px-4 py-2 rounded-xl shadow hover:brightness-110"
                             >
                                 <FaGithub className="w-6 h-6 mx-auto" />
                             </button>

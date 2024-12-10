@@ -4,6 +4,8 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { createContest } from "@/redux/slices/contestSlice";
 import Image from "next/image";
 import ContestCard from "@/components/contest/contest-card";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 export default function ContestPage() {
     const { contests } = useAppSelector((state) => state.contest);
     const dispatch = useAppDispatch();
@@ -17,15 +19,20 @@ export default function ContestPage() {
 
     return (
         <>
-            <div className="flex shrink-0 items-center gap-4 px-4 py-6 bg-white shadow-sm">
-                <Image src="/trophy.png" alt="logo" width={36} height={36} />
-                <div>
-                    <h1 className="text-lg font-semibold">DevArena Contest </h1>
-                    <p>Contest every week. Compete and see your ranking!</p>
+            <div className="flex shrink-0 items-center justify-between pr-8 px-4 py-6 bg-white shadow-sm">
+                <div className="flex gap-4">
+                    <Image src="/trophy.png" alt="logo" width={36} height={36} />
+                    <div>
+                        <h1 className="text-lg font-semibold">DevArena Contest </h1>
+                        <p>Contest every week. Compete and see your ranking!</p>
+                    </div>
                 </div>
+                <Link href="/contest/my-contest">
+                    <Button>My contest</Button>
+                </Link>
             </div>
             <div>
-                <h1 className="text-lg font-semibold p-4">Active Contest</h1>
+                <h1 className="text-lg font-medium p-4">Active Contest</h1>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-10">
                     <ContestCard
                         title="ServiceNow Tech Hiring Challenge"
@@ -44,7 +51,12 @@ export default function ContestPage() {
                 </div>
             </div>
             <div className="pb-8">
-                <h1 className="text-lg font-semibold p-4">Past Contest</h1>
+                <div className="flex justify-between items-center pr-4">
+                    <h1 className="text-lg font-medium p-4">Past Contest</h1>
+                    <Link href="/contest/past-contest">
+                        <Button variant="ghost">View All</Button>
+                    </Link>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-10">
                     <ContestCard
                         title="ServiceNow Tech Hiring Challenge"

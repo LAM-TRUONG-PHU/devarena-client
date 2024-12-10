@@ -54,6 +54,7 @@ export default {
                     "5": "hsl(var(--chart-5))",
                 },
                 blue_facebook: "#0966DE",
+                blue_discord: "#5865F2",
                 pink_primary: "#FF2395",
                 pink_background: "rgba(247, 187, 215, 0.5)",
                 sidebar: {
