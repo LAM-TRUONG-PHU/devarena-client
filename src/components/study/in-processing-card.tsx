@@ -3,8 +3,9 @@ import { FaDumbbell } from "react-icons/fa6";
 import { C } from "@/components/mastery";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "../ui/button";
+import { Languages } from "@/types/language";
 type InProgressingCardProps = {
-    title: "C" | "C++" | "Java" | undefined;
+    title: Languages | undefined;
     exercises: number;
     onClick: () => void;
 };

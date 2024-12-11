@@ -1,8 +1,9 @@
 import React from "react";
 import { C, Java, Cpp } from "@/components/mastery";
 import { FaDumbbell } from "react-icons/fa6";
+import { Languages } from "@/types/language";
 type StudyCardProps = {
-    title: "C" | "C++" | "Java";
+    title: Languages;
     exercises: number;
     onClick: () => void;
 };
