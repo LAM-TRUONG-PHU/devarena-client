@@ -87,4 +87,7 @@ body {
     body {
         @apply bg-background text-foreground;
     }
+    .card-bg {
+        @apply rounded-2xl p-6 items-center justify-between bg-white hover:bg-background_hover cursor-pointer transition-all;
+    }
 }

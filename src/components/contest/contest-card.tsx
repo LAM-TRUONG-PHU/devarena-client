@@ -11,10 +11,7 @@ type ContestCardProps = {
 
 export default function ContestCard(props: ContestCardProps) {
     return (
-        <div
-            className=" rounded-2xl  p-6  items-center justify-between bg-white hover:bg-background_hover cursor-pointer transition-all"
-            onClick={props.onClick}
-        >
+        <div className="card-bg" onClick={props.onClick}>
             <div className="flex flex-col gap-2">
                 <div>
                     <h3 className="text-lg font-medium text-gray-900">{props.title}</h3>
