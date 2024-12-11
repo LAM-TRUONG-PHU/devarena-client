@@ -4,8 +4,8 @@ import { FaDiscord, FaGithub } from "react-icons/fa";
 import Link from "next/link";
 export default function Footer() {
     return (
-        <footer className="bg-white">
-            <div className="container p-6 pr-8 gap-6 flex justify-between pb-6">
+        <footer className="bg-white py-6 pl-4 pr-14">
+            <div className="container  gap-6 flex justify-between pb-6">
                 {/* Logo and Social Icons */}
                 <div className="flex flex-col items-start">
                     <Image
@@ -51,7 +51,7 @@ export default function Footer() {
                 <div className="flex gap-20 pt-2">
                     <div className="flex flex-col items-center sm:items-start">
                         <h3 className="font-semibold mb-2">Help Center</h3>
-                        <ul className="space-y-1">
+                        <ul className="space-y-1 text-sm">
                             <li>
                                 <Link href="#" className="text-foreground hover:text-pink_primary">
                                     Report an Issue
@@ -78,7 +78,7 @@ export default function Footer() {
                     {/* Our Services */}
                     <div className="flex flex-col items-center sm:items-start">
                         <h3 className="font-semibold mb-2">Our Services</h3>
-                        <ul className="space-y-1">
+                        <ul className="space-y-1 text-sm">
                             <li>
                                 <Link href="#" className="text-foreground hover:text-pink_primary">
                                     Docs
@@ -99,7 +99,7 @@ export default function Footer() {
                 </div>
             </div>
 
-            <div className="py-6 text-center text-gray-500 text-sm border-t border-gray-500">
+            <div className="flex justify-between pt-6 text-center text-gray-500 text-xs border-t border-gray-300">
                 <p>A House of Commons Initiative. Polka Labs Private Limited 2024</p>
                 <p>All rights reserved.</p>
             </div>

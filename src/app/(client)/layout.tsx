@@ -18,10 +18,13 @@ export default function RootLayout({
                 <SidebarProvider>
                     <AppSidebar />
                     <SidebarInset>
-                        <Header />
-                        <div className="flex flex-1 flex-col gap-4">
-                            <Provider store={store}>{children}</Provider>
+                        <div className="min-h-screen">
+                            <Header />
+                            <div className="flex flex-1 flex-col gap-4">
+                                <Provider store={store}>{children}</Provider>
+                            </div>
                         </div>
+
                         <Footer />
                     </SidebarInset>
                 </SidebarProvider>

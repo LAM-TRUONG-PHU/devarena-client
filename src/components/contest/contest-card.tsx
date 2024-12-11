@@ -6,12 +6,15 @@ type ContestCardProps = {
     date: string;
     countdown?: string;
     buttonText: string;
-    onButtonClick: () => void;
+    onClick: () => void;
 };
 
 export default function ContestCard(props: ContestCardProps) {
     return (
-        <div className=" rounded-2xl  p-6  items-center justify-between bg-white hover:bg-background_hover cursor-pointer transition-all	">
+        <div
+            className=" rounded-2xl  p-6  items-center justify-between bg-white hover:bg-background_hover cursor-pointer transition-all"
+            onClick={props.onClick}
+        >
             <div className="flex flex-col gap-2">
                 <div>
                     <h3 className="text-lg font-medium text-gray-900">{props.title}</h3>
@@ -28,7 +31,7 @@ export default function ContestCard(props: ContestCardProps) {
                         </div>
                     )}
 
-                    <Button onClick={props.onButtonClick} variant="outline">
+                    <Button onClick={props.onClick} variant="outline">
                         {props.buttonText}
                     </Button>
                 </div>
