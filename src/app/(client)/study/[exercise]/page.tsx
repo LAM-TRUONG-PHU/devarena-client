@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Trophy } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { C, Java, Cpp } from "@/components/mastery";
+import ExerciseCard from "@/components/study/exercise-card";
 export default function ExercisePage() {
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
@@ -48,6 +49,29 @@ export default function ExercisePage() {
                             {title === "C++" && <Cpp.TierOne />}
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div className="pr-14 pl-10 pt-4 pb-8 space-y-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <ExerciseCard
+                        language={title as Languages}
+                        title="Hello World"
+                        tags={["Crypto", "Privacy", "Social"]}
+                        inProgress
+                    />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <ExerciseCard
+                        language={title as Languages}
+                        title="Hello World"
+                        tags={["Crypto", "Privacy", "Social"]}
+                    />
+                    <ExerciseCard
+                        language={title as Languages}
+                        title="Function in C"
+                        tags={["Crypto", "Privacy", "Social"]}
+                    />
                 </div>
             </div>
         </>
