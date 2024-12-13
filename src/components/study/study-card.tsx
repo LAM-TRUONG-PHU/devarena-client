@@ -10,7 +10,7 @@ type StudyCardProps = {
 
 export default function StudyCard(props: StudyCardProps) {
     return (
-        <div className="border border-gray-200 card-bg" onClick={props.onClick}>
+        <div className="card-bg" onClick={props.onClick}>
             <div className="flex flex-col gap-2">
                 <div className="flex items-center space-x-4">
                     <div className="size-20">

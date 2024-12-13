@@ -4,6 +4,7 @@ import { CiHeart } from "react-icons/ci";
 import Difficulty from "../difficulty";
 import { Button } from "../ui/button";
 import { Languages } from "@/types/language";
+import { EDifficulty } from "../sort";
 type CardProps = {
     language: Languages;
     title: string;
@@ -31,7 +32,7 @@ export default function ExerciseCard(props: CardProps) {
                 </div>
             </div>
             <div className="flex flex-wrap gap-2">
-                <Difficulty variant="easy" />
+                <Difficulty variant={EDifficulty.Easy} />
 
                 {props.tags.map((tag, index) => (
                     <span key={index} className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
@@ -39,22 +40,23 @@ export default function ExerciseCard(props: CardProps) {
                     </span>
                 ))}
             </div>
-
-            <div className="flex items-center justify-end gap-2 text-gray-800 text-sm mb-4">
-                <CiHeart size={32} />
-
-                {!props.inProgress ? (
-                    <Button onClick={() => {}} variant="outline">
-                        Start
-                    </Button>
-                ) : (
-                    <>
-                        <div className="bg-[#E1EBFF] text-[#2E57E8] rounded-xl font-semibold  h-fit  w-fit items-center flex text-xs py-1 px-4">
-                            In-Progress
-                        </div>
-                        <Button onClick={() => {}}>Continue</Button>
-                    </>
+            <div className={`flex items-center ${props.inProgress ? "justify-between" : "justify-end"}`}>
+                {props.inProgress && (
+                    <div className="bg-[#E1EBFF] text-[#2E57E8] rounded-xl font-semibold h-fit w-fit text-xs py-1 px-1 xl:px-4">
+                        In-Progress
+                    </div>
                 )}
+
+                <div className="flex items-center gap-2 text-gray-800 text-sm">
+                    <CiHeart size={32} className="inline-block" />
+                    {!props.inProgress ? (
+                        <Button onClick={() => {}} variant="outline">
+                            Start
+                        </Button>
+                    ) : (
+                        <Button onClick={() => {}}>Continue</Button>
+                    )}
+                </div>
             </div>
         </div>
     );
