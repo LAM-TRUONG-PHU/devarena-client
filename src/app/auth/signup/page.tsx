@@ -2,24 +2,23 @@
 import { Button } from "@/components/ui/button";
 import {
     Form,
+    FormControl,
+    FormDescription,
     FormField,
     FormItem,
     FormLabel,
-    FormControl,
     FormMessage,
-    FormDescription,
 } from "@/components/ui/form";
-import { Checkbox } from "@radix-ui/react-checkbox";
-import { EyeOffIcon, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { FaFacebook, FaGithub } from "react-icons/fa6";
-import { FcGoogle } from "react-icons/fc";
-import Image from "next/image";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOffIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { FaDiscord, FaGithub } from "react-icons/fa6";
+import { FcGoogle } from "react-icons/fc";
+import { z } from "zod";
 const formSchema = z
     .object({
         username: z.string().min(1, {
@@ -192,9 +191,9 @@ export default function SignUpPage() {
                                 <div className="flex space-x-4">
                                     <button
                                         type="button"
-                                        className="flex-1 bg-blue_facebook text-white  px-4 py-1 rounded-xl shadow hover:bg-blue-700"
+                                        className="flex-1 bg-blue_discord text-white  px-4 py-2 rounded-xl shadow hover:brightness-110"
                                     >
-                                        <FaFacebook className="w-6 h-6 mx-auto" />
+                                        <FaDiscord className="w-6 h-6 mx-auto" />
                                     </button>
                                     <button
                                         type="button"

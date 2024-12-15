@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { SessionProvider } from "next-auth/react";
+import { Toaster } from "@/components/ui/toaster";
+import NextAuthWrapper from "@/providers/SessionWrapper";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -26,14 +27,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-        {/* <SessionProvider> */}
+      {/* <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}> */}
+      <body className={``}>
 
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+        {/* Sử dụng SessionWrapper như một React Component */}
+        {/* <NextAuthWrapper> */}
+          {children}
+          {/* <Toaster />
+
+        </NextAuthWrapper> */}
+
       </body>
-     {/* </SessionProvider> */}
     </html>
   );
 }

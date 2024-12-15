@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -37,7 +37,13 @@ const formSchema = z.object({
 export default function LoginPage() {
     const { toast } = useToast();
     const [showPassword, setShowPassword] = useState(false);
-
+    useEffect(()=>{
+        toast({
+            title:"lỗi đăng nhập",
+            description:"res.error",
+            variant:"error"
+        })
+    },[])
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -47,21 +53,28 @@ export default function LoginPage() {
         },
     });
 
-    function onSubmit(data: z.infer<typeof formSchema>) {
-        console.log(data);
-        signIn("credentials",{
+    async function onSubmit(data: z.infer<typeof formSchema>) {
+        const res = await signIn("credentials",{
             redirect:false,
             username:data.username,
             password: data.password
         })
+        
+      
+        if(res?.error){
+            console.log(res.error)
+            toast({
+                title:"lỗi đăng nhập",
+                description:res.error,
+                variant:"error"
+            })
+        }
         toast({
-            title: "You submitted the following values:",
-            description: (
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-                </pre>
-            ),
-        });
+            title:"lỗi đăng nhập",
+            description:"res.error",
+            variant:"error"
+        })
+       
     }
 
     return (
@@ -104,6 +117,7 @@ export default function LoginPage() {
                                                 type={showPassword ? "text" : "password"}
                                                 placeholder="Enter your password"
                                                 className="pr-10"
+                                                {...field}
                                             />
                                             <Button
                                                 type="button"
@@ -121,7 +135,7 @@ export default function LoginPage() {
                                 </FormItem>
                             )}
                         />
-                        <div className="flex flex-col space-y-3">
+                        <div className="flex flex-col space-y-3 mt-2">
                             <div className="flex space-x-4">
                                 <button
                                     type="button"
