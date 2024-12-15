@@ -6,11 +6,13 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
-import { FaFacebook, FaGithub } from "react-icons/fa";
+import { FaDiscord, FaFacebook, FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
+
 import {
     Form,
     FormControl,
@@ -47,6 +49,11 @@ export default function LoginPage() {
 
     function onSubmit(data: z.infer<typeof formSchema>) {
         console.log(data);
+        signIn("credentials",{
+            redirect:false,
+            username:data.username,
+            password: data.password
+        })
         toast({
             title: "You submitted the following values:",
             description: (
@@ -93,6 +100,7 @@ export default function LoginPage() {
                                         <div className="relative">
                                             <Input
                                                 id="password"
+                                                {...field}
                                                 type={showPassword ? "text" : "password"}
                                                 placeholder="Enter your password"
                                                 className="pr-10"
@@ -118,12 +126,18 @@ export default function LoginPage() {
                                 <button
                                     type="button"
                                     className="flex-1 bg-blue_facebook text-white  px-4 py-2 rounded-xl shadow hover:bg-blue-700"
+                                    onClick={(e)=>{
+                                        signIn("discord")
+                                    }}
                                 >
-                                    <FaFacebook className="w-6 h-6 mx-auto" />
+                                    <FaDiscord className="w-6 h-6 mx-auto" />
                                 </button>
                                 <button
                                     type="button"
                                     className="flex-1 bg-white border-2 border-black  px-4 py-1 rounded-xl  hover:bg-gray-100"
+                                    onClick={(e)=>{
+                                        signIn("google")
+                                    }}
                                 >
                                     <FcGoogle className="w-6 h-6 mx-auto" />
                                 </button>
@@ -131,8 +145,11 @@ export default function LoginPage() {
                             <button
                                 type="button"
                                 className="flex-1 bg-gray-800 text-white px-4 py-2 rounded-xl shadow hover:bg-gray-900"
+                                onClick={(e)=>{
+                                    signIn("github")
+                                }}
                             >
-                                <FaGithub className="w-6 h-6 mx-auto" />
+                                <FaGithub className="w-6 h-6 mx-auto"  />
                             </button>
                         </div>
 
