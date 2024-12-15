@@ -104,6 +104,7 @@ export default function LoginPage() {
                                                 type={showPassword ? "text" : "password"}
                                                 placeholder="Enter your password"
                                                 className="pr-10"
+                                                {...field}
                                             />
                                             <Button
                                                 type="button"
@@ -121,7 +122,7 @@ export default function LoginPage() {
                                 </FormItem>
                             )}
                         />
-                        <div className="flex flex-col space-y-3">
+                        <div className="flex flex-col space-y-3 mt-2">
                             <div className="flex space-x-4">
                                 <button
                                     type="button"
