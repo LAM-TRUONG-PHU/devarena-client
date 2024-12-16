@@ -1,1 +1,6 @@
-export type Languages = "C" | "C++" | "Java";
+export enum ELanguages {
+    C = "C",
+    Cpp = "Cpp",
+    Java = "Java",
+    Unknown = "Unknown",
+}

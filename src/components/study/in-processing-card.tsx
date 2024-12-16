@@ -3,9 +3,10 @@ import { FaDumbbell } from "react-icons/fa6";
 import { C } from "@/components/mastery";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "../ui/button";
-import { Languages } from "@/types/language";
+import { ELanguages } from "@/types/language";
+import { getLanguageTitle } from "@/utils/get-language-title";
 type InProgressingCardProps = {
-    title: Languages | undefined;
+    language: ELanguages;
     exercises: number;
     onClick: () => void;
 };
@@ -17,13 +18,13 @@ export default function InProcessingCard(props: InProgressingCardProps) {
                 <C.TierFinal />
             </div>
             <div className="space-y-1">
-                <div className="text-xl font-semibold">{props.title}</div>
+                <div className="text-xl font-semibold">{getLanguageTitle(props.language)}</div>
                 <div className="flex gap-1">
                     <FaDumbbell className="size-4 mr-1" />
                     <span className="text-sm font-medium">{props.exercises} exercises</span>
                 </div>
                 <div className="flex justify-between items-center w-11/12">
-                    <Progress value={50} variant={props.title} />
+                    <Progress value={50} variant={props.language} />
                     <div className="text-xs ml-2">50%</div>
                 </div>
                 <div className="flex gap-1 items-center w-2/3 text-sm">

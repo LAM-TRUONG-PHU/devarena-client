@@ -3,23 +3,26 @@ import { C, Java, Cpp } from "../mastery";
 import { CiHeart } from "react-icons/ci";
 import Difficulty from "../difficulty";
 import { Button } from "../ui/button";
-import { Languages } from "@/types/language";
+import { ELanguages } from "@/types/language";
 import { EDifficulty } from "../sort";
+import { usePathname } from "next/navigation";
 type CardProps = {
-    language: Languages;
+    language: ELanguages;
     title: string;
     tags: string[];
     inProgress?: boolean;
+    onClick: () => void;
 };
 export default function ExerciseCard(props: CardProps) {
+    const path = usePathname();
     return (
-        <div className="card-bg space-y-2">
+        <div className="card-bg space-y-2" onClick={props.onClick}>
             <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-3">
                     <div className="size-10">
-                        {props.language === "C" && <C.TierFinal />}
-                        {props.language === "Java" && <Java.TierFinal />}
-                        {props.language === "C++" && <Cpp.TierFinal />}
+                        {props.language === ELanguages.C && <C.TierFinal />}
+                        {props.language === ELanguages.Java && <Java.TierFinal />}
+                        {props.language === ELanguages.Cpp && <Cpp.TierFinal />}
                     </div>
                     <div>
                         <h1 className="text-lg font-semibold">{props.title}</h1>
