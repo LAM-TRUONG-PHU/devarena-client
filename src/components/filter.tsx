@@ -91,14 +91,14 @@ export function MainFilter<T>(props: FilterProps<T>) {
                     {props.title}
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
+            <DropdownMenuContent className="w-full max-h-80 overflow-y-auto p-0 relative">
                 <DropdownMenuLabel>{props.title}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
 
-                <DropdownMenuGroup ref={ref}>
+                <DropdownMenuGroup ref={ref} className="grid grid-cols-2 lg:grid-cols-3">
                     {menuItems.map((item, index) => (
                         <div key={index}>
-                            <span className="text-sm font-medium  pl-2 text-pink_primary flex justify-center">
+                            <span className="sticky top-0 bg-white z-10 text-sm font-semibold  pl-2 text-foreground  flex justify-center">
                                 {item.title}
                             </span>
                             {item.menuItems.length === 0 && (
@@ -110,6 +110,19 @@ export function MainFilter<T>(props: FilterProps<T>) {
                             {item.menuItems.map((items, index) => (
                                 <DropdownMenuCheckboxItem
                                     key={index}
+                                    className={`group relative ${
+                                        item.title === "Status"
+                                            ? valueFilter[0].includes(items.value as EStatus)
+                                                ? "text-pink_primary"
+                                                : ""
+                                            : item.title === "Difficulty"
+                                            ? valueFilter[1].includes(items.value as EDifficulty)
+                                                ? "text-pink_primary"
+                                                : ""
+                                            : valueFilter[2].includes(items.value as ESkills)
+                                            ? "text-pink_primary"
+                                            : ""
+                                    }`}
                                     checked={
                                         item.title === "Status"
                                             ? valueFilter[0].includes(items.value as EStatus)
@@ -149,14 +162,17 @@ export function MainFilter<T>(props: FilterProps<T>) {
                                         });
                                     }}
                                 >
-                                    <span>{items.label}</span>
+                                    <div className=" group-hover:text-pink_primary transition-all ">
+                                        <span>{items.label}</span>
+                                    </div>
+                                    <span className="absolute -bottom-1 left-0 w-0 transition-all h-0.5 bg-pink_primary group-hover:w-full"></span>{" "}
                                 </DropdownMenuCheckboxItem>
                             ))}
                         </div>
                     ))}
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <div className=" grid grid-cols-2 gap-4 p-2">
+                <div className="sticky bottom-0 bg-white p-2 grid grid-cols-2 gap-4 border-t border-gray-100">
                     <Button variant="outline" onClick={cancelChange}>
                         Cancel
                     </Button>

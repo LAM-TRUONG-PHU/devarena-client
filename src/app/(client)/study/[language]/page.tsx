@@ -14,6 +14,7 @@ import { MainFilter } from "@/components/filter";
 import useMainFilter from "@/hooks/filter/use-filter";
 import useSkillsFilter from "@/hooks/filter/use-skills-filter";
 import { isValidLanguage } from "@/utils/is-valid-language";
+import { getLanguageTitle } from "@/utils/get-language-title";
 export type SortOptionTitle = "Filter" | "Status" | "Skills" | "Difficulty";
 
 export default function LanguagePage() {
@@ -43,9 +44,11 @@ export default function LanguagePage() {
                         {language === ELanguages.Java && <Java.TierFinal />}
                         {language === ELanguages.Cpp && <Cpp.TierFinal />}
                     </div>
-                    <h1 className="md:text-2xl font-semibold text-lg">Practice in {language} </h1>
+                    <h1 className="md:text-2xl font-semibold text-lg">
+                        Practice in {getLanguageTitle(language)}
+                    </h1>
                 </div>
-                <div className="space-y-1 scale-90">
+                <div className="space-y-1 scale-90 lg:scale-100">
                     <div className="text-sm">
                         <span className="text-pink_primary">17 more points</span> to get your this mastery!
                     </div>

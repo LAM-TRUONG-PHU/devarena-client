@@ -149,24 +149,15 @@ export function Sort<T>(props: SortProps<T>) {
             }}
         >
             <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="relative" onClick={() => setOpen(true)}>
-                    {props.isFilter && (
-                        <>
-                            <span>
-                                <Filter />
-                            </span>
-                            <div className="absolute -top-2 right-1 rounded-full bg-pink_primary aspect-square w-4 text-xs text-white">
-                                8
-                            </div>
-                        </>
-                    )}
-
+                <Button
+                    variant="outline"
+                    className={`${value.length != 0 && "border-pink_primary text-pink_primary"}`}
+                    onClick={() => setOpen(true)}
+                >
                     {props.title}
-                    {!props.isFilter && (
-                        <span>
-                            <ChevronDown />
-                        </span>
-                    )}
+                    <span>
+                        <ChevronDown />
+                    </span>
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -179,10 +170,11 @@ export function Sort<T>(props: SortProps<T>) {
                 </DropdownMenuLabel>
                 <DropdownMenuGroup
                     ref={ref}
-                    className={`${props.title == "Skills" && "grid grid-cols-2 lg:grid-cols-3 gap-4"}`}
+                    className={`${props.title == "Skills" && "grid grid-cols-2 lg:grid-cols-3 gap-y-2"} mb-1`}
                 >
                     {props.menuItems.map((item, index) => (
                         <DropdownMenuCheckboxItem
+                            className={` group relative ${value.includes(item.value) && "text-pink_primary"}`}
                             key={index}
                             checked={value.includes(item.value)}
                             onCheckedChange={() => {
@@ -194,7 +186,10 @@ export function Sort<T>(props: SortProps<T>) {
                                 });
                             }}
                         >
-                            <span>{item.label}</span>
+                            <div className=" group-hover:text-pink_primary transition-all ">
+                                <span>{item.label}</span>
+                            </div>
+                            <span className="absolute -bottom-1 left-0 w-0 transition-all h-0.5 bg-pink_primary group-hover:w-full"></span>
                         </DropdownMenuCheckboxItem>
                     ))}
                 </DropdownMenuGroup>

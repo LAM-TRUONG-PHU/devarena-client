@@ -1,5 +1,5 @@
 import React from "react";
-import { C, Java, Cpp } from "../mastery";
+import { C, Java, Cpp, Algorithm } from "../mastery";
 import { CiHeart } from "react-icons/ci";
 import Difficulty from "../difficulty";
 import { Button } from "../ui/button";
@@ -14,7 +14,6 @@ type CardProps = {
     onClick: () => void;
 };
 export default function ExerciseCard(props: CardProps) {
-    const path = usePathname();
     return (
         <div className="card-bg space-y-2" onClick={props.onClick}>
             <div className="flex justify-between items-center">
@@ -23,6 +22,7 @@ export default function ExerciseCard(props: CardProps) {
                         {props.language === ELanguages.C && <C.TierFinal />}
                         {props.language === ELanguages.Java && <Java.TierFinal />}
                         {props.language === ELanguages.Cpp && <Cpp.TierFinal />}
+                        {props.language === ELanguages.Unknown && <Algorithm.TierFinal />}
                     </div>
                     <div>
                         <h1 className="text-lg font-semibold">{props.title}</h1>

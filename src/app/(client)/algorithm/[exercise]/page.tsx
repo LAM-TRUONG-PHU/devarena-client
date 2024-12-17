@@ -13,21 +13,29 @@ import ChangeLanguage from "@/components/change-language";
 import { set } from "react-hook-form";
 import { getLanguageTitle } from "@/utils/get-language-title";
 import { ELanguages } from "@/types/language";
+import { getLanguageValue } from "@/utils/get-language-value";
 
 const defaultValue = {
-    cpp: `#include <iostream> \nusing namespace std; \nint main() { \n    cout << "Hello, World!"; \n    return 0; \n}`,
-    python: `print("Hello, World!")`,
-    java: `public class Main { \n    public static void main(String[] args) { \n        System.out.println("Hello, World!"); \n    } \n}`,
-    javascript: `console.log("Hello, World!");`,
-    typescript: `console.log("Hello, World!");`,
-    csharp: `using System; \nclass Program { \n    static void Main() { \n        Console.WriteLine("Hello, World!"); \n    } \n}`,
-    c: `#include <stdio.h> \nint main() { \n    printf("Hello, World!"); \n    return 0; \n}`,
+    "C++": `#include <iostream> \nusing namespace std; \nint main() { \n    cout << "Hello, World!"; \n    return 0; \n}`,
+    Java: `public class Main { \n    public static void main(String[] args) { \n        System.out.println("Hello, World!"); \n    } \n}`,
+    C: `#include <stdio.h> \nint main() { \n    printf("Hello, World!"); \n    return 0; \n}`,
 };
 
 export default function ExercisePage() {
     const [theme, setTheme] = useState<"vs-dark" | "vs-light">("vs-dark");
-    const pathname = usePathname();
-    const segments = pathname.split("/").filter(Boolean);
+
+    const [language, setLanguage] = useState<ELanguages>(ELanguages.C);
+    const [code, setCode] = useState(defaultValue[ELanguages.C]);
+
+    useEffect(() => {
+        setCode(defaultValue[language as keyof typeof defaultValue]);
+    }, [language]);
+
+    const handleEditorChange = (value: string | undefined) => {
+        // Update code state when the user edits the code in the editor
+        setCode(value || "");
+    };
+
     function handleEditorDidMount(editor: any, monaco: Monaco) {
         // Define a custom theme with background color #1D2432
         monaco.editor.defineTheme("customTheme", {
@@ -51,6 +59,10 @@ export default function ExercisePage() {
         });
     };
 
+    useEffect(() => {
+        console.log("code", code);
+    }, [code]);
+
     return (
         <>
             <div className="flex h-full">
@@ -62,11 +74,7 @@ export default function ExercisePage() {
                         <div className="flex justify-center w-full items-center gap-4">
                             <div>Language</div>
 
-                            <Button variant="outline" size="icon">
-                                {getLanguageTitle(
-                                    (segments[1].charAt(0).toUpperCase() + segments[1].slice(1)) as ELanguages
-                                )}
-                            </Button>
+                            <ChangeLanguage setLanguage={setLanguage} />
                         </div>
                         <div className="absolute right-8">
                             <div className="flex gap-6">
@@ -87,8 +95,8 @@ export default function ExercisePage() {
                     </div>
                     <Editor
                         height={"calc(100svh - 7rem)"}
-                        defaultLanguage={segments[1]}
-                        defaultValue={defaultValue[segments[1] as keyof typeof defaultValue]}
+                        defaultLanguage={getLanguageValue(language)}
+                        value={code}
                         theme={theme}
                         onMount={handleEditorDidMount}
                     />

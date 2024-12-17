@@ -13,6 +13,8 @@ import {
 import Link from "next/link";
 import { SidebarTrigger } from "./ui/sidebar";
 import { ChevronLeft } from "lucide-react";
+import { isValidLanguage } from "@/utils/is-valid-language";
+import { getLanguageTitle } from "@/utils/get-language-title";
 const data = {
     user: {
         name: "shadcn",
@@ -59,21 +61,20 @@ export default function Header(props: HeaderProps) {
                         {segments.map((segment, index) => {
                             const isLast = index === segments.length - 1;
                             const path = `/${segments.slice(0, index + 1).join("/")}`;
-
+                            segment = capitalize(decodeURIComponent(segment));
+                            const label = isValidLanguage(segment) ? getLanguageTitle(segment) : segment;
                             return (
                                 <React.Fragment key={path}>
                                     {index > 0 && <BreadcrumbSeparator />}
                                     <BreadcrumbItem>
                                         {isLast ? (
-                                            <span className="font-semibold">
-                                                {capitalize(decodeURIComponent(segment))}
-                                            </span>
+                                            <span className="font-semibold">{label}</span>
                                         ) : (
                                             <Link
                                                 href={path}
                                                 className="hover:text-pink_primary transition-all"
                                             >
-                                                {capitalize(decodeURIComponent(segment))}
+                                                {label}
                                             </Link>
                                         )}
                                     </BreadcrumbItem>

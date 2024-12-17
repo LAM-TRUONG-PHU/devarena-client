@@ -14,7 +14,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     const pathname = usePathname(); // Get the current path
-    const showSidebar = !/^\/study\/[a-zA-Z0-9+]+\/.+/.test(pathname);
+    const showSidebar = !/^\/(study\/[a-zA-Z0-9+]+\/.+|algorithm\/.+)/.test(pathname);
     return (
         <html lang="en">
             <body className={`antialiased`}>

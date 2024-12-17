@@ -37,6 +37,7 @@ import {
     SidebarRail,
 } from "@/components/ui/sidebar";
 import NavUser from "./nav-user";
+import { SiCodecrafters } from "react-icons/si";
 
 // This is sample data.
 
@@ -52,7 +53,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {
                 title: "Study",
                 url: pathname.startsWith("/admin/") ? "/admin/study" : "/study",
-                icon: SquareTerminalIcon,
+                icon: SiCodecrafters,
                 isActive: pathname.startsWith("/study") || pathname.startsWith("/admin/study"),
             },
             {
