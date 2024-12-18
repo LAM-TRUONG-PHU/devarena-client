@@ -14,6 +14,7 @@ import { set } from "react-hook-form";
 import { getLanguageTitle } from "@/utils/get-language-title";
 import { ELanguages } from "@/types/language";
 import { getLanguageValue } from "@/utils/get-language-value";
+import { TabsExercise } from "@/components/tabs-exercise";
 
 const defaultValue = {
     "C++": `#include <iostream> \nusing namespace std; \nint main() { \n    cout << "Hello, World!"; \n    return 0; \n}`,
@@ -113,7 +114,9 @@ export default function ExercisePage() {
                         </div>
                     </div>
                 </div>
-                <div className="bg-black w-1/3 max-h-screen"></div>
+                <div className="w-1/3 max-h-screen">
+                    <TabsExercise />
+                </div>
             </div>
         </>
     );

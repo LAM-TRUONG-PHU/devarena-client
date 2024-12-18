@@ -13,6 +13,7 @@ import ChangeLanguage from "@/components/change-language";
 import { set } from "react-hook-form";
 import { getLanguageTitle } from "@/utils/get-language-title";
 import { ELanguages } from "@/types/language";
+import { TabsExercise } from "@/components/tabs-exercise";
 
 const defaultValue = {
     cpp: `#include <iostream> \nusing namespace std; \nint main() { \n    cout << "Hello, World!"; \n    return 0; \n}`,
@@ -53,8 +54,8 @@ export default function ExercisePage() {
 
     return (
         <>
-            <div className="flex h-full">
-                <div className="w-2/3 relative h-full">
+            <div className="grid h-full grid-cols-3">
+                <div className="col-span-2 relative h-full">
                     <div className="h-12 bg-[#EBEBF3] flex items-center px-8 relative">
                         <div className="absolute">
                             <ThemeSwitch toggleTheme={toggleTheme} />
@@ -105,7 +106,9 @@ export default function ExercisePage() {
                         </div>
                     </div>
                 </div>
-                <div className="bg-black w-1/3 max-h-screen"></div>
+                <div className="col-span-1">
+                    <TabsExercise study />
+                </div>
             </div>
         </>
     );
