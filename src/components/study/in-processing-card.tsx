@@ -14,7 +14,7 @@ type InProgressingCardProps = {
 export default function InProcessingCard(props: InProgressingCardProps) {
     return (
         <div className="card-bg border border-gray-200 relative">
-            <div className="size-24 absolute -top-8 -right-10">
+            <div className="size-24 absolute -top-4 -right-4">
                 <C.TierFinal />
             </div>
             <div className="space-y-1">

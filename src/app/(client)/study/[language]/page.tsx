@@ -93,7 +93,7 @@ export default function LanguagePage() {
                         selected={skillsFilter.selected}
                     />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-5">
                     <ExerciseCard
                         language={language}
                         title="Hello World"
@@ -102,7 +102,7 @@ export default function LanguagePage() {
                         onClick={() => {}}
                     />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <ExerciseCard
                         language={language}
                         title="Hello World"

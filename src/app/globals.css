@@ -43,6 +43,12 @@ body {
         --sidebar-accent-foreground: 240 5.9% 10%;
         --sidebar-border: 220 13% 91%;
         --sidebar-ring: 217.2 91.2% 59.8%;
+        --tw-ring-offset-shadow: 0 0 #0000;
+        --tw-ring-shadow: 0 0 #0000;
+        --tw-shadow: 0 0 #0000;
+        --shadowColorMain: 79, 114, 205;
+        --box-shadow-base: 0px 4px 24px 0px rgba(var(--shadowColorMain), 0.15);
+        --box-shadow-lgZ1: 0px 4px 42px 0px rgba(var(--shadowColorMain), 0.3);
     }
     .dark {
         --background: 0 0% 3.9%;
@@ -88,6 +94,17 @@ body {
         @apply bg-background text-foreground;
     }
     .card-bg {
-        @apply border border-gray-200 rounded-2xl p-6 items-center justify-between bg-white hover:bg-background_hover cursor-pointer transition-all;
+        @apply border border-gray-200 rounded-2xl p-6 items-center justify-between bg-white cursor-pointer transition-all duration-200 hover:scale-105 box-shadow;
     }
+}
+
+.box-shadow {
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+    --tw-shadow: var(--box-shadow-base);
+}
+
+.box-shadow:hover {
+    --tw-shadow: var(--box-shadow-lgZ1);
+    --tw-shadow-colored: var(--box-shadow-lgZ1);
+    z-index: 2;
 }

@@ -151,7 +151,7 @@ export function Sort<T>(props: SortProps<T>) {
             <DropdownMenuTrigger asChild>
                 <Button
                     variant="outline"
-                    className={`${value.length != 0 && "border-pink_primary text-pink_primary"}`}
+                    className={`${value.length != 0 && "border-pink_primary text-pink_primary"} `}
                     onClick={() => setOpen(true)}
                 >
                     {props.title}

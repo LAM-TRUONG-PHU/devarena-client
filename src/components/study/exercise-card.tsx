@@ -25,11 +25,17 @@ export default function ExerciseCard(props: CardProps) {
                         {props.language === ELanguages.Unknown && <Algorithm.TierFinal />}
                     </div>
                     <div>
-                        <h1 className="text-lg font-semibold">{props.title}</h1>
+                        <h1 className={`text-lg font-semibold ${props.inProgress && "text-black"}`}>
+                            {props.title}
+                        </h1>
                     </div>
                 </div>
                 <div className="flex items-center">
-                    <div className="aspect-square rounded-full border border-foreground w-fit items-center flex text-xs p-1  font-semibold   ">
+                    <div
+                        className={` aspect-square rounded-full border border-foreground w-fit items-center flex text-xs p-1  font-semibold   ${
+                            props.inProgress && "border-pink_primary text-pink_primary"
+                        }`}
+                    >
                         0/25
                     </div>
                 </div>
@@ -51,6 +57,9 @@ export default function ExerciseCard(props: CardProps) {
                 )}
 
                 <div className="flex items-center gap-2 text-gray-800 text-sm">
+                    <div className="size-8">
+                        <C.TierFinal mostUsed />
+                    </div>
                     <CiHeart size={32} className="inline-block" />
                     {!props.inProgress ? (
                         <Button onClick={() => {}} variant="outline">
