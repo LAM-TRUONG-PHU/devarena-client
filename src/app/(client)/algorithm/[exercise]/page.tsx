@@ -66,8 +66,8 @@ export default function ExercisePage() {
 
     return (
         <>
-            <div className="flex h-full">
-                <div className="w-2/3 relative h-full">
+            <div className="grid h-full grid-cols-3">
+                <div className="col-span-2 relative h-full">
                     <div className="h-12 bg-[#EBEBF3] flex items-center px-8 relative">
                         <div className="absolute">
                             <ThemeSwitch toggleTheme={toggleTheme} />
@@ -114,7 +114,7 @@ export default function ExercisePage() {
                         </div>
                     </div>
                 </div>
-                <div className="w-1/3 max-h-screen">
+                <div className="col-span-1">
                     <TabsExercise />
                 </div>
             </div>

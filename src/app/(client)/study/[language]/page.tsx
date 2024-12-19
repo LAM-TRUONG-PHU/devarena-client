@@ -110,12 +110,15 @@ export default function LanguagePage() {
                         onClick={() => {
                             router.push(`/study/${segments[1]}/hello-world`);
                         }}
+                        completed
                     />
                     <ExerciseCard
                         language={language}
                         title="Function in C"
                         tags={["Crypto", "Privacy", "Social"]}
-                        onClick={() => {}}
+                        onClick={() => {
+                            router.push(`/study/${segments[1]}/function-in-c`);
+                        }}
                     />
                 </div>
             </div>

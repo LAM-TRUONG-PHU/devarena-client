@@ -6,11 +6,15 @@ import { Button } from "../ui/button";
 import { ELanguages } from "@/types/language";
 import { EDifficulty } from "../sort";
 import { usePathname } from "next/navigation";
+import { MdOutlineCheckCircle } from "react-icons/md";
+
 type CardProps = {
     language: ELanguages;
     title: string;
     tags: string[];
     inProgress?: boolean;
+    completed?: boolean;
+    isAlgorithm?: boolean;
     onClick: () => void;
 };
 export default function ExerciseCard(props: CardProps) {
@@ -57,11 +61,23 @@ export default function ExerciseCard(props: CardProps) {
                 )}
 
                 <div className="flex items-center gap-2 text-gray-800 text-sm">
-                    <div className="size-8">
-                        <C.TierFinal mostUsed />
-                    </div>
+                    {props.isAlgorithm && (
+                        <div className="size-8">
+                            <C.TierFinal mostUsed />
+                        </div>
+                    )}
+
                     <CiHeart size={32} className="inline-block" />
-                    {!props.inProgress ? (
+                    {props.completed ? (
+                        <Button
+                            onClick={() => {}}
+                            variant="outline"
+                            className="border-pink_primary text-pink_primary"
+                        >
+                            Completed
+                            <MdOutlineCheckCircle />
+                        </Button>
+                    ) : !props.inProgress ? (
                         <Button onClick={() => {}} variant="outline">
                             Start
                         </Button>
