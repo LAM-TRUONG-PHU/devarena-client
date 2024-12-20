@@ -66,9 +66,8 @@ export default function Header(props: HeaderProps) {
     return (
         <>
             <header
-                className={`${
-                    props.isSpecialPage && "sticky top-0"
-                } flex justify-center  h-16 shrink-0 items-center gap-2 border-pink_primary border-b-2 px-4 bg-white relative z-10`}
+                className={`${props.isSpecialPage && "sticky top-0"
+                    } flex justify-center  h-16 shrink-0 items-center gap-2 border-pink_primary border-b-2 px-4 bg-white relative z-20`}
             >
                 {props.showSidebar ? (
                     <>
@@ -96,9 +95,8 @@ export default function Header(props: HeaderProps) {
                     </div>
                 ) : (
                     <div
-                        className={`${
-                            props.showSidebar ? "w-1/3" : "w-1/4"
-                        } flex items-center gap-2 absolute left-4 hover:text-pink_primary transition-all cursor-pointer`}
+                        className={`${props.showSidebar ? "w-1/3" : "w-1/4"
+                            } flex items-center gap-2 absolute left-4 hover:text-pink_primary transition-all cursor-pointer`}
                         onClick={() => router.back()}
                     >
                         <ChevronLeft size={20} />
@@ -136,9 +134,8 @@ export default function Header(props: HeaderProps) {
                 )}
 
                 <div
-                    className={`${
-                        props.showSidebar ? "w-1/3" : "w-1/4"
-                    } flex items-center gap-4 absolute right-0`}
+                    className={`${props.showSidebar ? "w-1/3" : "w-1/4"
+                        } flex items-center gap-4 absolute right-0`}
                 >
                     <NavUser user={data.user} />
                 </div>

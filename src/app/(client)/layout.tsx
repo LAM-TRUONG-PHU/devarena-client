@@ -7,6 +7,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { store } from "@/redux/store";
 import { usePathname } from "next/navigation";
 import { Provider } from "react-redux";
+import { Toaster } from "@/components/ui/toaster"
 
 export default function RootLayout({
     children,
@@ -29,11 +30,11 @@ export default function RootLayout({
                             ) : (
                                 <Header showSidebar={showSidebar} />
                             )}
-                            <div className="flex flex-1 flex-col">
+                            <div>
                                 <Provider store={store}>{children}</Provider>
                             </div>
                         </div>
-
+                        <Toaster />
                         {showSidebar && <Footer />}
                     </SidebarInset>
                 </SidebarProvider>
