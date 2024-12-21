@@ -31,17 +31,19 @@ export default function NavUser({
                 <DropdownMenuTrigger asChild>
                     <SidebarMenuButton
                         size="lg"
-                        className=" data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                        className=" data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground p-0"
                     >
                         <Avatar className="h-8 w-8">
                             <AvatarImage src={user.avatar} alt={user.name} className="rounded-full" />
                             <AvatarFallback> {user.name[0]}</AvatarFallback>
                         </Avatar>
-                        <div className="grid flex-1 text-left text-sm leading-tight">
-                            <span className="truncate font-semibold">{user.name}</span>
-                            <span className=" text-xs">{user.email}</span>
-                        </div>
-                        <ChevronsUpDown className="ml-auto size-4" />
+                        <>
+                            <div className="grid flex-1 text-left text-sm leading-tight">
+                                <span className="truncate font-semibold">{user.name}</span>
+                                <span className=" text-xs">{user.email}</span>
+                            </div>
+                            <ChevronsUpDown className="ml-auto size-4" />
+                        </>
                     </SidebarMenuButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
@@ -58,11 +60,19 @@ export default function NavUser({
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={() => {
+                                router.push("/profile");
+                            }}
+                        >
                             <BadgeCheck />
                             Profile
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={() => {
+                                router.push("/account-management");
+                            }}
+                        >
                             <CreditCard />
                             Account Management
                         </DropdownMenuItem>

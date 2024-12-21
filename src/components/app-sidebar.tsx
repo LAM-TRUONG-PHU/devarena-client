@@ -37,10 +37,15 @@ import {
     SidebarRail,
 } from "@/components/ui/sidebar";
 import NavUser from "./nav-user";
+import { SiCodecrafters } from "react-icons/si";
 
 // This is sample data.
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+type AppSidebarProps = {
+    isSpecialPage?: boolean;
+} & React.ComponentProps<typeof Sidebar>;
+
+export function AppSidebar({ isSpecialPage, ...props }: AppSidebarProps) {
     const pathname = usePathname();
     const data = {
         user: {
@@ -52,7 +57,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {
                 title: "Study",
                 url: pathname.startsWith("/admin/") ? "/admin/study" : "/study",
-                icon: SquareTerminalIcon,
+                icon: SiCodecrafters,
                 isActive: pathname.startsWith("/study") || pathname.startsWith("/admin/study"),
             },
             {
@@ -62,15 +67,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 isActive: pathname.startsWith("/algorithm") || pathname.startsWith("/admin/algorithm"),
             },
             {
-                title: "Contest",
-                url: pathname.startsWith("/admin/") ? "/admin/contest" : "/contest",
+                title: "Arena",
+                url: pathname.startsWith("/admin/") ? "/admin/arena" : "/arena",
                 icon: Trophy,
-                isActive: pathname.startsWith("/contest") || pathname.startsWith("/admin/contest"),
+                isActive: pathname.startsWith("/arena") || pathname.startsWith("/admin/arena"),
             },
         ],
     };
     return (
-        <Sidebar collapsible="icon" {...props}>
+        <Sidebar collapsible={isSpecialPage ? "offcanvas" : "icon"} {...props} open={!isSpecialPage}>
             <SidebarHeader className="!border-b-2 !border-gray">
                 <SidebarMenuButton
                     size="lg"

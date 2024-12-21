@@ -1,32 +1,45 @@
 import React from "react";
-import { C, Java, Cpp } from "../mastery";
+import { C, Java, Cpp, Algorithm } from "../mastery";
 import { CiHeart } from "react-icons/ci";
 import Difficulty from "../difficulty";
 import { Button } from "../ui/button";
-import { Languages } from "@/types/language";
+import { ELanguages } from "@/types/language";
 import { EDifficulty } from "../sort";
+import { usePathname } from "next/navigation";
+import { MdOutlineCheckCircle } from "react-icons/md";
+
 type CardProps = {
-    language: Languages;
+    language: ELanguages;
     title: string;
     tags: string[];
     inProgress?: boolean;
+    completed?: boolean;
+    isAlgorithm?: boolean;
+    onClick: () => void;
 };
 export default function ExerciseCard(props: CardProps) {
     return (
-        <div className="card-bg space-y-2">
+        <div className="card-bg space-y-2" onClick={props.onClick}>
             <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-3">
                     <div className="size-10">
-                        {props.language === "C" && <C.TierFinal />}
-                        {props.language === "Java" && <Java.TierFinal />}
-                        {props.language === "C++" && <Cpp.TierFinal />}
+                        {props.language === ELanguages.C && <C.TierFinal />}
+                        {props.language === ELanguages.Java && <Java.TierFinal />}
+                        {props.language === ELanguages.Cpp && <Cpp.TierFinal />}
+                        {props.language === ELanguages.Unknown && <Algorithm.TierFinal />}
                     </div>
                     <div>
-                        <h1 className="text-lg font-semibold">{props.title}</h1>
+                        <h1 className={`text-lg font-semibold ${props.inProgress && "text-black"}`}>
+                            {props.title}
+                        </h1>
                     </div>
                 </div>
                 <div className="flex items-center">
-                    <div className="aspect-square rounded-full border border-foreground w-fit items-center flex text-xs p-1  font-semibold   ">
+                    <div
+                        className={` aspect-square rounded-full border border-foreground w-fit items-center flex text-xs p-1  font-semibold   ${
+                            props.inProgress && "border-pink_primary text-pink_primary"
+                        }`}
+                    >
                         0/25
                     </div>
                 </div>
@@ -48,8 +61,23 @@ export default function ExerciseCard(props: CardProps) {
                 )}
 
                 <div className="flex items-center gap-2 text-gray-800 text-sm">
+                    {props.isAlgorithm && (
+                        <div className="size-8">
+                            <C.TierFinal mostUsed />
+                        </div>
+                    )}
+
                     <CiHeart size={32} className="inline-block" />
-                    {!props.inProgress ? (
+                    {props.completed ? (
+                        <Button
+                            onClick={() => {}}
+                            variant="outline"
+                            className="border-pink_primary text-pink_primary"
+                        >
+                            Completed
+                            <MdOutlineCheckCircle />
+                        </Button>
+                    ) : !props.inProgress ? (
                         <Button onClick={() => {}} variant="outline">
                             Start
                         </Button>

@@ -23,13 +23,13 @@ export default function ContestPage() {
         <>
             <div className="flex shrink-0 items-center justify-between pr-14 pl-10 py-6 bg-white shadow-sm">
                 <div className="flex gap-4">
-                    <Image src="/trophy.png" alt="logo" width={36} height={36} />
+                    <Image src="/trophy.png" alt="logo" width={36} height={36} className="object-contain" />
                     <div>
                         <h1 className="text-lg font-semibold">DevArena Contest </h1>
                         <p>Contest every week. Compete and see your ranking!</p>
                     </div>
                 </div>
-                <Link href="/contest/my-contest">
+                <Link href="/arena/my-contest">
                     <Button className="py-5 text-md bg-gradient-to-b from-pink_background to-pink_primary rounded-xl">
                         My contest
                     </Button>
@@ -44,7 +44,7 @@ export default function ContestPage() {
                         countdown="4d 20h 45m 12s"
                         buttonText="Join"
                         onClick={() => {
-                            router.push(`/contest/servicenow-tech-hiring-challenge`);
+                            router.push(`/arena/servicenow-tech-hiring-challenge`);
                         }}
                     />
                     <ContestCard
@@ -59,7 +59,7 @@ export default function ContestPage() {
             <div className="pb-8 pr-14 pl-10">
                 <div className="flex justify-between items-center">
                     <h1 className="text-lg font-medium py-4">Past Contest</h1>
-                    <Link href="/contest/past-contest" className="text-sm hover:text-pink_primary">
+                    <Link href="/arena/past-contest" className="text-sm hover:text-pink_primary">
                         View All
                     </Link>
                 </div>

@@ -4,10 +4,13 @@ import * as React from "react";
 import * as ProgressPrimitive from "@radix-ui/react-progress";
 
 import { cn } from "@/lib/utils";
+import { ELanguages } from "@/types/language";
 
 const Progress = React.forwardRef<
     React.ElementRef<typeof ProgressPrimitive.Root>,
-    React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root>
+    React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> & {
+        variant?: ELanguages;
+    }
 >(({ className, value, variant, ...props }, ref) => (
     <ProgressPrimitive.Root
         ref={ref}
@@ -16,11 +19,11 @@ const Progress = React.forwardRef<
     >
         <ProgressPrimitive.Indicator
             className={`h-full w-full flex-1 ${
-                variant == "C"
+                variant == ELanguages.C
                     ? "bg-[#3949AB]"
-                    : variant == "Java"
+                    : variant == ELanguages.Java
                     ? "bg-[#EA2D2E]"
-                    : variant == "C++"
+                    : variant == ELanguages.Cpp
                     ? "bg-[#00599C"
                     : "bg-pink_primary"
             } transition-all`}

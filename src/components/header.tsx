@@ -1,7 +1,7 @@
 import { Separator } from "@/components/ui/separator";
 import { Heart } from "lucide-react";
-import { usePathname } from "next/navigation";
-import React from "react";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import NavUser from "./nav-user";
 import {
     Breadcrumb,
@@ -12,6 +12,12 @@ import {
 } from "./ui/breadcrumb";
 import Link from "next/link";
 import { SidebarTrigger } from "./ui/sidebar";
+import { ChevronLeft } from "lucide-react";
+import { isValidLanguage } from "@/utils/is-valid-language";
+import { getLanguageTitle } from "@/utils/get-language-title";
+import Image from "next/image";
+import { Url } from "next/dist/shared/lib/router/router";
+
 const data = {
     user: {
         name: "shadcn",
@@ -19,9 +25,30 @@ const data = {
         avatar: "/avatar.jpg",
     },
 };
-export default function Header() {
+type HeaderProps = {
+    showSidebar?: boolean;
+    isSpecialPage?: boolean;
+};
+export default function Header(props: HeaderProps) {
+    const router = useRouter();
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
+    const [isMobile, setIsMobile] = useState(false);
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768); // Mobile width threshold
+        };
+
+        // Initial check
+        handleResize();
+
+        // Add resize event listener
+        window.addEventListener("resize", handleResize);
+
+        // Cleanup
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
     const capitalize = (str: string) => {
         return str
             .split("-")
@@ -29,35 +56,87 @@ export default function Header() {
             .join(" ");
     };
 
+    const HoverUnderlineText = ({ text, href }: { text: String; href: Url }) => (
+        <Link className="group w-fit relative" href={href}>
+            <div className="group-hover:text-pink_primary transition-all">{text}</div>
+            <span className="absolute -bottom-1 left-0 w-0 transition-all h-0.5 bg-pink_primary group-hover:w-full"></span>
+        </Link>
+    );
+
     return (
         <>
-            <header className="flex h-16 shrink-0 items-center gap-2 border-pink_primary border-b-2 px-4 bg-white">
-                <SidebarTrigger className="-ml-1" />
-                <Separator orientation="vertical" className="mr-2 h-4" />
-                <Breadcrumb className="w-full">
-                    <BreadcrumbList>
-                        {segments.map((segment, index) => {
-                            const isLast = index === segments.length - 1;
-                            const path = `/${segments.slice(0, index + 1).join("/")}`;
+            <header
+                className={`${props.isSpecialPage && "sticky top-0"
+                    } flex justify-center  h-16 shrink-0 items-center gap-2 border-pink_primary border-b-2 px-4 bg-white relative z-20`}
+            >
+                {props.showSidebar ? (
+                    <>
+                        <SidebarTrigger className="-ml-1" />
+                        <Separator orientation="vertical" className="mr-2 h-4" />
+                    </>
+                ) : props.isSpecialPage && isMobile ? (
+                    <SidebarTrigger className="-ml-1" />
+                ) : props.isSpecialPage ? (
+                    <div className="flex items-center gap-2 absolute left-12 transition-all cursor-pointer">
+                        <Image
+                            className="dark:invert"
+                            src="/logo1.png"
+                            alt="DevArena logo"
+                            width={40}
+                            height={40}
+                            onClick={() => router.push("/")}
+                        />
+                        <Separator orientation="vertical" className="mx-12 h-8" />
+                        <div className="flex gap-12">
+                            <HoverUnderlineText text="Study" href="/study" />
+                            <HoverUnderlineText text="Algorithm" href="/algorithm" />
+                            <HoverUnderlineText text="Arena" href="/arena" />
+                        </div>
+                    </div>
+                ) : (
+                    <div
+                        className={`${props.showSidebar ? "w-1/3" : "w-1/4"
+                            } flex items-center gap-2 absolute left-4 hover:text-pink_primary transition-all cursor-pointer`}
+                        onClick={() => router.back()}
+                    >
+                        <ChevronLeft size={20} />
+                        <div className="text-sm">Back to previous page</div>
+                    </div>
+                )}
+                {!props.isSpecialPage && (
+                    <Breadcrumb className={`w-full ${!props.showSidebar && "flex justify-center"}`}>
+                        <BreadcrumbList>
+                            {segments.map((segment, index) => {
+                                const isLast = index === segments.length - 1;
+                                const path = `/${segments.slice(0, index + 1).join("/")}`;
+                                segment = capitalize(decodeURIComponent(segment));
+                                const label = isValidLanguage(segment) ? getLanguageTitle(segment) : segment;
+                                return (
+                                    <React.Fragment key={path}>
+                                        {index > 0 && <BreadcrumbSeparator />}
+                                        <BreadcrumbItem>
+                                            {isLast ? (
+                                                <span className="font-semibold">{label}</span>
+                                            ) : (
+                                                <Link
+                                                    href={path}
+                                                    className="hover:text-pink_primary transition-all"
+                                                >
+                                                    {label}
+                                                </Link>
+                                            )}
+                                        </BreadcrumbItem>
+                                    </React.Fragment>
+                                );
+                            })}
+                        </BreadcrumbList>
+                    </Breadcrumb>
+                )}
 
-                            return (
-                                <React.Fragment key={path}>
-                                    {index > 0 && <BreadcrumbSeparator />}
-                                    <BreadcrumbItem>
-                                        {isLast ? (
-                                            <span>{capitalize(decodeURIComponent(segment))}</span>
-                                        ) : (
-                                            <Link href={path}>{capitalize(decodeURIComponent(segment))}</Link>
-                                        )}
-                                    </BreadcrumbItem>
-                                </React.Fragment>
-                            );
-                        })}
-                    </BreadcrumbList>
-                </Breadcrumb>
-
-                <div className="w-1/3 flex items-center gap-4">
-                    <Heart className="hover:text-pink_primary" />
+                <div
+                    className={`${props.showSidebar ? "w-1/3" : "w-1/4"
+                        } flex items-center gap-4 absolute right-0`}
+                >
                     <NavUser user={data.user} />
                 </div>
             </header>
