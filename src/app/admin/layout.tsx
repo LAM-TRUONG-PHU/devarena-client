@@ -12,16 +12,14 @@ export default function AdminLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
-            <body>
+     
                 <SidebarProvider>
                     <AppSidebar />
-                    <main>
+                    <main className="w-full">
                         <SidebarTrigger />
                         <Provider store={store}>{children}</Provider>
                     </main>
                 </SidebarProvider>
-            </body>
-        </html>
+     
     );
 }

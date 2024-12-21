@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -11,8 +11,9 @@ import { FcGoogle } from "react-icons/fc";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
-
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation"; // New import
+import { useSearchParams } from "next/navigation"; // For query params
 import {
     Form,
     FormControl,
@@ -37,7 +38,35 @@ const formSchema = z.object({
 export default function LoginPage() {
     const { toast } = useToast();
     const [showPassword, setShowPassword] = useState(false);
+  
+    const {data: session,update} =useSession()
 
+
+  
+    useEffect(() => {
+        if (session?.error ) {
+          // Hiển thị thông báo lỗi
+          handleRemoveError(session?.error)
+    
+          // Đánh dấu lỗi đã được hiển thị
+    
+          // Reset error trong session sau khi đã xử lý lỗi
+        }
+      }, [session?.error]);
+      const handleRemoveError = async(message: string)=>{
+        console.log(message)
+        toast({
+            title: "Login Error",
+            description: message,
+            variant: "error",
+          })
+          update({ error: '' });
+
+      }
+    // useEffect(()=>{
+    //     console.log("đasđ")
+        
+    // },[])
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -47,23 +76,46 @@ export default function LoginPage() {
         },
     });
 
-    function onSubmit(data: z.infer<typeof formSchema>) {
-        console.log(data);
-        signIn("credentials",{
+    async function onSubmit(data: z.infer<typeof formSchema>) {
+      
+        const res = await signIn("credentials",{
             redirect:false,
             username:data.username,
             password: data.password
         })
-        toast({
-            title: "You submitted the following values:",
-            description: (
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-                </pre>
-            ),
-        });
+        
+      
+        if(res?.error){
+            console.log(res.error)
+            toast({
+                title:"lỗi đăng nhập",
+                description:res.error,
+                variant:"error"
+            })
+        }
+    
+       console.log(res)
     }
+    async function onSubmitProvider(provider: string) {
+      
+        const res = await signIn(provider,{
+            redirect:false,
+            
+        })
+        
+      
+        if(res?.error){
+            console.log(res.error)
+            toast({
+                title:"lỗi đăng nhập",
+                description:res.error,
+                variant:"error"
+            })
+        }
+        console.log("res")
 
+       console.log(res)
+    }
     return (
         <>
             <div className="w-full max-w-lg bg-white p-12 rounded-md shadow-lg">
@@ -128,7 +180,7 @@ export default function LoginPage() {
                                     type="button"
                                     className="flex-1 bg-blue_facebook text-white  px-4 py-2 rounded-xl shadow hover:bg-blue-700"
                                     onClick={(e)=>{
-                                        signIn("discord")
+                                        onSubmitProvider("discord")
                                     }}
                                 >
                                     <FaDiscord className="w-6 h-6 mx-auto" />
@@ -137,7 +189,7 @@ export default function LoginPage() {
                                     type="button"
                                     className="flex-1 bg-white border-2 border-black  px-4 py-1 rounded-xl  hover:bg-gray-100"
                                     onClick={(e)=>{
-                                        signIn("google")
+                                        onSubmitProvider("google",)
                                     }}
                                 >
                                     <FcGoogle className="w-6 h-6 mx-auto" />
@@ -147,7 +199,7 @@ export default function LoginPage() {
                                 type="button"
                                 className="flex-1 bg-gray-800 text-white px-4 py-2 rounded-xl shadow hover:bg-gray-900"
                                 onClick={(e)=>{
-                                    signIn("github")
+                                    onSubmitProvider("github")
                                 }}
                             >
                                 <FaGithub className="w-6 h-6 mx-auto"  />
