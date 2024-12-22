@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import NextAuthWrapper from "@/context/SessionWrapper";
 import { store } from "@/redux/store";
 import { usePathname } from "next/navigation";
 import { Provider } from "react-redux";
@@ -19,8 +20,7 @@ export default function RootLayout({
     const isSpecialPage = pathname === "/profile" || pathname === "/account-management";
 
     return (
-        <html lang="en">
-            <body className={`antialiased`}>
+      <>
                 <SidebarProvider>
                     {showSidebar && <AppSidebar isSpecialPage={isSpecialPage} />}
                     <SidebarInset>
@@ -38,7 +38,9 @@ export default function RootLayout({
                         {showSidebar && <Footer />}
                     </SidebarInset>
                 </SidebarProvider>
-            </body>
-        </html>
+         
+                </>
+
+      
     );
 }

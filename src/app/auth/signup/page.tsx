@@ -10,10 +10,13 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import useAxios from "@/hooks/useAxios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOffIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaDiscord, FaGithub } from "react-icons/fa6";
@@ -43,6 +46,9 @@ const formSchema = z
 export default function SignUpPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const axiosIntance = useAxios()
+    const { toast}=useToast()
+    const router = useRouter()
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -54,6 +60,27 @@ export default function SignUpPage() {
     });
     function onSubmit(data: z.infer<typeof formSchema>) {
         console.log(data);
+        axiosIntance.post("/auth/signup",{
+            email:data.email,
+            password:data.password,
+            username:data.username,
+            provider:"credentials"
+        }).then((res)=>{
+            console.log(res)
+            toast({
+                variant:"success",
+                title:"Đăng ký thành công",
+                description:"Hãy vào gmail để lấy mã OTP"
+            })
+            router.push(`/auth/verify?email=${data.email}`)
+        }).catch((e)=>{
+            console.log(e)
+            toast({
+                variant:"error",
+                title:"Đăng ký thất bại",
+                // description:"Hãy vào gmail để lấy mã OTP"
+            })
+        })
     }
 
     return (

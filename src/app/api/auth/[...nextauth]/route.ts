@@ -3,6 +3,9 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider, { GithubEmail } from "next-auth/providers/github";
 import DiscordProvider from "next-auth/providers/discord";
+import { IUser } from "@/types/IUser";
+import { JWT } from "next-auth/jwt";
+import { mainInstance } from "@/axios/MainInstance";
 
 export const authOptions: AuthOptions = {
   // Configure one or more authentication providers
@@ -16,43 +19,17 @@ export const authOptions: AuthOptions = {
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-      authorization: {
-        url: "https://github.com/login/oauth/authorize",
-        params: { scope: "read:user user:email" },
-      },
-      token: "https://github.com/login/oauth/access_token",
-      userinfo: {
-        url: "https://api.github.com/user",
-        async request({ client, tokens }) {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const profile = await client.userinfo(tokens.access_token!)
-          
-          if (!profile.email) {
-            // If the user does not have a public email, get another via the GitHub API
-            // See https://docs.github.com/en/rest/users/emails#list-email-addresses-for-the-authenticated-user
-            const res = await fetch("https://api.github.com/user/emails", {
-              headers: { Authorization: `token ${tokens.access_token}` },
-            })
-  
-            if (res.ok) {
-              const emails: GithubEmail[] = await res.json()
-              profile.email = (emails.find((e) => e.primary) ?? emails[0]).email
-            }
-          }
-          console.log(tokens)
-          return profile
-        },
-      },
+     
       
       
 
     }),
     DiscordProvider({
       clientId: process.env.DISCORD_CLIENT_ID!,
+    
       clientSecret: process.env.DISCORD_CLIENT_SECRET!,
-      authorization: {
-       
-      },
+   
+
     }),
     CredentialsProvider({
       name: "Credentials",
@@ -61,17 +38,25 @@ export const authOptions: AuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
-        // Here, you can validate the credentials and fetch the user data
-        if (credentials?.username === "admin" && credentials?.password === "password") {
-          const user = {
-            id: "1",
-            name: "Admin User",
-            email: "admin@example.com",
-          };
-          return user;
+        const payload = {
+          "email":credentials?.username,
+          "password":credentials?.password,
+          "provider":"credentials"
         }
+        const user: JWT =await mainInstance.post("auth/login",payload).then((res)=>{
+          console.log(res.data)
+          return res.data.data
+        }).catch((err)=>{
+          console.log(err)
+          if (err.response.status === 401) {
+            throw new Error("Invalid username or password");
+        } else if (err.response.status === 400) {
+            throw new Error("Account not verified");
+        }        })
 
-        // If the credentials are invalid, return null
+        if(user){
+          return user as any
+        }
         return null;
       },
     }),
@@ -79,24 +64,92 @@ export const authOptions: AuthOptions = {
   ],
 
   callbacks: {
+
+
     async jwt({ trigger, token, user, account, profile }) {
-      console.log("jwt")
-      if (trigger === "signIn" && user) {
-        console.log(token)
-        console.log(user)
-        token.user = user;
+      console.log(user)
+      // throw new Error("Invalid provider or credentials");
+
+      if (trigger === "signIn" ) {
+        if(account?.provider!=="credentials"){
+          await mainInstance
+          .post("/login", {
+            email: token.email,
+            provider: account?.provider,
+            password: "123BDnm", // Mật khẩu giả lập, cần thay thế bằng mật khẩu hợp lệ
+          }) 
+          .then((response) => {
+            console.log("Login Response:", response.data.data);
+            token.user = response.data.data;
+          })
+          .catch((error) => {
+            let e=""
+            if (error.response?.status === 401) {
+              // throw new Error("Invalid provider or credentials");
+              e="Invalid provider or credentials"
+            } else if (error.response?.status === 404) {
+              e="Providers not found"
+            } 
+            token.error = e
+          });
+
+        }
+        else{
+          //@ts-ignore
+           token.user = user
+        }
+       
+      } 
+      if (trigger === "signUp") {
+        // Gọi API đăng ký
+        mainInstance
+          .post("/signup", {
+            email: user.email,
+            provider: account?.provider,
+            password: "123BDnm", // Mật khẩu giả lập, cần thay thế bằng mật khẩu hợp lệ
+          })
+          .then((response) => {
+            console.log("Signup Response:", response.data);
+          })
+          .catch((error) => {
+            // Xử lý lỗi khi đăng ký
+            if (error.response) {
+              console.error("Signup Error - Status:", error.response.status);
+              console.error("Signup Error - Data:", error.response.data);
+            } else {
+              console.error("Signup Error:", error.message);
+            }
+            throw new Error("Signup failed: " + (error.response?.data?.message || error.message));
+          });
+      }
+      if(trigger==="update"){
+        token.error=''
       }
       return token;
     },
-
+    
+    
     async session({ session, token }) {
-      if (token.user) {
-        session.user = token.user as any;
+      if (token.error) {
+        console.log("session error")
+
+        console.log(token.error)
+        session.error = token.error; // Pass the error to the session object
+      }
+      if (token.user) { 
+        console.log(token.user)
+        session.user = token.user;
       }
       return session;
     },
+
   },
+  pages: {
+    signIn:"/auth/login",
+    error:"/auth/login",
+  }
 };
 
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
+ 
