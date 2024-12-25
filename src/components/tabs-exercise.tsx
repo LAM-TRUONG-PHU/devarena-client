@@ -28,11 +28,12 @@ export function TabsExercise({ study }: TabsExerciseProps) {
             <header className="flex h-12 items-center border-foreground border-b-[0.5px] bg-white">
                 <TabsList className="w-full max-w-sm mx-auto">
                     <Carousel
-                        opts={{ align: "start" }}
+                        opts={{ align: "center" }}
                         className="w-full"
                         onDrag={(e) => {
                             e.preventDefault();
                         }}
+
                     >
                         <CarouselPrevious />
 
