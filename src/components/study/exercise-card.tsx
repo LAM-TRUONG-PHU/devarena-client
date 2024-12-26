@@ -48,7 +48,7 @@ export default function ExerciseCard(props: CardProps) {
                 <Difficulty variant={EDifficulty.Easy} />
 
                 {props.tags.map((tag, index) => (
-                    <span key={index} className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
+                    <span key={index} className="tag">
                         {tag}
                     </span>
                 ))}

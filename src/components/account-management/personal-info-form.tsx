@@ -1,17 +1,17 @@
-import { Input } from '@/components/ui/input'
-import React from 'react'
-import { useForm } from 'react-hook-form'
-import { Button } from '../ui/button'
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '../ui/form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useToast } from '@/hooks/use-toast'
+import { Input } from "@/components/ui/input";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { Button } from "../ui/button";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "../ui/form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useToast } from "@/hooks/use-toast";
+import { DialogUpdateAvatar } from "./dialog-update-avatar";
 
 const personalInfoFormSchema = z.object({
     email: z.string().email({ message: "Invalid email" }),
     name: z.string().min(1, { message: "Required" }),
 });
-
 
 export default function PersonalInfoForm() {
     const { toast } = useToast();
@@ -26,7 +26,9 @@ export default function PersonalInfoForm() {
 
     const watchFields = personalInfoForm.watch();
     const hasChanged = Object.keys(defaultValuesPersonalInfo).some(
-        key => watchFields[key as keyof typeof defaultValuesPersonalInfo] !== defaultValuesPersonalInfo[key as keyof typeof defaultValuesPersonalInfo]
+        (key) =>
+            watchFields[key as keyof typeof defaultValuesPersonalInfo] !==
+            defaultValuesPersonalInfo[key as keyof typeof defaultValuesPersonalInfo]
     );
 
     function personalInfoOnSubmit(data: z.infer<typeof personalInfoFormSchema>) {
@@ -41,22 +43,21 @@ export default function PersonalInfoForm() {
     }
 
     return (
-        <div className="grid grid-cols-7 h-fit ">
-            <div className="col-span-3 bg-[#EBEBF3] rounded-s-sm" >
-                <div className="mx-10 my-8 space-y-4">
-                    <div className="text-2xl font-semibold  whitespace-nowrap">
-                        Personal Information
-                    </div>
+        <div className="grid lg:grid-cols-7 lg:grid-rows-none grid-rows-3 h-fit ">
+            <div className="lg:col-span-3 row-span-1 bg-[#EBEBF3] rounded-s-sm">
+                <div className="mx-10 my-8 lg:space-y-4">
+                    <div className="text-2xl font-semibold xl:whitespace-nowrap">Personal Information</div>
                     <div className="text-sm">
                         This information is public and will be shared with other users.
                     </div>
                 </div>
             </div>
-            <div className="col-span-4 bg-white relative rounded-e-sm" >
+            <div className="lg:col-span-4  row-span-2 lg:row-span-1 bg-white relative rounded-e-sm">
                 <Form {...personalInfoForm}>
-                    <form onSubmit={personalInfoForm.handleSubmit(personalInfoOnSubmit)} className="space-y-4 m-8">
-
-
+                    <form
+                        onSubmit={personalInfoForm.handleSubmit(personalInfoOnSubmit)}
+                        className="space-y-4 m-8"
+                    >
                         {/* <DialogUpdateAvatar /> */}
 
                         <div className="flex-1 space-y-4">
@@ -100,23 +101,21 @@ export default function PersonalInfoForm() {
                                 )}
                                 <Button
                                     type="submit"
-                                    className={`col-span-1 font-semibold  col-start-2 ${!hasChanged ? "text-gray-300  border-gray-300 pointer-events-none" : ""}`}
+                                    className={`col-span-1 font-semibold  col-start-2 ${
+                                        !hasChanged
+                                            ? "text-gray-300  border-gray-300 pointer-events-none"
+                                            : ""
+                                    }`}
                                     size="account"
                                     variant={hasChanged ? "default" : "outline"}
                                 >
                                     SAVE CHANGES
                                 </Button>
-
-
-
-
                             </div>
                         </div>
                     </form>
                 </Form>
             </div>
-
-
-
-        </div>)
+        </div>
+    );
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import { EDifficulty } from "./sort";
 
-export default function Difficulty({ variant }: { variant: EDifficulty }) {
+export default function Difficulty({ variant, isProfile }: { variant: EDifficulty; isProfile?: boolean }) {
     return (
         <>
             <div
@@ -19,9 +19,12 @@ export default function Difficulty({ variant }: { variant: EDifficulty }) {
                             ? "#FFF7E6"
                             : "#FFECEC",
                 }}
-                className="rounded-xl font-semibold  h-fit  w-fit items-center flex text-xs py-1 px-4"
+                className={`rounded-xl ${
+                    isProfile ? "font-medium gap-4 w-full" : "w-fit font-semibold"
+                }  h-fit   items-center justify-between flex text-xs py-1 px-4`}
             >
-                {variant[0].toUpperCase() + variant.slice(1)}
+                {variant[0].toUpperCase() + variant.slice(1)}{" "}
+                {isProfile && <div className="font-semibold">2/10</div>}
             </div>
         </>
     );
