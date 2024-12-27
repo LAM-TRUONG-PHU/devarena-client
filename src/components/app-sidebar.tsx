@@ -56,19 +56,19 @@ export function AppSidebar({ isSpecialPage, ...props }: AppSidebarProps) {
         navMain: [
             {
                 title: "Study",
-                url: pathname.startsWith("/admin/") ? "/admin/study" : "/study",
+                url: pathname.startsWith("/admin") ? "/admin/study" : "/study",
                 icon: SiCodecrafters,
                 isActive: pathname.startsWith("/study") || pathname.startsWith("/admin/study"),
             },
             {
                 title: "Algorithm",
-                url: pathname.startsWith("/admin/") ? "/admin/algorithm" : "/algorithm",
+                url: pathname.startsWith("/admin") ? "/admin/algorithm" : "/algorithm",
                 icon: BsDiagram2,
                 isActive: pathname.startsWith("/algorithm") || pathname.startsWith("/admin/algorithm"),
             },
             {
                 title: "Arena",
-                url: pathname.startsWith("/admin/") ? "/admin/arena" : "/arena",
+                url: pathname.startsWith("/admin") ? "/admin/arena" : "/arena",
                 icon: Trophy,
                 isActive: pathname.startsWith("/arena") || pathname.startsWith("/admin/arena"),
             },
