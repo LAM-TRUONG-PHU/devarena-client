@@ -9,5 +9,7 @@ export interface ITestCase {
     difficulty: string;
     title: string;
     content: string;
+    tags:string[]
+    variableName:string[];
     testcases: ITestCase[] ;
   }

@@ -1,42 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Stepper } from "../Stepper";
-import TestcaseForm from "../TestcaseForm";
-import { CodingExerciseForm } from "../CodingExerciseForm";
+import { CodingExerciseForm } from "./CodingExerciseForm";
+import { setCurrentStep } from "@/redux/slices/admin/StudyFormSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import VariableNameForm from "./VariableNameForm";
+import TestcaseForm from "./TestcaseForm";
 
 const steps = ["Basic Info", "Instructions", "Equipment"];
 
 export function ExerciseCreate() {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState({
-    name: "",
-    category: "",
-    instructions: "",
-    equipment: "",
-  });
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const dispatch = useAppDispatch();
+  const { currentStep, totalStep } = useAppSelector((state) => state.studyForm);
 
   const handleNext = () => {
-    setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+    dispatch(setCurrentStep(currentStep + 1));
   };
 
   const handlePrevious = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 0));
+    dispatch(setCurrentStep(currentStep - 1));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
     // Here you would typically send the data to your backend
   };
 
@@ -45,27 +36,16 @@ export function ExerciseCreate() {
       case 0:
         return (
           <>
-            <CodingExerciseForm language="java"></CodingExerciseForm>
+            <CodingExerciseForm language="java" />
           </>
         );
       case 1:
-        return (
-          <TestcaseForm/>
-        );
+        return <VariableNameForm />;
       case 2:
         return (
-          <div className="mb-4">
-            <Label htmlFor="equipment">Equipment</Label>
-            <Input
-              id="equipment"
-              name="equipment"
-              value={formData.equipment}
-              onChange={handleInputChange}
-              placeholder="Enter required equipment"
-            />
-          </div>
+          <TestcaseForm>
+          </TestcaseForm>
         );
-   
       default:
         return null;
     }
@@ -74,7 +54,6 @@ export function ExerciseCreate() {
   return (
     <div>
       <Stepper steps={steps} currentStep={currentStep} />
-      {/* <form onSubmit={handleSubmit}></form> */}
       {renderStepContent()}
       <Button
         type="button"

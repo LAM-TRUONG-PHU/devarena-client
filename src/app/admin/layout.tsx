@@ -5,21 +5,27 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import "@/app/globals.css";
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
+import Script from "next/script";
 
 export default function AdminLayout({
-    children,
+  children,
 }: Readonly<{
-    children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-    return (
-     
-                <SidebarProvider>
-                    <AppSidebar />
-                    <main className="w-full">
-                        <SidebarTrigger />
-                        <Provider store={store}>{children}</Provider>
-                    </main>
-                </SidebarProvider>
-     
-    );
+  return (
+    <SidebarProvider>
+      <AppSidebar />
+      <Script
+        src="https://upload-widget.cloudinary.com/latest/global/all.js"
+        onLoad={() => {
+          console.log("Cloudinary Widget Script Loaded");
+          //   setInit(true);
+        }}
+      />
+      <main className="w-full">
+        <SidebarTrigger />
+        <Provider store={store}>{children}</Provider>
+      </main>
+    </SidebarProvider>
+  );
 }

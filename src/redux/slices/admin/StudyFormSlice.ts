@@ -1,12 +1,24 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IExercise, ITestCase } from "@/types/Exercise";
 
-const initialState: IExercise = {
-  content: "",
-  difficulty: "",
-  language: "",
-  testcases: [], // Initially null or an empty array
-  title: "",
+interface IStudyForm {
+  exercise: IExercise;
+  currentStep: number;
+  totalStep: number;
+}
+
+const initialState: IStudyForm = {
+  exercise: {
+    content: "",
+    difficulty: "",
+    language: "",
+    testcases: [],
+    title: "",
+    variableName: [],
+    tags:[]
+  },
+  currentStep: 0,
+  totalStep: 3,
 };
 
 const StudyFormSlice = createSlice({
@@ -14,23 +26,45 @@ const StudyFormSlice = createSlice({
   initialState,
   reducers: {
     setContent(state, action: PayloadAction<string>) {
-      state.content = action.payload;
+      state.exercise.content = action.payload;
     },
     setDifficulty(state, action: PayloadAction<string>) {
-      state.difficulty = action.payload;
+      state.exercise.difficulty = action.payload;
     },
     setLanguage(state, action: PayloadAction<string>) {
-      state.language = action.payload;
+      state.exercise.language = action.payload;
     },
-    setTestcase(state, action: PayloadAction<ITestCase[]>) {
-        state.testcases=action.payload
-      },
+    setTestcases(state, action: PayloadAction<ITestCase[]>) {
+      state.exercise.testcases = action.payload;
+    },
     setTitle(state, action: PayloadAction<string>) {
-      state.title = action.payload;
+      state.exercise.title = action.payload;
+    },
+    setVariableName(state, action: PayloadAction<string[]>) {
+      state.exercise.variableName = action.payload;
+    },
+    setTags(state, action: PayloadAction<string[]>) {
+      state.exercise.tags = action.payload;
+    },
+    setCurrentStep(state, action: PayloadAction<number>) {
+      state.currentStep = action.payload;
+    },
+    setTotalStep(state, action: PayloadAction<number>) {
+      state.totalStep = action.payload;
     },
   },
 });
 
-export const { setContent, setDifficulty, setLanguage, setTestcase, setTitle } = StudyFormSlice.actions;
+export const {
+  setContent,
+  setDifficulty,
+  setLanguage,
+  setTestcases,
+  setTitle,
+  setVariableName,
+  setCurrentStep,
+  setTotalStep,
+  setTags
+} = StudyFormSlice.actions;
 
 export default StudyFormSlice.reducer;

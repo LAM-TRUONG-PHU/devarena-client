@@ -43,8 +43,7 @@ export const authOptions: AuthOptions = {
           "password":credentials?.password,
           "provider":"credentials"
         }
-        const user: JWT =await mainInstance.post("auth/login",payload).then((res)=>{
-          console.log(res.data)
+        const data: JWT =await mainInstance.post("auth/login",payload).then((res)=>{
           return res.data.data
         }).catch((err)=>{
           console.log(err)
@@ -54,8 +53,8 @@ export const authOptions: AuthOptions = {
             throw new Error("Account not verified");
         }        })
 
-        if(user){
-          return user as any
+        if(data){
+          return data as any
         }
         return null;
       },
@@ -64,16 +63,13 @@ export const authOptions: AuthOptions = {
   ],
 
   callbacks: {
-
-
     async jwt({ trigger, token, user, account, profile }) {
-      console.log(user)
       // throw new Error("Invalid provider or credentials");
 
       if (trigger === "signIn" ) {
         if(account?.provider!=="credentials"){
           await mainInstance
-          .post("/login", {
+          .post("/auth/login", {
             email: token.email,
             provider: account?.provider,
             password: "123BDnm", // Mật khẩu giả lập, cần thay thế bằng mật khẩu hợp lệ
@@ -95,8 +91,15 @@ export const authOptions: AuthOptions = {
 
         }
         else{
-          //@ts-ignore
-           token.user = user
+           // @ts-ignore
+        token.access_token = user.access_token;
+        // @ts-ignore
+
+        token.refresh_token = user.refresh_token;
+        // @ts-ignore
+
+        token.user = user.user;
+          
         }
        
       } 
@@ -137,8 +140,10 @@ export const authOptions: AuthOptions = {
         session.error = token.error; // Pass the error to the session object
       }
       if (token.user) { 
-        console.log(token.user)
+        console.log(token)
         session.user = token.user;
+        session.access_token=token.access_token;
+        session.refresh_token=token.refresh_token;
       }
       return session;
     },
