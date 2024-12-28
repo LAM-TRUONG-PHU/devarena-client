@@ -1,31 +1,47 @@
 "use client";
-import { CodingExerciseForm } from "@/components/admin/study/CodingExerciseForm";
+import { ButtonCreateDialog } from "@/components/admin/study/ButtonCreateDialog";
+import { StudyTable } from "@/components/admin/study/StudyTable";
 import CustomEditor from "@/components/CustomEditor/CustomEditor";
+import ExerciseCard from "@/components/study/exercise-card";
+import StudyCard from "@/components/study/study-card";
 import UploadWidget from "@/components/uploadWidget/UploadWidget";
+import { ELanguages } from "@/types/language";
 import { useRouter } from "next/navigation";
 import React from "react";
 
 export default function AdminStudyPage() {
-  const router = useRouter();
-  return (
-    <div className="w-full flex justify-center items-center">
-      {/* <CustomEditor/> */}
-      <div
-        className="w-[200] h-[80] p-4 cursor-pointer"
-        onClick={() => {
-          router.push("/admin/study/java");
-        }}
-      >
-        Java
-      </div>
-      <div
-        className="w-[200] h-[80] p-4 cursor-pointer"
-        onClick={() => {
-          router.push("/admin/study/cpp");
-        }}
-      >
-        C++
-      </div>
-    </div>
-  );
+    const router = useRouter();
+    return (
+        <div className="w-full h-full relative">
+            <div className="lg:pr-14 lg:pl-10 px-8 pt-4 pb-8 space-y-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <StudyCard
+                        onClick={() => {
+                            router.push("/admin/study/c");
+                        }}
+                        language={ELanguages.C}
+                        exercises={82}
+                    />
+                    <StudyCard
+                        onClick={() => {
+                            router.push("/admin/study/java");
+                        }}
+                        language={ELanguages.Java}
+                        exercises={82}
+                    />
+                    <StudyCard
+                        onClick={() => {
+                            router.push("/admin/study/cpp");
+                        }}
+                        language={ELanguages.Cpp}
+                        exercises={82}
+                    />
+                </div>
+            </div>
+            {/* Add this ButtonCreateDialog positioned at the bottom-left */}
+            <div className="absolute bottom-0 right-0 p-4">
+                <ButtonCreateDialog />
+            </div>
+        </div>
+    );
 }

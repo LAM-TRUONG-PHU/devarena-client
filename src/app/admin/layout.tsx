@@ -1,11 +1,12 @@
 "use client";
 
 import { AppSidebar } from "@/components/app-sidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import "@/app/globals.css";
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
 import Script from "next/script";
+import Header from "@/components/header";
 
 export default function AdminLayout({
   children,
