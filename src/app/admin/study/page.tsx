@@ -1,16 +1,13 @@
 "use client";
+// import { CodingExerciseForm } from "@/components/admin/CodingExerciseForm";
 import { ButtonCreateDialog } from "@/components/admin/study/ButtonCreateDialog";
-import { StudyTable } from "@/components/admin/study/StudyTable";
-import CustomEditor from "@/components/CustomEditor/CustomEditor";
-import ExerciseCard from "@/components/study/exercise-card";
 import StudyCard from "@/components/study/study-card";
-import UploadWidget from "@/components/uploadWidget/UploadWidget";
 import { ELanguages } from "@/types/language";
 import { useRouter } from "next/navigation";
-import React from "react";
 
 export default function AdminStudyPage() {
     const router = useRouter();
+
     return (
         <div className="w-full h-full relative">
             <div className="lg:pr-14 lg:pl-10 px-8 pt-4 pb-8 space-y-10">

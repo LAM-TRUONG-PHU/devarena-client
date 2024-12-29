@@ -38,35 +38,24 @@ const formSchema = z.object({
 export default function LoginPage() {
     const { toast } = useToast();
     const [showPassword, setShowPassword] = useState(false);
-  
-    const {data: session,update} =useSession()
+    const router = useRouter();
+    const { data: session, update } = useSession();
 
-
-  
     useEffect(() => {
-        if (session?.error ) {
-          // Hiển thị thông báo lỗi
-          handleRemoveError(session?.error)
-    
-          // Đánh dấu lỗi đã được hiển thị
-    
-          // Reset error trong session sau khi đã xử lý lỗi
+        if (session?.error) {
+            handleRemoveError(session.error);
         }
-      }, [session?.error]);
-      const handleRemoveError = async(message: string)=>{
-        console.log(message)
+    }, [session?.error]);
+    const handleRemoveError = async (message: string) => {
+        console.log(message);
         toast({
             title: "Login Error",
             description: message,
             variant: "error",
-          })
-          update({ error: '' });
+        });
+        update({ error: "" });
+    };
 
-      }
-    // useEffect(()=>{
-    //     console.log("đasđ")
-        
-    // },[])
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -77,44 +66,43 @@ export default function LoginPage() {
     });
 
     async function onSubmit(data: z.infer<typeof formSchema>) {
-      
-        const res = await signIn("credentials",{
-            redirect:false,
-            username:data.username,
-            password: data.password
-        })
-        
-      
-        if(res?.error){
-            console.log(res.error)
-            toast({
-                title:"lỗi đăng nhập",
-                description:res.error,
-                variant:"error"
-            })
-        }
-    
-       console.log(res)
-    }
-    async function onSubmitProvider(provider: string) {
-      
-        const res = await signIn(provider,{
-            redirect:false,
-            
-        })
-        
-      
-        if(res?.error){
-            console.log(res.error)
-            toast({
-                title:"lỗi đăng nhập",
-                description:res.error,
-                variant:"error"
-            })
-        }
-        console.log("res")
+        const res = await signIn("credentials", {
+            redirect: false,
+            username: data.username,
+            password: data.password,
+        });
 
-       console.log(res)
+        if (res?.error) {
+            toast({
+                title: "Login Error",
+                description: res.error,
+                variant: "error",
+            });
+        } else if (res?.ok) {
+            if (session?.user.role === "admin") {
+                router.push("/admin/study");
+            } else {
+                router.push("/dashboard"); // Redirect non-admin users to a generic dashboard
+            }
+        }
+    }
+
+    async function onSubmitProvider(provider: string) {
+        const res = await signIn(provider, {
+            redirect: false,
+        });
+
+        if (res?.error) {
+            console.log(res.error);
+            toast({
+                title: "lỗi đăng nhập",
+                description: res.error,
+                variant: "error",
+            });
+        }
+        console.log("res");
+
+        console.log(res);
     }
     return (
         <>
@@ -179,8 +167,8 @@ export default function LoginPage() {
                                 <button
                                     type="button"
                                     className="flex-1 bg-blue_facebook text-white  px-4 py-2 rounded-xl shadow hover:bg-blue-700"
-                                    onClick={(e)=>{
-                                        onSubmitProvider("discord")
+                                    onClick={(e) => {
+                                        onSubmitProvider("discord");
                                     }}
                                 >
                                     <FaDiscord className="w-6 h-6 mx-auto" />
@@ -188,8 +176,8 @@ export default function LoginPage() {
                                 <button
                                     type="button"
                                     className="flex-1 bg-white border-2 border-black  px-4 py-1 rounded-xl  hover:bg-gray-100"
-                                    onClick={(e)=>{
-                                        onSubmitProvider("google",)
+                                    onClick={(e) => {
+                                        onSubmitProvider("google");
                                     }}
                                 >
                                     <FcGoogle className="w-6 h-6 mx-auto" />
@@ -198,11 +186,11 @@ export default function LoginPage() {
                             <button
                                 type="button"
                                 className="flex-1 bg-gray-800 text-white px-4 py-2 rounded-xl shadow hover:bg-gray-900"
-                                onClick={(e)=>{
-                                    onSubmitProvider("github")
+                                onClick={(e) => {
+                                    onSubmitProvider("github");
                                 }}
                             >
-                                <FaGithub className="w-6 h-6 mx-auto"  />
+                                <FaGithub className="w-6 h-6 mx-auto" />
                             </button>
                         </div>
 
