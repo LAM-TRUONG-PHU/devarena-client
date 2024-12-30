@@ -82,7 +82,7 @@ export default function LoginPage() {
             if (session?.user.role === "admin") {
                 router.push("/admin/study");
             } else {
-                router.push("/dashboard"); // Redirect non-admin users to a generic dashboard
+                router.push("/study"); // Redirect non-admin users to a generic dashboard
             }
         }
     }

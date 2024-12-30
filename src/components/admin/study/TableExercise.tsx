@@ -30,7 +30,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { IExercise } from "@/types/Exercise";
 import { LoadingSpinner } from "@/components/loading";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ButtonCreateExercise } from "./ButtonCreateExercise";
 
 export const columns: ColumnDef<IExercise>[] = [
@@ -150,6 +150,9 @@ export function TableExercise(props: TableExerciseProps) {
     });
     const [rowSelection, setRowSelection] = React.useState({});
     const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+    const courseId = searchParams.get("id");
 
     const table = useReactTable({
         data: props.exercises,
@@ -184,7 +187,7 @@ export function TableExercise(props: TableExerciseProps) {
                         variant="default"
                         size="default"
                         onClick={() => {
-                            router.push("/admin/study/create-exercise");
+                            router.push(`${pathname}/create-exercise?id=${courseId}`);
                         }}
                     >
                         Add Exercise
@@ -226,9 +229,9 @@ export function TableExercise(props: TableExerciseProps) {
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
-                                                      header.column.columnDef.header,
-                                                      header.getContext()
-                                                  )}
+                                                    header.column.columnDef.header,
+                                                    header.getContext()
+                                                )}
                                         </TableHead>
                                     );
                                 })}

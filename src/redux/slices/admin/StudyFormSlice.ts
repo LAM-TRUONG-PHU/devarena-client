@@ -5,6 +5,7 @@ interface IStudyForm {
     exercise: IExercise;
     currentStep: number;
     totalStep: number;
+    variableCount: number;
 }
 
 const initialState: IStudyForm = {
@@ -16,9 +17,11 @@ const initialState: IStudyForm = {
         title: "",
         variableName: [],
         tags: [],
+
     },
     currentStep: 0,
-    totalStep: 3,
+    totalStep: 4,
+    variableCount: 0,
 };
 
 const StudyFormSlice = createSlice({
@@ -52,6 +55,9 @@ const StudyFormSlice = createSlice({
         setTotalStep(state, action: PayloadAction<number>) {
             state.totalStep = action.payload;
         },
+        setVariableCount(state, action: PayloadAction<number>) {
+            state.variableCount = action.payload;
+        }
     },
 });
 
@@ -65,6 +71,7 @@ export const {
     setCurrentStep,
     setTotalStep,
     setTags,
+    setVariableCount
 } = StudyFormSlice.actions;
 
 export default StudyFormSlice.reducer;

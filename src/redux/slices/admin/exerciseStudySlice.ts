@@ -37,7 +37,11 @@ export const fetchExercises = createAsyncThunk<IExercisePayload, FetchCoursesPar
 const exercisesSlice = createSlice({
     name: "course",
     initialState,
-    reducers: {},
+    reducers: {
+        addExercise(state, action: PayloadAction<IExercise>) {
+            state.exercises.push(action.payload);
+        }
+    },
     extraReducers: (builder) => {
         builder.addCase(fetchExercises.pending, (state) => {
             state.loading = true;
@@ -53,5 +57,7 @@ const exercisesSlice = createSlice({
         });
     },
 });
+
+export const { addExercise } = exercisesSlice.actions;
 
 export default exercisesSlice.reducer;

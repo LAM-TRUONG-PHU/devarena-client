@@ -8,8 +8,10 @@ import Script from "next/script";
 import "./style.css";
 import { useAppDispatch } from "@/redux/hooks";
 import { setContent } from "@/redux/slices/admin/StudyFormSlice";
+import ReactQuill from "react-quill-new";
 interface Pros {
     content: string;
+    onValueChange?: (value: string) => void;
     // setContent: Dispatch<SetStateAction<string>>
 }
 // Dynamically import ReactQuill to avoid SSR issues with Quill
@@ -23,12 +25,13 @@ const ReactQuillWrapper = dynamic(
     },
     { ssr: false }
 );
+//@ts-ignore
 
 interface ReactQuillWrapperProps extends ReactQuillProps {
     fowardRef: LegacyRef<ReactQuill>;
 }
 
-const CustomEditor = ({ content }: Pros) => {
+const CustomEditor = ({ content, onValueChange }: Pros) => {
     //   const [content, setcontent] = useState("");
     const dispatch = useAppDispatch();
     const editorRef = useRef(null);
@@ -40,6 +43,7 @@ const CustomEditor = ({ content }: Pros) => {
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             console.log("initial");
+            //@ts-ignore
             const myWidget = window.cloudinary.createUploadWidget(
                 {
                     cloudName: "dlfsdepfc",
@@ -51,10 +55,14 @@ const CustomEditor = ({ content }: Pros) => {
                 (error: any, result: any) => {
                     if (!error && result && result.event === "success") {
                         const quill = editorRef.current;
+                        //@ts-ignore
+
                         const range = quill?.getEditorSelection();
                         console.log(range);
 
                         if (quill && range) {
+                            //@ts-ignore
+
                             quill.getEditor().insertEmbed(range.index, "image", result.info.secure_url); // Insert image URL in editor
                         }
                     }
@@ -75,6 +83,14 @@ const CustomEditor = ({ content }: Pros) => {
         }
     }, []);
 
+    useEffect(() => {
+        if (editorRef.current && typeof window !== "undefined") {
+            //@ts-ignore
+            const quill = editorRef.current.getEditor();
+            quill.clipboard.dangerouslyPasteHTML(0, content);
+        }
+    }, []);
+
     return (
         <div>
             {/* <Script
@@ -87,9 +103,10 @@ const CustomEditor = ({ content }: Pros) => {
             {/* <h2>Custom Editor</h2> */}
             <ReactQuillWrapper
                 fowardRef={editorRef}
+                //@ts-ignore
                 theme="snow"
                 content={content}
-                onChange={handleChangeContent}
+                onChange={onValueChange}
                 modules={{
                     toolbar: {
                         container: [
@@ -97,13 +114,14 @@ const CustomEditor = ({ content }: Pros) => {
                             ["bold", "italic", "underline", "strike"], // Inline styles
                             [{ list: "ordered" }, { list: "bullet" }], // Lists
                             ["link", "image"], // Links and images
+                            ["code-block", "blockquote"], // Code block
                         ],
                         handlers: {
                             image: imageHandler, // Add image handler
                         },
                     },
                 }}
-                formats={["header", "bold", "italic", "underline", "strike", "list", "link", "image"]}
+                formats={["header", "bold", "italic", "underline", "strike", "list", "link", "image", "code-block", "blockquote"]}
             />
 
             <p>Editor Output:</p>

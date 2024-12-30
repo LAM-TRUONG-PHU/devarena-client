@@ -1,63 +1,99 @@
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import React, { useState } from "react";
+import React from "react";
+import { UseFormReturn, useFieldArray } from "react-hook-form";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { ComboboxDemo } from "@/components/ui/ComboBoxType";
+import { Input } from "@/components/ui/input";
+import {
+    FormField,
+    FormItem,
+    FormLabel,
+    FormControl,
+    FormMessage,
+} from "@/components/ui/form";
+import { TExerciseStudy } from "@/app/admin/study/[slug]/create-exercise/page";
+import { useAppSelector } from "@/redux/hooks";
 
-const TestcaseForm = () => {
-    const dispatch = useAppDispatch();
+type TestCaseFormProps = {
+    form: UseFormReturn<TExerciseStudy, any, undefined>;
+};
+
+const TestcaseForm = ({ form }: TestCaseFormProps) => {
+    const { control } = form;
     const { exercise } = useAppSelector((state) => state.studyForm);
 
-    const [testcases, setTestcases] = useState(
-        [{ values: exercise.variableName!.map(() => "") }] // Mỗi testcase là 1 khung gồm các giá trị cho variableName
-    );
 
-    const handleInputChange = (testcaseIndex: number, variableIndex: number, value: string) => {
-        setTestcases((prev) =>
-            prev.map((testcase, i) =>
-                i === testcaseIndex
-                    ? {
-                          ...testcase,
-                          values: testcase.values.map((v, j) => (j === variableIndex ? value : v)),
-                      }
-                    : testcase
-            )
-        );
-    };
+    // Manage testcases dynamically
+    const { fields, append } = useFieldArray({
+        control,
+        name: "testcases", // Name should match the form structure
+    });
 
     const handleAddTestcase = () => {
-        setTestcases((prev) => [...prev, { values: exercise.variableName!.map(() => "") }]);
+        append({
+            input: {},
+            output: "",
+            status: false,
+        });
     };
 
     return (
         <div className="flex flex-col space-y-4">
-            {testcases.map((testcase, testcaseIndex) => (
-                <div key={testcaseIndex} className="p-4 border border-gray-300 rounded flex flex-col">
+            {fields.map((field, testcaseIndex) => (
+                <div key={field.id} className="p-4 border border-gray-300 rounded flex flex-col">
                     <h4 className="mb-2 font-semibold">Testcase {testcaseIndex + 1}</h4>
                     <div className="flex flex-col space-y-2">
                         {exercise.variableName!.map((variable, variableIndex) => (
-                            <div key={variableIndex} className="flex items-center space-x-2">
-                                <span className="w-24">{variable}</span>
-                                <input
-                                    type="text"
-                                    value={testcase.values[variableIndex]}
-                                    onChange={(e) =>
-                                        handleInputChange(testcaseIndex, variableIndex, e.target.value)
-                                    }
-                                    className="p-2 border rounded flex-1"
-                                    placeholder={`Enter value for ${variable}`}
-                                />
-                                <ComboboxDemo />
-                            </div>
+                            <FormField
+                                key={variableIndex}
+                                control={control}
+                                name={`testcases.${testcaseIndex}.input.${variable}`}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{variable}</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                {...field}
+                                                placeholder={`Enter value for ${variable}`}
+                                                value={field.value ?? ""}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         ))}
                     </div>
-                    <div>
-                        <span>Output</span>
-                        <input type="text" placeholder={`Enter for output`} />
+                    <div className="mt-4">
+                        <FormField
+                            control={control}
+                            name={`testcases.${testcaseIndex}.output`}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Output</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} placeholder="Enter output value" value={field.value ?? ""} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     </div>
-                    <div>
-                        <Label title="Hidden?" />
-                        <Switch />
+                    <div className="mt-4 flex items-center">
+                        <FormField
+                            control={control}
+                            name={`testcases.${testcaseIndex}.status`}
+                            render={({ field }) => (
+                                <FormItem className="flex items-center gap-4">
+                                    <FormLabel>Hidden?</FormLabel>
+                                    <FormControl>
+                                        <Switch
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     </div>
                 </div>
             ))}

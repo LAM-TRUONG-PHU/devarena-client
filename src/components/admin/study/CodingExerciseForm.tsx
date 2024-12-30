@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { FloatingLabelInput } from "../../ui/floating-label-input";
@@ -21,7 +21,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
-import { formSchema } from "@/app/admin/study/create-exercise/page";
+import { formSchema, TExerciseStudy } from "@/app/admin/study/[slug]/create-exercise/page";
 
 const difficultyOptions = [
     { value: "Easy", label: "Easy" },
@@ -40,12 +40,7 @@ const tagOptions = [
 
 type CodingExerciseFormProps = {
     form: UseFormReturn<
-        {
-            title: string;
-            // content: string;
-            difficulty: string;
-            tags: string[];
-        },
+        TExerciseStudy,
         any,
         undefined
     >;
@@ -88,12 +83,16 @@ export function CodingExerciseForm(props: CodingExerciseFormProps) {
         dispatch(setCurrentStep(currentStep + 1));
     };
 
+    useEffect(() => {
+        console.log("content", exercise.content);
+    }, [exercise.content]);
+
     // const onChangeTag = (selected: string[]) => {
     //     // setTags(selected);
     //     dispatch(setTags(selected));
     // };
     return (
-        <>
+        <div >
             <FormField
                 control={props.form.control}
                 name="title"
@@ -143,7 +142,6 @@ export function CodingExerciseForm(props: CodingExerciseFormProps) {
                                 options={tagOptions}
                                 onValueChange={(selected: string[]) => {
                                     field.onChange(selected);
-                                    dispatch(setTags(selected));
                                 }}
                                 value={field.value}
                                 placeholder="Select tags"
@@ -157,23 +155,29 @@ export function CodingExerciseForm(props: CodingExerciseFormProps) {
                 )}
             />
             {/* <CustomEditor content={exercise.content} /> */}
-            {/* <FormField
+            <FormField
                 control={props.form.control}
                 name="content"
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel>Content</FormLabel>
                         <FormControl>
-                            <CustomEditor content={exercise.content} {...field} />
+                            <CustomEditor content={
+                                field.value
+                            }
+                                onValueChange={(value) => {
+                                    field.onChange(value);
+                                }}
+                            />
                         </FormControl>
                         <FormMessage className="text-right" />
                     </FormItem>
                 )}
-            /> */}
+            />
             {/* <Button type="submit" className="w-full">
           Tạo bài tập
         </Button> */}
             {/* <Button onClick={handleNext}>Next</Button> */}
-        </>
+        </div>
     );
 }
