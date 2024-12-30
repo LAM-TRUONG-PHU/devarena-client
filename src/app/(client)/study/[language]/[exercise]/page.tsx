@@ -14,6 +14,7 @@ import { set } from "react-hook-form";
 import { getLanguageTitle } from "@/utils/get-language-title";
 import { ELanguages } from "@/types/language";
 import { TabsExercise } from "@/components/tabs-exercise";
+import { useAppSelector } from "@/redux/hooks";
 
 const defaultValue = {
     cpp: `#include <iostream> \nusing namespace std; \nint main() { \n    cout << "Hello, World!"; \n    return 0; \n}`,
@@ -28,7 +29,8 @@ const defaultValue = {
 export default function ExercisePage() {
     const [theme, setTheme] = useState<"vs-dark" | "vs-light">("vs-dark");
     const pathname = usePathname();
-    const segments = pathname.split("/").filter(Boolean);
+    const segments = pathname.split("/").filter(Boolean)
+    const {exerciseSelected,courseStatus}=useAppSelector((state)=>state.exerciseStatus)
     function handleEditorDidMount(editor: any, monaco: Monaco) {
         // Define a custom theme with background color #1D2432
         monaco.editor.defineTheme("customTheme", {
@@ -64,9 +66,10 @@ export default function ExercisePage() {
                             <div>Language</div>
 
                             <Button variant="outline" size="icon">
-                                {getLanguageTitle(
+                                {/* {getLanguageTitle(
                                     (segments[1].charAt(0).toUpperCase() + segments[1].slice(1)) as ELanguages
-                                )}
+                                )} */}
+                                {courseStatus?.courseId.language}
                             </Button>
                         </div>
                         <div className="absolute right-8">
@@ -88,7 +91,7 @@ export default function ExercisePage() {
                     </div>
                     <Editor
                         height={"calc(100svh - 7rem)"}
-                        defaultLanguage={segments[1]}
+                        defaultLanguage={courseStatus?.courseId.language.toLowerCase()}
                         defaultValue={defaultValue[segments[1] as keyof typeof defaultValue]}
                         theme={theme}
                         onMount={handleEditorDidMount}

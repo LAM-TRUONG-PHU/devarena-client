@@ -3,7 +3,6 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider, { GithubEmail } from "next-auth/providers/github";
 import DiscordProvider from "next-auth/providers/discord";
-import { IUser } from "@/types/IUser";
 import { JWT } from "next-auth/jwt";
 import { mainInstance } from "@/axios/MainInstance";
 
@@ -140,7 +139,6 @@ export const authOptions: AuthOptions = {
         session.error = token.error; // Pass the error to the session object
       }
       if (token.user) { 
-        console.log(token)
         session.user = token.user;
         session.access_token=token.access_token;
         session.refresh_token=token.refresh_token;

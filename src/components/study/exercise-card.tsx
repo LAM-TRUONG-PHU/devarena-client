@@ -9,13 +9,14 @@ import { usePathname } from "next/navigation";
 import { MdOutlineCheckCircle } from "react-icons/md";
 
 type CardProps = {
-    language: ELanguages;
+    language: string;
     title: string;
     tags: string[];
-    inProgress?: boolean;
-    completed?: boolean;
+    // inProgress?: boolean;
+    // completed?: boolean;
     isAlgorithm?: boolean;
     onClick: () => void;
+    status: string;
 };
 export default function ExerciseCard(props: CardProps) {
     return (
@@ -29,7 +30,7 @@ export default function ExerciseCard(props: CardProps) {
                         {props.language === ELanguages.Unknown && <Algorithm.TierFinal />}
                     </div>
                     <div>
-                        <h1 className={`text-lg font-semibold ${props.inProgress && "text-black"}`}>
+                        <h1 className={`text-lg font-semibold ${props.status==="in-progress" && "text-black"}`}>
                             {props.title}
                         </h1>
                     </div>
@@ -37,7 +38,7 @@ export default function ExerciseCard(props: CardProps) {
                 <div className="flex items-center">
                     <div
                         className={` aspect-square rounded-full border border-foreground w-fit items-center flex text-xs p-1  font-semibold   ${
-                            props.inProgress && "border-pink_primary text-pink_primary"
+                            props.status==="in-progress" && "border-pink_primary text-pink_primary"
                         }`}
                     >
                         0/25
@@ -53,8 +54,8 @@ export default function ExerciseCard(props: CardProps) {
                     </span>
                 ))}
             </div>
-            <div className={`flex items-center ${props.inProgress ? "justify-between" : "justify-end"}`}>
-                {props.inProgress && (
+            <div className={`flex items-center ${props.status==="in-progress" ? "justify-between" : "justify-end"}`}>
+                {props.status==="in-progress" && (
                     <div className="bg-[#E1EBFF] text-[#2E57E8] rounded-xl font-semibold h-fit w-fit text-xs py-1 px-1 xl:px-4">
                         In-Progress
                     </div>
@@ -68,7 +69,7 @@ export default function ExerciseCard(props: CardProps) {
                     )}
 
                     <CiHeart size={32} className="inline-block" />
-                    {props.completed ? (
+                    {props.status==="completed" ? (
                         <Button
                             onClick={() => {}}
                             variant="outline"
@@ -77,7 +78,7 @@ export default function ExerciseCard(props: CardProps) {
                             Completed
                             <MdOutlineCheckCircle />
                         </Button>
-                    ) : !props.inProgress ? (
+                    ) : props.status!=="in-progress" ? (
                         <Button onClick={() => {}} variant="outline">
                             Start
                         </Button>

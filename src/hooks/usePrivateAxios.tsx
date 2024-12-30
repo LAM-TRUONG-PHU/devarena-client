@@ -6,9 +6,10 @@ import { mainInstance } from "@/axios/MainInstance";
 
 // Hook usePrivate để gắn interceptor
 export const usePrivate = () => {
+  const axiosInstancePrivate = mainInstance;
   useEffect(() => {
     // Thêm interceptor khi component mount
-    const requestInterceptor = mainInstance.interceptors.request.use(
+    const requestInterceptor = axiosInstancePrivate.interceptors.request.use(
       async (config) => {
         try {
           const session = await getSession(); // Lấy session từ NextAuth

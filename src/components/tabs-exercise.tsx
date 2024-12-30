@@ -8,12 +8,14 @@ import { GoTerminal } from "react-icons/go";
 import { TabsTestCase } from "./tabs-test-case";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
 import { JSX } from "react";
+import { useAppSelector } from "@/redux/hooks";
 
 type TabsExerciseProps = {
     study?: boolean;
 };
 
 export function TabsExercise({ study }: TabsExerciseProps) {
+    const {exerciseSelected}=useAppSelector((state)=>state.exerciseStatus)
     const renderTabsTrigger = (value: string, icon: JSX.Element, label: string) => (
         <CarouselItem>
             <TabsTrigger value={value} className="gap-1">
@@ -50,7 +52,7 @@ export function TabsExercise({ study }: TabsExerciseProps) {
             </header>
 
             <TabsContent value="task" className="flex-1">
-                <div className="bg-black h-full w-full"></div>
+            <div dangerouslySetInnerHTML={{ __html: exerciseSelected?.exerciseId.content }}></div>
             </TabsContent>
             <TabsContent value="test-case" className="flex-1">
                 <TabsTestCase />

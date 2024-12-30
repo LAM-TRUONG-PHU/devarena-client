@@ -6,9 +6,11 @@ import Header from "@/components/header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import NextAuthWrapper from "@/context/SessionWrapper";
 import { store } from "@/redux/store";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Provider } from "react-redux";
 import { Toaster } from "@/components/ui/toaster"
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
 
 export default function RootLayout({
     children,
@@ -18,7 +20,16 @@ export default function RootLayout({
     const pathname = usePathname(); // Get the current path
     const showSidebar = !/^\/(study\/[a-zA-Z0-9+]+\/.+|algorithm\/.+)/.test(pathname); // Hide sidebar for specific patterns
     const isSpecialPage = pathname === "/profile" || pathname === "/account-management";
-
+    const {data:session,status}=useSession()
+    const router=useRouter()
+    useEffect(()=>{
+        if(status==="unauthenticated"){
+            router.push("/login")
+        }
+        if(session?.user?.role==="admin"){
+            router.push("/admin")
+        }
+    },[session])
     return (
       <>
                 <SidebarProvider>

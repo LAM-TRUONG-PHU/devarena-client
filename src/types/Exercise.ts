@@ -5,6 +5,7 @@ export interface ITestCase {
     hidden: boolean;
   }
   export interface IExercise {
+    // _id: string|null;
     language: string;
     difficulty: string;
     title: string;
