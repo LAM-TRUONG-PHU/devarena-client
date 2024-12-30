@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React from "react";
 import { ICourse } from "@/types/ICourse";
 import { usePrivate } from "@/hooks/usePrivateAxios";
@@ -12,7 +12,7 @@ const AllCourseSection = () => {
   const router = useRouter();
   const [courses, setCourses] = useState<ICourse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const {data:session}=useSession()
+  const { data: session } = useSession();
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -28,17 +28,20 @@ const AllCourseSection = () => {
     };
     fetchCourses();
   }, []);
-  const enrolledCourses = async(courseId:string):Promise<string>=>{
-    const response = await axios.post("/course-status/enroll",{
-       userId:session?.user.id,
-       courseId
-    }).then((res)=>{
-      return res.data.data._id
-    }).catch((err)=>{
-      console.log(err)
-    })
-    return response
-  }
+  const enrolledCourses = async (courseId: string): Promise<string> => {
+    const response = await axios
+      .post("/course-status/enroll", {
+        userId: session?.user.id,
+        courseId,
+      })
+      .then((res) => {
+        return res.data.data._id;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    return response;
+  };
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {isLoading ? (
@@ -47,10 +50,10 @@ const AllCourseSection = () => {
         courses.map((course) => (
           <StudyCard
             key={course._id}
-            onClick={async() =>{
-              const courseStautusId = await enrolledCourses(course._id)
-              router.push(`/study/${courseStautusId}`)
-            } }
+            onClick={async () => {
+              const courseStautusId = await enrolledCourses(course._id);
+              router.push(`/study/${courseStautusId}`);
+            }}
             language={course.language}
             exercises={course.totalExercises || 0}
           />
