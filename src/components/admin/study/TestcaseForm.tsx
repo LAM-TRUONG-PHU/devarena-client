@@ -31,7 +31,7 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
         append({
             input: {},
             output: "",
-            status: false,
+            hidden: false,
         });
     };
 
@@ -80,7 +80,7 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
                     <div className="mt-4 flex items-center">
                         <FormField
                             control={control}
-                            name={`testcases.${testcaseIndex}.status`}
+                            name={`testcases.${testcaseIndex}.hidden`}
                             render={({ field }) => (
                                 <FormItem className="flex items-center gap-4">
                                     <FormLabel>Hidden?</FormLabel>

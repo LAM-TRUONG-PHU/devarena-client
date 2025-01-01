@@ -49,40 +49,6 @@ export function CodingExerciseForm(props: CodingExerciseFormProps) {
     const dispatch = useAppDispatch();
     const { currentStep, totalStep, exercise } = useAppSelector((state) => state.studyForm);
 
-    const axiosInstance = useAxios();
-    // const [difficulty, setDifficulty] = useState("");
-    // const [tags, setTags] = useState<string[]>([]);
-    // const [title, setTitle] = useState("");
-    // const [content, setContent] = useState("");
-    // const handleSubmit = async (e: React.FormEvent) => {
-    //     e.preventDefault();
-    //     // Here you would typically send the form data to your backend
-    //     console.log(exercise);
-
-    //     const reponse = await axiosInstance
-    //         .post("/exercise", {
-    //             language: language,
-    //             difficulty: exercise.difficulty,
-    //             title: exercise.title,
-    //             content: exercise.content,
-    //             tags: exercise.tags,
-    //         })
-    //         .then((res) => {
-    //             console.log(res);
-    //         })
-    //         .catch((e) => {
-    //             console.log(e);
-    //         });
-    //     // Reset form after submission
-    //     setDifficulty("");
-    //     setTags([]);
-    //     setTitle("");
-    //     setContent("");
-    // };
-    const handleNext = () => {
-        dispatch(setCurrentStep(currentStep + 1));
-    };
-
     useEffect(() => {
         console.log("content", exercise.content);
     }, [exercise.content]);
@@ -174,6 +140,29 @@ export function CodingExerciseForm(props: CodingExerciseFormProps) {
                     </FormItem>
                 )}
             />
+            <FormField
+                control={props.form.control}
+                name="score"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Score</FormLabel>
+                        <FormControl>
+                            <Input
+                                {...field}
+                                placeholder="Enter score"
+                                type="number"
+                                value={field.value} // Assuming field.value is expected to be a number
+                                onChange={(e) => {
+                                    const numericValue = e.target.value === '' ? '' : Number(e.target.value); // Handle empty input gracefully
+                                    field.onChange(numericValue);
+                                }}
+                            />
+                        </FormControl>
+                        <FormMessage className="text-right" />
+                    </FormItem>
+                )}
+            />
+
             {/* <Button type="submit" className="w-full">
           Tạo bài tập
         </Button> */}
