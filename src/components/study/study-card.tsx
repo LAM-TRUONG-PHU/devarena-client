@@ -4,7 +4,7 @@ import { FaDumbbell } from "react-icons/fa6";
 import { ELanguages } from "@/types/language";
 import { getLanguageTitle } from "@/utils/get-language-title";
 type StudyCardProps = {
-    language: string;
+    language: ELanguages;
     exercises: number;
     onClick: () => void;
 };
@@ -15,9 +15,9 @@ export default function StudyCard(props: StudyCardProps) {
             <div className="flex flex-col gap-2">
                 <div className="flex items-center space-x-4">
                     <div className="size-20">
-                        {props.language === "C" && <C.TierFinal />}
-                        {props.language === "Java" && <Java.TierFinal />}
-                        {props.language === "Cpp" && <Cpp.TierFinal />}
+                        {props.language === ELanguages.C && <C.TierFinal />}
+                        {props.language === ELanguages.Java && <Java.TierFinal />}
+                        {props.language === ELanguages.Cpp && <Cpp.TierFinal />}
                     </div>
                     <div>
                         <div className="text-xl font-semibold">{getLanguageTitle(props.language)}</div>
