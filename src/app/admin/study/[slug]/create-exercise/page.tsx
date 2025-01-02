@@ -14,18 +14,13 @@ import { setCurrentStep } from "@/redux/slices/admin/StudyFormSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { LoadingSpinner } from "@/components/loading";
+import { IoIosArrowRoundBack } from "react-icons/io";
 
-const steps = [
-    "Basic Info",
-    "Instructions",
-    "Equipment",
-    "Default",
-    "Solution",
-];
+const steps = ["Basic Info", "Instructions", "Equipment", "Default", "Solution"];
 
 export type TExerciseStudy = {
     title: string;
@@ -113,11 +108,21 @@ export default function CreateExercisePage() {
         dispatch(setCurrentStep(currentStep - 1));
     };
 
+    useEffect(() => {
+        setCurrentStep(0);
+    }, []);
+
     async function onSubmit(data: z.infer<typeof formSchema>) {
         setIsSubmitting(true); // Set loading state to true
         try {
-            const response = await axiosPrivate.post("/study", data);
-            router.push("/admin/study");
+            await axiosPrivate.post("/study", data).then((res) => {
+                toast({
+                    title: "Success",
+                    description: "Exercise created successfully",
+                    variant: "success",
+                });
+                router.back();
+            });
         } catch (e: any) {
             toast({
                 title: "Error",
@@ -150,10 +155,7 @@ export default function CreateExercisePage() {
         <div>
             <Stepper steps={steps} currentStep={currentStep} />
             <Form {...form}>
-                <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="mx-auto max-w-3xl min-h-screen"
-                >
+                <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto max-w-3xl min-h-screen">
                     <div className="flex flex-col items-center justify-center space-y-4">
                         <div className="flex justify-between w-full max-w-md">
                             <Button
@@ -166,8 +168,7 @@ export default function CreateExercisePage() {
                             </Button>
                             {currentStep === steps.length - 1 ? (
                                 <Button type="submit" disabled={isSubmitting}>
-                                    {isSubmitting ? <LoadingSpinner />
-                                        : "Submit"}
+                                    {isSubmitting ? <LoadingSpinner /> : "Submit"}
                                 </Button>
                             ) : (
                                 <Button

@@ -31,7 +31,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { IExercise } from "@/types/Exercise";
 import { LoadingSpinner } from "@/components/loading";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ButtonCreateExercise } from "./ButtonCreateExercise";
 
 export const columns: ColumnDef<IExercise>[] = [
     {
@@ -76,11 +75,6 @@ export const columns: ColumnDef<IExercise>[] = [
         accessorKey: "difficulty",
         header: "Difficulty",
         cell: ({ row }) => <div className="capitalize">{row.getValue("difficulty")}</div>,
-    },
-    {
-        accessorKey: "content",
-        header: "Content",
-        cell: ({ row }) => <div>{row.getValue("content")}</div>,
     },
     {
         accessorKey: "tags",
@@ -229,9 +223,9 @@ export function TableExercise(props: TableExerciseProps) {
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
+                                                      header.column.columnDef.header,
+                                                      header.getContext()
+                                                  )}
                                         </TableHead>
                                     );
                                 })}
