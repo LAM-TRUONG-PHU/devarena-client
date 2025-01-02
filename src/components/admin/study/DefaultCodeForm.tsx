@@ -1,9 +1,10 @@
-import { TExerciseStudy } from '@/app/admin/study/[slug]/create-exercise/page';
+import { TExerciseStudy } from '@/app/admin/study/[slug]/exercise/page';
 import { Editor, Monaco } from '@monaco-editor/react'
 import { usePathname } from 'next/navigation';
 import { UseFormReturn } from 'react-hook-form';
 import React from 'react'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { useAppSelector } from '@/redux/hooks';
 
 type defaultCodeFormProps = {
     form: UseFormReturn<
@@ -16,6 +17,7 @@ type defaultCodeFormProps = {
 export default function DefaultCodeForm(props: defaultCodeFormProps) {
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
+    const { currentExercise } = useAppSelector((state) => state.exercises);
     function handleEditorDidMount(editor: any, monaco: Monaco) {
         // Define a custom theme with background color #1D2432
         monaco.editor.defineTheme("customTheme", {
@@ -40,11 +42,12 @@ export default function DefaultCodeForm(props: defaultCodeFormProps) {
                     <FormControl>
                         <Editor
                             height={"calc(100svh - 7rem)"}
-                            defaultLanguage={segments[2]}
+                            defaultLanguage={segments[2].toLowerCase()}
                             defaultValue={
+                                currentExercise?.defaultCode ||
                                 `// Write your code here\n\n`
                             }
-                            value={field.value}
+                            value={currentExercise?.defaultCode || field.value}
                             onChange={(value) => field.onChange(value)}
                             theme="vs-dark"
                             onMount={handleEditorDidMount}

@@ -43,7 +43,7 @@ export default function AdminStudyPage() {
             <StudyCard
               key={course._id}
               onClick={() => {
-                router.push(`/admin/study/${course.language}?id=${course._id}`);
+                router.push(`/admin/study/${course.language.toLowerCase()}?id=${course._id}`);
               }}
               language={course.language}
               exercises={course.totalExercises}

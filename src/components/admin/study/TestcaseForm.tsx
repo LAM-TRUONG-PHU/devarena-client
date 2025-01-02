@@ -9,7 +9,7 @@ import {
     FormControl,
     FormMessage,
 } from "@/components/ui/form";
-import { TExerciseStudy } from "@/app/admin/study/[slug]/create-exercise/page";
+import { TExerciseStudy } from "@/app/admin/study/[slug]/exercise/page";
 import { useAppSelector } from "@/redux/hooks";
 
 type TestCaseFormProps = {
@@ -19,17 +19,17 @@ type TestCaseFormProps = {
 const TestcaseForm = ({ form }: TestCaseFormProps) => {
     const { control } = form;
     const { exercise } = useAppSelector((state) => state.studyForm);
-
+    const { currentExercise } = useAppSelector((state) => state.exercises);
 
     // Manage testcases dynamically
-    const { fields, append } = useFieldArray({
+    const { fields, append, remove } = useFieldArray({
         control,
         name: "testcases", // Name should match the form structure
     });
 
     const handleAddTestcase = () => {
         append({
-            input: {},
+            input: Array(exercise.variableName!.length).fill(""),
             output: "",
             hidden: false,
         });
@@ -38,14 +38,26 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
     return (
         <div className="flex flex-col space-y-4">
             {fields.map((field, testcaseIndex) => (
-                <div key={field.id} className="p-4 border border-gray-300 rounded flex flex-col">
-                    <h4 className="mb-2 font-semibold">Testcase {testcaseIndex + 1}</h4>
+                <div
+                    key={field.id}
+                    className="p-4 border border-gray-300 rounded flex flex-col"
+                >
+                    <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-semibold">Testcase {testcaseIndex + 1}</h4>
+                        <button
+                            type="button"
+                            onClick={() => remove(testcaseIndex)}
+                            className="text-red-500 hover:underline"
+                        >
+                            Remove
+                        </button>
+                    </div>
                     <div className="flex flex-col space-y-2">
                         {exercise.variableName!.map((variable, variableIndex) => (
                             <FormField
                                 key={variableIndex}
                                 control={control}
-                                name={`testcases.${testcaseIndex}.input.${variable}`}
+                                name={`testcases.${testcaseIndex}.input.${variableIndex}.${variable}`}
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>{variable}</FormLabel>
@@ -53,7 +65,7 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
                                             <Input
                                                 {...field}
                                                 placeholder={`Enter value for ${variable}`}
-                                                value={field.value ?? ""}
+                                                value={field.value || currentExercise?.testcases?.[testcaseIndex]?.input[variableIndex][variable] || ""}
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -70,7 +82,11 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
                                 <FormItem>
                                     <FormLabel>Output</FormLabel>
                                     <FormControl>
-                                        <Input {...field} placeholder="Enter output value" value={field.value ?? ""} />
+                                        <Input
+                                            {...field}
+                                            placeholder="Enter output value"
+                                            value={field.value || currentExercise?.testcases?.[testcaseIndex]?.output || ""}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -86,7 +102,7 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
                                     <FormLabel>Hidden?</FormLabel>
                                     <FormControl>
                                         <Switch
-                                            checked={field.value}
+                                            checked={field.value || currentExercise?.testcases?.[testcaseIndex]?.hidden || false}
                                             onCheckedChange={field.onChange}
                                         />
                                     </FormControl>

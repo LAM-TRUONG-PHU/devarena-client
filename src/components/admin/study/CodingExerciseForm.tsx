@@ -21,8 +21,9 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
-import { formSchema, TExerciseStudy } from "@/app/admin/study/[slug]/create-exercise/page";
+import { formSchema, TExerciseStudy } from "@/app/admin/study/[slug]/exercise/page";
 import { ESkills } from "@/components/sort";
+import { IExercise } from "@/types/Exercise";
 
 const difficultyOptions = [
     { value: "easy", label: "Easy" },
@@ -99,19 +100,9 @@ type CodingExerciseFormProps = {
     form: UseFormReturn<TExerciseStudy, any, undefined>;
 };
 export function CodingExerciseForm(props: CodingExerciseFormProps) {
-    const dispatch = useAppDispatch();
-    const { currentStep, totalStep, exercise } = useAppSelector((state) => state.studyForm);
-
-    useEffect(() => {
-        console.log("content", exercise.content);
-    }, [exercise.content]);
-
-    // const onChangeTag = (selected: string[]) => {
-    //     // setTags(selected);
-    //     dispatch(setTags(selected));
-    // };
+    const { currentExercise } = useAppSelector((state) => state.exercises);
     return (
-        <div>
+        <div className="mb-4">
             <FormField
                 control={props.form.control}
                 name="title"
@@ -125,6 +116,29 @@ export function CodingExerciseForm(props: CodingExerciseFormProps) {
                     </FormItem>
                 )}
             />
+            <FormField
+                control={props.form.control}
+                name="score"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Score</FormLabel>
+                        <FormControl>
+                            <Input
+                                {...field}
+                                placeholder="Enter score"
+                                type="number"
+                                value={field.value} // Assuming field.value is expected to be a number
+                                onChange={(e) => {
+                                    const numericValue = e.target.value === "" ? "" : Number(e.target.value); // Handle empty input gracefully
+                                    field.onChange(numericValue);
+                                }}
+                            />
+                        </FormControl>
+                        <FormMessage className="text-right" />
+                    </FormItem>
+                )}
+            />
+
             <FormField
                 control={props.form.control}
                 name="difficulty"
@@ -162,7 +176,8 @@ export function CodingExerciseForm(props: CodingExerciseFormProps) {
                                 onValueChange={(selected: string[]) => {
                                     field.onChange(selected);
                                 }}
-                                value={field.value}
+                                value={field.value || []}
+                                defaultValue={currentExercise?.tags || field.value || []}
                                 placeholder="Select tags"
                                 variant="inverted"
                                 animation={2}
@@ -185,28 +200,6 @@ export function CodingExerciseForm(props: CodingExerciseFormProps) {
                                 content={field.value}
                                 onValueChange={(value) => {
                                     field.onChange(value);
-                                }}
-                            />
-                        </FormControl>
-                        <FormMessage className="text-right" />
-                    </FormItem>
-                )}
-            />
-            <FormField
-                control={props.form.control}
-                name="score"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Score</FormLabel>
-                        <FormControl>
-                            <Input
-                                {...field}
-                                placeholder="Enter score"
-                                type="number"
-                                value={field.value} // Assuming field.value is expected to be a number
-                                onChange={(e) => {
-                                    const numericValue = e.target.value === "" ? "" : Number(e.target.value); // Handle empty input gracefully
-                                    field.onChange(numericValue);
                                 }}
                             />
                         </FormControl>

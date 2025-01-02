@@ -1,9 +1,11 @@
+import { TExerciseStudy } from "@/app/admin/study/[slug]/exercise/page";
 import { IExercise } from "@/types/Exercise";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosInstance } from "axios";
 
 interface ExerciseState {
     exercises: IExercise[];
+    currentExercise: IExercise | null;
     loading: boolean;
     error: string | null;
 }
@@ -18,6 +20,7 @@ interface FetchCoursesParams {
 
 const initialState: ExerciseState = {
     exercises: [],
+    currentExercise: null,
     loading: false,
     error: null,
 };
@@ -40,6 +43,17 @@ const exercisesSlice = createSlice({
     reducers: {
         addExercise(state, action: PayloadAction<IExercise>) {
             state.exercises.push(action.payload);
+        },
+        setCurrentExercise(state, action: PayloadAction<IExercise | null>) {
+            state.currentExercise = action.payload;
+        },
+        updateExercise(state, action: PayloadAction<IExercise>) {
+            const index = state.exercises.findIndex((exercise) => exercise._id === action.payload._id);
+            if (index !== -1) {
+                state.exercises[index] = action.payload;
+            }
+        }, deleteExercise(state, action: PayloadAction<string | undefined>) {
+            state.exercises = state.exercises.filter((exercise) => exercise._id !== action.payload);
         }
     },
     extraReducers: (builder) => {
@@ -58,6 +72,8 @@ const exercisesSlice = createSlice({
     },
 });
 
-export const { addExercise } = exercisesSlice.actions;
+export const { addExercise, setCurrentExercise,
+    updateExercise, deleteExercise
+} = exercisesSlice.actions;
 
 export default exercisesSlice.reducer;

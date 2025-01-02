@@ -1,45 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { setVariableName, setVariableCount } from "@/redux/slices/admin/StudyFormSlice";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { UseFormReturn } from "react-hook-form";
-import { TExerciseStudy } from "@/app/admin/study/[slug]/create-exercise/page";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 
-type VariableNameFormProps = {
-  form: UseFormReturn<
-    TExerciseStudy,
-    any,
-    undefined
-  >;
-}
+const VariableNameForm = () => {
+  const { exercise, variableCount } = useAppSelector((state) => state.studyForm);
+  const { currentExercise } = useAppSelector((state) => state.exercises);
+  const dispatch = useAppDispatch();
 
-const typeOptions = [
-  { value: "array", label: "Array" },
-  { value: "string", label: "String" },
-  { value: "integer", label: "Integer" },
-  { value: "float", label: "Float" },
-  { value: "double", label: "Double" },
-  { value: "boolean", label: "Boolean" },
-  { value: "object", label: "Object" },
-  { value: "function", label: "Function" },
-  { value: "undefined", label: "Undefined" },
-  { value: "null", label: "Null" },
-];
-
-
-
-const VariableNameForm = (props: VariableNameFormProps) => {
-  // const [variableCount, setVariableCount] = useState<string>("");
-  const { exercise, variableCount } = useAppSelector((state) => state.studyForm)
-  //   const [variableNames, setVariableNames] = useState<string[]>([]);
-  const dispatch = useAppDispatch()
-  //   const [numberTc, setNumberTc] = useState<string>("");
+  useEffect(() => {
+    if (currentExercise?.testcases?.[0]?.input) {
+      const inputLength = currentExercise?.testcases?.[0]?.input?.length;
+      dispatch(setVariableCount(inputLength));
+      dispatch(setVariableName(Array(inputLength).fill(
+        currentExercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0])
+      )));
+    }
+  }, []);
 
   const handleVariableCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -47,52 +27,46 @@ const VariableNameForm = (props: VariableNameFormProps) => {
 
     if (!isNaN(count) && count >= 0) {
       dispatch(setVariableCount(count));
-      const updatedVariableNames = Array(count).fill("");
-      dispatch(setVariableName(updatedVariableNames));
+      dispatch(setVariableName(Array(count).fill("")));
     } else {
       dispatch(setVariableCount(0));
       dispatch(setVariableName([]));
     }
   };
-  const handleVariableNameChange = (index: number, value: string) => {
-    const newVariableNames = [...(exercise.variableName || [])];
-    newVariableNames[index] = value;
-    dispatch(setVariableName(newVariableNames));
-  };
 
-  const renderVariableInputs = () => {
-    return exercise.variableName!.map((name, index) => (
-      <div key={index} className="flex gap-4 mt-4">
-        <Input
-          placeholder={`Enter variable ${index + 1} name`}
-          value={name}
-          onChange={(e) => {
-            handleVariableNameChange(index, e.target.value);
-          }}
-        />
-      </div>
-    ));
+  const handleVariableNameChange = (index: number, value: string) => {
+    const updatedVariableNames = [...(exercise.variableName || [])];
+    updatedVariableNames[index] = value;
+    dispatch(setVariableName(updatedVariableNames));
   };
 
   return (
     <div>
-
       <div className="mb-6">
         <Label htmlFor="variable-count">Number of Variables</Label>
         <Input
           id="variable-count"
           type="number"
           min="0"
-
-          value={variableCount.toString()}
+          value={variableCount?.toString() || ""}
           onChange={handleVariableCountChange}
           placeholder="Enter number of variables"
         />
-
       </div>
 
-      {renderVariableInputs()}
-
+      {variableCount > 0 && (
+        <div>
+          {Array.from({ length: variableCount }).map((_, index) => (
+            <div key={index} className="flex gap-4 mt-4">
+              <Input
+                placeholder={`Enter variable ${index + 1} name`}
+                value={exercise.variableName?.[index] || ""}
+                onChange={(e) => handleVariableNameChange(index, e.target.value)}
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

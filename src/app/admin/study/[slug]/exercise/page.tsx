@@ -19,6 +19,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { LoadingSpinner } from "@/components/loading";
 import { IoIosArrowRoundBack } from "react-icons/io";
+import { addExercise, updateExercise } from "@/redux/slices/admin/exerciseStudySlice";
 
 const steps = ["Basic Info", "Instructions", "Equipment", "Default", "Solution"];
 
@@ -28,7 +29,7 @@ export type TExerciseStudy = {
     difficulty: string;
     tags: string[];
     testcases: {
-        input: Record<string, any>;
+        input: Record<string, any>[];
         hidden: boolean;
         output?: any;
     }[];
@@ -51,8 +52,9 @@ export const formSchema = z.object({
     tags: z.array(z.string()),
     testcases: z.array(
         z.object({
-            input: z.record(z.any()),
-            output: z.any(),
+            input: z.array(
+                z.record(z.any())
+            ), output: z.any(),
             hidden: z.boolean(),
         })
     ),
@@ -68,7 +70,9 @@ export const formSchema = z.object({
     score: z.number().min(1, { message: "required" }),
 });
 
-export default function CreateExercisePage() {
+
+
+export default function DetailExercisePage() {
     const [isSubmitting, setIsSubmitting] = useState(false); // State for button loading
     const dispatch = useAppDispatch();
     const { currentStep, totalStep } = useAppSelector((state) => state.studyForm);
@@ -77,25 +81,26 @@ export default function CreateExercisePage() {
     const courseId = searchParams.get("id");
     const router = useRouter();
     const { toast } = useToast();
+    const { currentExercise } = useAppSelector((state) => state.exercises);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            title: "",
-            content: "",
-            difficulty: "",
-            tags: [],
-            testcases: [
+            title: currentExercise?.title || "",
+            content: currentExercise?.content || "",
+            difficulty: currentExercise?.difficulty || "",
+            tags: currentExercise?.tags || [],
+            testcases: currentExercise?.testcases || [
                 {
-                    input: {},
+                    input: [],
                     output: "",
                     hidden: false,
                 },
             ],
-            defaultCode: "",
-            solution: "",
+            defaultCode: currentExercise?.defaultCode || "",
+            solution: currentExercise?.solution || "",
             courseId: courseId || "",
-            score: 0,
+            score: currentExercise?.score || 0,
         },
     });
 
@@ -108,30 +113,54 @@ export default function CreateExercisePage() {
         dispatch(setCurrentStep(currentStep - 1));
     };
 
-    useEffect(() => {
-        setCurrentStep(0);
-    }, []);
 
     async function onSubmit(data: z.infer<typeof formSchema>) {
-        setIsSubmitting(true); // Set loading state to true
-        try {
-            await axiosPrivate.post("/study", data).then((res) => {
-                toast({
-                    title: "Success",
-                    description: "Exercise created successfully",
-                    variant: "success",
+        setIsSubmitting(true);
+        if (currentExercise) {
+            try {
+                await axiosPrivate.put(`/study/${currentExercise._id}`, data).then((res) => {
+                    toast({
+                        title: "Success",
+                        description: "Exercise updated successfully",
+                        variant: "success",
+                    });
+                    dispatch(updateExercise(res.data.data));
+                    router.back();
                 });
-                router.back();
-            });
-        } catch (e: any) {
-            toast({
-                title: "Error",
-                description: e.response?.data?.message || "Something went wrong",
-                variant: "error",
-            });
-        } finally {
-            setIsSubmitting(false); // Reset loading state
+            }
+            catch (e: any) {
+                toast({
+                    title: "Error",
+                    description: e.response?.data?.message || "Something went wrong",
+                    variant: "error",
+                });
+            }
+            finally {
+                setIsSubmitting(false);
+            }
         }
+        else {
+            try {
+                await axiosPrivate.post("/study", data).then((res) => {
+                    toast({
+                        title: "Success",
+                        description: "Exercise created successfully",
+                        variant: "success",
+                    });
+                    dispatch(addExercise(res.data.data));
+                    router.back();
+                });
+            } catch (e: any) {
+                toast({
+                    title: "Error",
+                    description: e.response?.data?.message || "Something went wrong",
+                    variant: "error",
+                });
+            } finally {
+                setIsSubmitting(false);
+            }
+        }
+
     }
 
     const renderStepContent = () => {
@@ -139,7 +168,7 @@ export default function CreateExercisePage() {
             case 0:
                 return <CodingExerciseForm form={form} />;
             case 1:
-                return <VariableNameForm form={form} />;
+                return <VariableNameForm />;
             case 2:
                 return <TestcaseForm form={form} />;
             case 3:

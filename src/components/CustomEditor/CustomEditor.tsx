@@ -10,7 +10,7 @@ import { useAppDispatch } from "@/redux/hooks";
 import { setContent } from "@/redux/slices/admin/StudyFormSlice";
 import ReactQuill from "react-quill-new";
 interface Pros {
-    content: string;
+    content: string | undefined;
     onValueChange?: (value: string) => void;
     // setContent: Dispatch<SetStateAction<string>>
 }
@@ -124,8 +124,8 @@ const CustomEditor = ({ content, onValueChange }: Pros) => {
                 formats={["header", "bold", "italic", "underline", "strike", "list", "link", "image", "code-block", "blockquote"]}
             />
 
-            <p>Editor Output:</p>
-            <div style={{ border: "1px solid #ccc", padding: "10px" }}>{content}</div>
+            {/* <p>Editor Output:</p> */}
+            {/* <div style={{ border: "1px solid #ccc", padding: "10px" }}>{content}</div> */}
         </div>
     );
 };
