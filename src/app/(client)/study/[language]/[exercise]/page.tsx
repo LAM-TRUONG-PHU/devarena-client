@@ -14,7 +14,13 @@ import { set } from "react-hook-form";
 import { getLanguageTitle } from "@/utils/get-language-title";
 import { ELanguages } from "@/types/language";
 import { TabsExercise } from "@/components/tab/tabs-exercise";
-import { useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { useSocket } from "@/socket/useSocket";
+import { useSession } from "next-auth/react";
+import { StatusCompile } from "@/types/Exercise";
+import { setRunningTestCase, setTestCases, updateStatusTestCase } from "@/redux/slices/ExerciseStatusSlice";
+import { useToast } from "@/hooks/use-toast";
+import { ICompileRes } from "@/types/ICompileRes";
 
 const defaultValue = {
   cpp: `#include <iostream> \nusing namespace std; \nint main() { \n    cout << "Hello, World!"; \n    return 0; \n}`,
@@ -30,9 +36,44 @@ export default function ExercisePage() {
   const [theme, setTheme] = useState<"vs-dark" | "vs-light">("vs-dark");
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
-  const { exerciseSelected, courseStatus } = useAppSelector(
+  const [isLoading,setIsLoading]=useState(false)
+  const [code,setCode]=useState("")
+  const dispatch = useAppDispatch();
+
+  const { exerciseSelected, courseStatus,testCases } = useAppSelector(
     (state) => state.exerciseStatus
   );
+  const {data:session}=useSession()
+  const {toast}=useToast()
+  const { connected, compileCode, stopExecution, isConnected } = useSocket(
+    {
+      uniqueId:session?.user.id||"",
+      onOutput: (output:ICompileRes) => {
+        dispatch(updateStatusTestCase({index:output.testCaseIndex,res:output}))
+      },
+      onError: (error) => {
+          toast({
+            title: "Lỗi",
+            description: error,
+            variant: "error",
+          });
+      },
+      onWaitingInput: (message) => {
+        console.log(message)
+      }
+    
+    }
+   
+  );
+  useEffect(() => {
+    const testCasesTemp =
+      exerciseSelected?.exerciseId.testcases!.map((testCase) => ({
+        ...testCase,
+        statusCompile: StatusCompile.COMPILE_WAITING,
+      })) || [];
+    dispatch(setTestCases(testCasesTemp));
+    console.log(testCasesTemp)
+  }, [exerciseSelected]);
   function handleEditorDidMount(editor: any, monaco: Monaco) {
     // Define a custom theme with background color #1D2432
     monaco.editor.defineTheme("customTheme", {
@@ -46,6 +87,29 @@ export default function ExercisePage() {
 
     // Apply the custom theme
     monaco.editor.setTheme("customTheme");
+  }
+  const handleRun=async()=>{
+    try {
+      setIsLoading(true);
+      // setOutput('Đang biên dịch...');
+      dispatch(setRunningTestCase(exerciseSelected?.exerciseId._id||""))
+      if (!code.includes('public class') || !code.includes('public static void main')) {
+        throw new Error('Code phải có public class và hàm main');
+      }
+      const convertedTestCases = testCases.map((testCase) => {
+        // Map qua từng đối tượng trong mảng input và lấy giá trị (value)
+        return testCase.input.map((item) => Object.values(item).map(String)).flat();
+      });
+      console.log(convertedTestCases)
+      await compileCode(code,convertedTestCases,exerciseSelected?.exerciseId._id||"");
+    } catch (error) {
+      // if (error instanceof Error) {
+      //   setOutput(`Lỗi: ${error.message}`);
+      // } else {
+      //   setOutput('Lỗi không xác định khi biên dịch');
+      // }
+      setIsLoading(false);
+    }
   }
   const toggleTheme = () => {
     // Toggling the theme between vs-dark and vs-light
@@ -98,6 +162,8 @@ export default function ExercisePage() {
               defaultValue[segments[1] as keyof typeof defaultValue]
             }
             theme={theme}
+            value={code}
+            onChange={(value)=>setCode(value||"")}
             onMount={handleEditorDidMount}
           />
           <div className="absolute bottom-8 right-8">
@@ -105,6 +171,7 @@ export default function ExercisePage() {
               <Button
                 variant={theme == "vs-dark" ? "run-dark" : "run-light"}
                 size="editor"
+                onClick={handleRun}
               >
                 <FaPlay />
                 Run

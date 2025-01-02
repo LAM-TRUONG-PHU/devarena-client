@@ -15,6 +15,7 @@ import { getLanguageTitle } from "@/utils/get-language-title";
 import { ELanguages } from "@/types/language";
 import { getLanguageValue } from "@/utils/get-language-value";
 import { TabsExercise } from "@/components/tab/tabs-exercise";
+import { useAppSelector } from "@/redux/hooks";
 
 const defaultValue = {
   "C++": `#include <iostream> \nusing namespace std; \nint main() { \n    cout << "Hello, World!"; \n    return 0; \n}`,
@@ -27,7 +28,13 @@ export default function ExercisePage() {
 
   const [language, setLanguage] = useState<ELanguages>(ELanguages.C);
   const [code, setCode] = useState(defaultValue[ELanguages.C]);
-
+  const {exerciseSelected,testCases}=useAppSelector((state)=>state.exerciseStatus)
+  const handleRunCode=async()=>{
+    console.log(language);
+    console.log(code)
+    console.log(exerciseSelected)
+    console.log(testCases)
+  }
   useEffect(() => {
     setCode(defaultValue[language as keyof typeof defaultValue]);
   }, [language]);
@@ -106,6 +113,7 @@ export default function ExercisePage() {
               <Button
                 variant={theme == "vs-dark" ? "run-dark" : "run-light"}
                 size="editor"
+                onClick={handleRunCode}
               >
                 <FaPlay />
                 Run
