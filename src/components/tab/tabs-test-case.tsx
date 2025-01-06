@@ -29,6 +29,7 @@ export function TabsTestCase() {
         output: exerciseSelected?.exerciseId.testcases![0].output!,
         status: false,
         statusCompile: StatusCompile.COMPILE_WAITING,
+        outputExpected: "10"
       })
     );
     setActiveTab(newId);
