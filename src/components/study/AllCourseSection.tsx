@@ -7,55 +7,27 @@ import { useRouter } from "next/navigation";
 import StudyCard from "./study-card";
 import { useSession } from "next-auth/react";
 import { ELanguages } from "@/types/language";
+import { setCurrentCourse } from "@/redux/slices/courseSlice";
+import { useAppDispatch } from "@/redux/hooks";
+import { EStatus } from "../sort";
 
-const AllCourseSection = () => {
-    const axios = usePrivate();
+type AllCourseSectionProps = {
+    courses: (ICourse & { status: EStatus })[]
+};
+
+const AllCourseSection = (props: AllCourseSectionProps) => {
     const router = useRouter();
-    const [courses, setCourses] = useState<ICourse[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const { data: session } = useSession();
-    useEffect(() => {
-        const fetchCourses = async () => {
-            try {
-                setIsLoading(true);
-                const response = await axios.get("/course");
-                console.log(response.data.data);
-                setCourses(response.data.data);
-            } catch (error) {
-                console.error("Error fetching courses:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchCourses();
-    }, []);
-    const enrolledCourses = async (courseId: string): Promise<string> => {
-        const response = await axios
-            .post("/course-status/enroll", {
-                userId: session?.user.id,
-                courseId,
-            })
-            .then((res) => {
-                return res.data.data._id;
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-        return response;
-    };
+    const dispatch = useAppDispatch();
     return (
         <div>
             <span>All Study Courses</span>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {isLoading ? (
-                    <div>Loading...</div>
-                ) : (
-                    courses.map((course) => (
+                {(
+                    props.courses.filter((course) => course.status === EStatus.Unsolved).map((course) => (
                         <StudyCard
                             key={course._id}
                             onClick={async () => {
-                                const courseStautusId = await enrolledCourses(course._id);
-                                router.push(`/study/${courseStautusId}`);
+                                router.push(`/study/${course.language.toLowerCase()}?id=${course._id}`);
                             }}
                             language={course.language as ELanguages}
                             exercises={course.totalExercises || 0}

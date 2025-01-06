@@ -4,7 +4,7 @@ import { ELanguages } from "@/types/language";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Loader2, Trophy } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { C, Java, Cpp } from "@/components/mastery";
 import ExerciseCard from "@/components/study/exercise-card";
 import { EDifficulty, ESkills, EStatus, Sort } from "@/components/sort";
@@ -21,10 +21,14 @@ import { ICourseStatus } from "@/types/ICourseStatus";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
   setCourseStatus,
-  setExercises,
   setExerciseSelected,
 } from "@/redux/slices/ExerciseStatusSlice";
 import { createSlug } from "@/lib/helper";
+import { fetchExercises } from "@/redux/slices/admin/exerciseStudySlice";
+import { useSession } from "next-auth/react";
+import { IExercise } from "@/types/Exercise";
+import { set } from "store";
+import { capitalize } from "@/utils/capitalize";
 
 export type SortOptionTitle = "Filter" | "Status" | "Skills" | "Difficulty";
 
@@ -36,73 +40,79 @@ export default function LanguagePage() {
   const skillsFilter = useSkillsFilter();
   const mainFilter = useMainFilter();
   const router = useRouter();
-  console.log("Language slug:", segments[1]); // Thêm dòng này để log ra slug language
   // const [courseStatus, setCourseStatus] = useState<ICourseStatus|null>(null)
-  const axios = usePrivate();
+  const [loading, setLoading] = useState(true);
   const dispatch = useAppDispatch();
-  const [loading, setLoading] = useState(false);
-  const { courseStatus } = useAppSelector((state) => state.exerciseStatus);
-  // const language = segments[1]
-  //     .split("-")
-  //     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-  //     .join(" ");
+  const axiosPrivate = usePrivate();
+  const { data: session, status } = useSession();
+  const [courseTitle, setCourseTitle] = useState("");
+  const searchParams = useSearchParams();
+  const courseId = searchParams.get("id");
+  const language = capitalize(segments[1]);
+  const [exercises, setExercises] = useState<(IExercise & {
+    status: EStatus
+  })[]>([]);
 
-  // if (!isValidLanguage(language)) {
-  //     return router.replace("/404");
-  // }
+
   useEffect(() => {
-    console.log(courseStatus);
-  }, [courseStatus]);
-  useEffect(() => {
-    async function getExerciseStatus() {
-      setLoading(true);
-      const response = await axios
-        .get(`/course-status/${segments[1]}`)
-        .then((res) => {
-          console.log(res.data.data);
-          // setCourseStatus({
-          //     courseId: res.data.data.courseId,
-          //     _id: res.data.data._id,
-          //     status: res.data.data.status,
-          //     progress: res.data.data.progress,
-          //     exerciseStatuses: res.data.data.exerciseStatuses
-          // })
-          //@ts-ignore
-          dispatch(setCourseStatus(res.data.data));
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-      setLoading(false);
-      // setExerciseStatus(response.data)
+    const getExercisesByUserAndCourse = async () => {
+      try {
+        if (status === "authenticated") {
+          await axiosPrivate
+            .get(`/study/course/${courseId}/user/${session?.user.id}`)
+            .then((res) => {
+              setCourseTitle(res.data.data.courseTitle);
+              const { exercisesStatus }: { exercisesStatus: IExerciseStatus[] } = res.data.data
+              setExercises(res.data.data.exercisesByCourse.map((exercise: IExercise) => {
+                const exerciseStatus = exercisesStatus.find((exercisesStatus) => exercisesStatus.exerciseId == exercise._id)
+
+                if (exerciseStatus == undefined) {
+                  return { ...exercise, status: EStatus.Unsolved }
+                } else {
+                  return { ...exercise, status: exerciseStatus.status == "completed" ? EStatus.Solved : EStatus.InProgress }
+                }
+              }));
+              setLoading(false);
+
+            })
+        } else {
+          setLoading(false);
+        }
+      } catch (error) {
+        setLoading(false);
+        console.error("Error fetching exercises:", error);
+      }
+
     }
-    getExerciseStatus();
-    // if(segments[1]==="c"){
-    //     setLanguage(ELanguages.C)
-    // }
-  }, [segments[1]]);
+    getExercisesByUserAndCourse();
+
+  }, [axiosPrivate, dispatch, status]);
+
+  console.log(exercises)
+
+
   return (
     <>
-      {loading && (
-        <div className="flex justify-center items-center h-screen">
-          <Loader2 className="size-6 animate-spin" />
-        </div>
-      )}
+
       <div className="flex shrink-0 items-center justify-between lg:pr-14 lg:pl-10  py-6 bg-white shadow-sm">
         <div className="flex items-center gap-4">
           <div className="md:size-24 size-20">
-            {courseStatus?.courseId.language === ELanguages.C && (
+            {language === ELanguages.C && (
               <C.TierFinal />
             )}
-            {courseStatus?.courseId.language === ELanguages.Java && (
+            {language === ELanguages.Java && (
               <Java.TierFinal />
             )}
-            {courseStatus?.courseId.language === ELanguages.Cpp && (
+            {language === ELanguages.Cpp && (
               <Cpp.TierFinal />
             )}
           </div>
           <h1 className="md:text-2xl font-semibold text-lg">
-            {courseStatus?.courseId.title}
+            {loading ? (
+              <div className="flex justify-center items-center">
+                <Loader2 className="size-6 animate-spin" />
+              </div>
+            ) : (<>{courseTitle}</>)}
           </h1>
         </div>
         <div className="space-y-1 scale-90 lg:scale-100">
@@ -121,13 +131,13 @@ export default function LanguagePage() {
               </div>
             </div>
             <div className="size-10">
-              {courseStatus?.courseId.language === ELanguages.C && (
+              {language === ELanguages.C && (
                 <C.TierOne />
               )}
-              {courseStatus?.courseId.language === ELanguages.Java && (
+              {language === ELanguages.Java && (
                 <Java.TierOne />
               )}
-              {courseStatus?.courseId.language === ELanguages.Cpp && (
+              {language === ELanguages.Cpp && (
                 <Cpp.TierOne />
               )}
             </div>
@@ -161,44 +171,50 @@ export default function LanguagePage() {
             selected={skillsFilter.selected}
           />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-5">
-          {/* <ExerciseCard
-                        language={courseStatus?.courseId.language||"Java"}
-                        title="Hello World"
-                        tags={["Crypto", "Privacy", "Social"]}
-                        inProgress
-                        onClick={() => {}}
-                    /> */}
-          {courseStatus?.exerciseStatuses?.map((exercise) => {
-            return (
+        {loading ? (
+          <div className="flex justify-center items-center">
+            <Loader2 className="size-6 animate-spin" />
+          </div>
+        ) : (<>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-5">
+
+            {exercises.filter((exercise) => exercise.status == EStatus.InProgress).map((exercise) => (
               <ExerciseCard
                 key={exercise._id}
-                language={courseStatus?.courseId.language || "Java"}
-                title={exercise.exerciseId.title}
-                tags={exercise.exerciseId.tags}
-                status={exercise.status}
+                language={language}
+                title={exercise.title}
+                tags={exercise.tags}
                 onClick={() => {
-                  const slug = createSlug(exercise.exerciseId.title);
-                  dispatch(setExerciseSelected(exercise));
+                  router.push(`/study/${segments[1]}/${createSlug(exercise.title)}?id=${exercise._id}`);
+                }} status={exercise.status}
+                score={exercise.score} />
+            ))}
 
-                  router.push(`/study/${segments[1]}/${slug}`);
-                }}
-              />
-            );
-          })}
-        </div>
-        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <ExerciseCard
-                        language={courseStatus?.courseId.language||"Java"}
-                        title="Hello World"
-                        tags={["Crypto", "Privacy", "Social"]}
-                        onClick={() => {
-                            router.push(`/study/${segments[1]}/hello-world`);
-                        }}
-                        
-                    />
-                   
-                </div> */}
+
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {exercises.filter((exercise) => { return exercise.status == EStatus.Unsolved || exercise.status == EStatus.Solved })
+              .sort((a, b) => {
+                if (a.status === EStatus.Solved && b.status !== EStatus.Solved) return -1;
+                if (a.status !== EStatus.Solved && b.status === EStatus.Solved) return 1;
+                return 0;
+              })
+              .map((exercise) => (
+                <ExerciseCard
+                  key={exercise._id}
+                  language={language}
+                  title={exercise.title}
+                  tags={exercise.tags}
+                  onClick={() => {
+                    router.push(`/study/${segments[1]}/${createSlug(exercise.title)}?id=${exercise._id}`);
+                  }}
+                  status={exercise.status === EStatus.Solved ? "completed" : ""}
+                  score={exercise.score}
+                />
+              ))}
+          </div></>)}
+
+
       </div>
     </>
   );

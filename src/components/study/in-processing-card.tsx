@@ -31,15 +31,15 @@ export default function InProcessingCard(props: InProgressingCardProps) {
           </span>
         </div>
         <div className="flex justify-between items-center w-11/12">
-          <Progress value={50} variant={props.language as ELanguages} />
+          <Progress value={props.progress} variant={props.language as ELanguages} />
           <div className="text-xs ml-2">{props.progress}%</div>
         </div>
         <div className="flex gap-1 items-center w-2/3 text-sm">
-          <div>33% Get to 15 points to unlock next mastery</div>
+          <div>Get to 15 points to unlock next mastery</div>
           <div className="size-8">
             {props.language === ELanguages.C && <C.TierFinal />}
-            {props.language === ELanguages.Cpp && <Java.TierFinal />}
-            {props.language === ELanguages.Java && <Cpp.TierFinal />}
+            {props.language === ELanguages.Cpp && <Cpp.TierFinal />}
+            {props.language === ELanguages.Java && <Java.TierFinal />}
           </div>
         </div>
         <Button onClick={props.onClick} className="px-4 py-6">

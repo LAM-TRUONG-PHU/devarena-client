@@ -161,9 +161,8 @@ export function Sort<T>(props: SortProps<T>) {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-                className={`${
-                    props.title == "Skills" ? "w-auto" : "w-64"
-                } max-h-80 overflow-y-auto relative p-0`}
+                className={`${props.title == "Skills" ? "w-auto" : "w-64"
+                    } max-h-80 overflow-y-auto relative p-0`}
             >
                 <DropdownMenuLabel className="sticky z-10 top-0 bg-white border-b border-gray-100">
                     {props.title}

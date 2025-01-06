@@ -15,13 +15,20 @@ import {
 } from "../ui/carousel";
 import { JSX } from "react";
 import { useAppSelector } from "@/redux/hooks";
+import { IExercise } from "@/types/Exercise";
+import { Editor, Monaco } from "@monaco-editor/react";
+import { usePathname } from "next/navigation";
+import PrismCode from "../prism-code";
 
 type TabsExerciseProps = {
   study?: boolean;
 };
 
 export function TabsExercise({ study }: TabsExerciseProps) {
-  const { exerciseSelected } = useAppSelector((state) => state.exerciseStatus);
+  const { exercise } = useAppSelector(state => state.exercises)
+  const pathname = usePathname();
+  const segments = pathname.split("/").filter(Boolean);
+
   const renderTabsTrigger = (
     value: string,
     icon: JSX.Element,
@@ -34,10 +41,9 @@ export function TabsExercise({ study }: TabsExerciseProps) {
       </TabsTrigger>
     </CarouselItem>
   );
-
   return (
-    <Tabs defaultValue="task" className="w-full flex flex-col h-full">
-      <header className="flex h-12 items-center border-foreground border-b-[0.5px] bg-white">
+    <Tabs defaultValue="task" className="w-full flex flex-col h-full relative">
+      <header className="flex sticky top-0 h-12 items-center border-foreground border-b-[0.5px] bg-white">
         <TabsList className="w-full max-w-sm mx-auto">
           <Carousel
             opts={{ align: "center" }}
@@ -68,12 +74,16 @@ export function TabsExercise({ study }: TabsExerciseProps) {
         </TabsList>
       </header>
 
-      <TabsContent value="task" className="flex-1">
+      <TabsContent value="task" className="flex-1 p-4">
         <div
           dangerouslySetInnerHTML={{
-            __html: exerciseSelected?.exerciseId.content,
+            // __html: exerciseSelected?.exerciseId.content,
+            __html: exercise.content,
           }}
         ></div>
+      </TabsContent>
+      <TabsContent value="instruction" className="flex-1">
+        <PrismCode code={exercise.solution!} language={segments[1]} />
       </TabsContent>
       <TabsContent value="test-case" className="flex-1">
         <TabsTestCase />

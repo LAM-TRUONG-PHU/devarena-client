@@ -5,21 +5,19 @@ import DefaultCodeForm from "@/components/admin/study/DefaultCodeForm";
 import SolutionCodeForm from "@/components/admin/study/SolutionCodeForm";
 import TestcaseForm from "@/components/admin/study/TestcaseForm";
 import VariableNameForm from "@/components/admin/study/VariableNameForm";
+import { LoadingSpinner } from "@/components/loading";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
 import { usePrivate } from "@/hooks/usePrivateAxios";
-import { toast, useToast } from "@/hooks/use-toast";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { addExercise, updateExercise } from "@/redux/slices/admin/exerciseStudySlice";
 import { setCurrentStep } from "@/redux/slices/admin/StudyFormSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { usePathname, useSearchParams } from "next/navigation";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { LoadingSpinner } from "@/components/loading";
-import { IoIosArrowRoundBack } from "react-icons/io";
-import { addExercise, updateExercise } from "@/redux/slices/admin/exerciseStudySlice";
 
 const steps = ["Basic Info", "Instructions", "Equipment", "Default", "Solution"];
 

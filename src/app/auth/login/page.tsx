@@ -2,18 +2,18 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOffIcon } from "lucide-react";
-import { signIn, useSession } from "next-auth/react";
+import { getSession, signIn, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation"; // New import
@@ -67,7 +67,7 @@ export default function LoginPage() {
             redirect: false,
             username: data.username,
             password: data.password,
-        });
+        })
 
         if (res?.error) {
             toast({
@@ -76,11 +76,11 @@ export default function LoginPage() {
                 variant: "error",
             });
         } else if (res?.ok) {
-          console.log(session?.user)
+            const session = await getSession();
             if (session?.user.role === "admin") {
                 router.push("/admin/study");
             } else {
-                router.push("/study"); // Redirect non-admin users to a generic dashboard
+                router.push("/study");
             }
         }
     }
@@ -93,14 +93,11 @@ export default function LoginPage() {
         if (res?.error) {
             console.log(res.error);
             toast({
-                title: "lỗi đăng nhập",
+                title: "Login Error",
                 description: res.error,
                 variant: "error",
             });
         }
-        console.log("res");
-
-        console.log(res);
     }
     return (
         <>

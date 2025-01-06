@@ -12,6 +12,7 @@ import { ChevronsUpDown, Sparkles, BadgeCheck, CreditCard, Bell, LogOut } from "
 import React from "react";
 import { SidebarMenuButton, useSidebar } from "./ui/sidebar";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 export default function NavUser({
     user,
@@ -24,6 +25,13 @@ export default function NavUser({
 }) {
     const { isMobile } = useSidebar();
     const router = useRouter();
+    const handleLogout = async () => {
+        await signOut({
+            redirect: true,  // Redirect the user after logging out
+            callbackUrl: '/auth/login',
+        });
+    };
+
 
     return (
         <>
@@ -82,7 +90,7 @@ export default function NavUser({
                         </DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => router.push("/auth/login")}>
+                    <DropdownMenuItem onClick={handleLogout}>
                         <LogOut />
                         Log out
                     </DropdownMenuItem>

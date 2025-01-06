@@ -192,20 +192,23 @@ export function CodingExerciseForm(props: CodingExerciseFormProps) {
             <FormField
                 control={props.form.control}
                 name="content"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Content</FormLabel>
-                        <FormControl>
-                            <CustomEditor
-                                content={field.value}
-                                onValueChange={(value) => {
-                                    field.onChange(value);
-                                }}
-                            />
-                        </FormControl>
-                        <FormMessage className="text-right" />
-                    </FormItem>
-                )}
+                render={({ field }) => {
+                    return (
+
+                        <FormItem>
+                            <FormLabel>Content</FormLabel>
+                            <FormControl>
+                                <CustomEditor
+                                    content={field.value}
+                                    onValueChange={(value) => {
+                                        field.onChange(value);
+                                    }}
+                                />
+                            </FormControl>
+                            <FormMessage className="text-right" />
+                        </FormItem>
+                    )
+                }}
             />
 
             {/* <Button type="submit" className="w-full">

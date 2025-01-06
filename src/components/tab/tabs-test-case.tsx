@@ -9,30 +9,45 @@ import {
   handleChangeInputTestCase,
   removeTestCase,
   setTestCases,
-} from "@/redux/slices/ExerciseStatusSlice";
+} from "@/redux/slices/admin/exerciseStudySlice";
 import { Spinner } from "../ui/spinner";
 
 export function TabsTestCase() {
   const dispatch = useAppDispatch();
-  const { testCases, exerciseSelected } = useAppSelector(
-    (state) => state.exerciseStatus
-  );
+  // const { testCases, exerciseSelected } = useAppSelector(
+  //   (state) => state.exerciseStatus
+  // );
+
   const [activeTab, setActiveTab] = useState("1");
-  // const [tabs, setTabs] = useState<ITestCase[]>(exerciseSelected?.exerciseId.testcases||[]);
+  const { exercise, testCases } = useAppSelector(state => state.exercises)
+
+
+  useEffect(() => {
+    // Only run if testCases is empty
+    if (!testCases || testCases.length === 0) {
+      if (exercise.testcases) {
+        dispatch(setTestCases(exercise.testcases));
+      }
+    }
+  }, [testCases, exercise.testcases, dispatch]);
+
+  useEffect(() => {
+    console.log(testCases)
+  }, [testCases]);
 
   const handleAddTab = () => {
     const newId = (testCases.length + 1).toString();
     dispatch(
       addTestCase({
         _id: newId,
-        input: exerciseSelected?.exerciseId.testcases![0].input!,
-        output: exerciseSelected?.exerciseId.testcases![0].output!,
-        status: false,
+        input: exercise.testcases![0].input!,
+        output: exercise.testcases![0].output!,
+        hidden: exercise.testcases![0].hidden,
         statusCompile: StatusCompile.COMPILE_WAITING,
+        outputExpected: exercise.testcases![0].outputExpected
       })
     );
-    setActiveTab(newId);
-  };
+  }
 
   const handleCloseTab = (id: string) => {
     dispatch(removeTestCase(id));
@@ -69,15 +84,14 @@ export function TabsTestCase() {
               <div key={tab._id} className="relative group">
                 <TabsTrigger
                   value={tab._id}
-                  className={`relative ${
-                    tab.statusCompile === StatusCompile.COMPILE_SUCCESS
-                      ? "bg-green-500"
-                      : tab.statusCompile === StatusCompile.COMPILE_FAILED
+                  className={`relative ${tab.statusCompile === StatusCompile.COMPILE_SUCCESS
+                    ? "bg-green-500"
+                    : tab.statusCompile === StatusCompile.COMPILE_FAILED
                       ? "bg-red-500"
                       : tab.statusCompile === StatusCompile.COMPILE_RUNNING
-                      ? "bg-yellow-500"
-                      : ""
-                  }`}
+                        ? "bg-yellow-500"
+                        : ""
+                    }`}
                 >
                   {renderStatusIcon(tab.statusCompile)}
 
@@ -140,17 +154,16 @@ export function TabsTestCase() {
               <input type="text" className="w-full p-3 rounded-xl bg-[#000a200d] outline-none" />
             </div> */}
             {tab.statusCompile === StatusCompile.COMPILE_SUCCESS ||
-            tab.statusCompile === StatusCompile.COMPILE_FAILED ? (
+              tab.statusCompile === StatusCompile.COMPILE_FAILED ? (
               <>
                 <div>
                   <div>Output = </div>
                   <input
                     type="text"
-                    className={`w-full p-3 rounded-xl outline-none ${
-                      tab.statusCompile === StatusCompile.COMPILE_SUCCESS
-                        ? "bg-green-200 text-green-600"
-                        : "bg-red-200 text-red-600"
-                    }`}
+                    className={`w-full p-3 rounded-xl outline-none ${tab.statusCompile === StatusCompile.COMPILE_SUCCESS
+                      ? "bg-green-200 text-green-600"
+                      : "bg-red-200 text-red-600"
+                      }`}
                     value={tab.output}
                     disabled
                   />
@@ -160,12 +173,11 @@ export function TabsTestCase() {
                   <input
                     type="text"
                     value={tab.outputExpected}
-                  
-                    className={`w-full p-3 rounded-xl outline-none ${
-                      tab.statusCompile === StatusCompile.COMPILE_SUCCESS
-                        ? "bg-green-200 text-green-600"
-                        : "bg-red-200 text-red-600"
-                    }`}
+
+                    className={`w-full p-3 rounded-xl outline-none ${tab.statusCompile === StatusCompile.COMPILE_SUCCESS
+                      ? "bg-green-200 text-green-600"
+                      : "bg-red-200 text-red-600"
+                      }`}
                     disabled
                   />
                 </div>

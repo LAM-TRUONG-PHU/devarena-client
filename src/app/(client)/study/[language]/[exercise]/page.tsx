@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useDebugValue, useEffect, useRef, useState } from "react";
 import Editor, { Monaco } from "@monaco-editor/react";
 import ThemeSwitch from "@/components/theme-switch";
 import { VscDebugRestart } from "react-icons/vsc";
@@ -8,7 +8,7 @@ import { MdFormatAlignLeft } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { TbCloudShare } from "react-icons/tb";
 import { FaPlay } from "react-icons/fa6";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import ChangeLanguage from "@/components/change-language";
 import { set } from "react-hook-form";
 import { getLanguageTitle } from "@/utils/get-language-title";
@@ -21,6 +21,9 @@ import { StatusCompile } from "@/types/Exercise";
 import { setRunningTestCase, setTestCases, updateStatusTestCase } from "@/redux/slices/ExerciseStatusSlice";
 import { useToast } from "@/hooks/use-toast";
 import { ICompileRes } from "@/types/ICompileRes";
+import { capitalize } from "@/utils/capitalize";
+import { fetchExercise } from "@/redux/slices/admin/exerciseStudySlice";
+import { usePrivate } from "@/hooks/usePrivateAxios";
 
 const defaultValue = {
   cpp: `#include <iostream> \nusing namespace std; \nint main() { \n    cout << "Hello, World!"; \n    return 0; \n}`,
@@ -33,47 +36,65 @@ const defaultValue = {
 };
 
 export default function ExercisePage() {
-  const [theme, setTheme] = useState<"vs-dark" | "vs-light">("vs-dark");
+  const [theme, setTheme] = useState<"vs-dark" | "light">("vs-dark");
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
-  const [isLoading,setIsLoading]=useState(false)
-  const [code,setCode]=useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [code, setCode] = useState("")
   const dispatch = useAppDispatch();
+  const axiosPrivate = usePrivate();
+  const searchParams = useSearchParams();
 
-  const { exerciseSelected, courseStatus,testCases } = useAppSelector(
-    (state) => state.exerciseStatus
-  );
-  const {data:session}=useSession()
-  const {toast}=useToast()
+  const { exercise, testCases } = useAppSelector(state => state.exercises)
+
+  const { data: session } = useSession()
+  const { toast } = useToast()
   const { connected, compileCode, stopExecution, isConnected } = useSocket(
     {
-      uniqueId:session?.user.id||"",
-      onOutput: (output:ICompileRes) => {
-        dispatch(updateStatusTestCase({index:output.testCaseIndex,res:output}))
+      uniqueId: session?.user.id || "",
+      onOutput: (output: ICompileRes) => {
+        dispatch(updateStatusTestCase({ index: output.testCaseIndex, res: output }))
       },
       onError: (error) => {
-          toast({
-            title: "Lỗi",
-            description: error,
-            variant: "error",
-          });
+        toast({
+          title: "Lỗi",
+          description: error,
+          variant: "error",
+        });
       },
       onWaitingInput: (message) => {
         console.log(message)
       }
-    
+
     }
-   
+
   );
+
   useEffect(() => {
-    const testCasesTemp =
-      exerciseSelected?.exerciseId.testcases!.map((testCase) => ({
-        ...testCase,
-        statusCompile: StatusCompile.COMPILE_WAITING,
-      })) || [];
-    dispatch(setTestCases(testCasesTemp));
-    console.log(testCasesTemp)
-  }, [exerciseSelected]);
+    dispatch(fetchExercise(
+      {
+        axiosInstance: axiosPrivate,
+        id: searchParams.get("id")!,
+      }
+    ))
+  }, []);
+
+  useEffect(() => {
+    if (exercise?.defaultCode) {
+      setCode(exercise.defaultCode)
+    }
+  }, [exercise])
+
+  // useEffect(() => {
+  //   const testCasesTemp =
+  //     exerciseSelected?.exerciseId.testcases!.map((testCase) => ({
+  //       ...testCase,
+  //       statusCompile: StatusCompile.COMPILE_WAITING,
+  //     })) || [];
+  //   dispatch(setTestCases(testCasesTemp));
+  //   console.log("testcaseTemp", testCasesTemp)
+  // }, [exerciseSelected]);
+
   function handleEditorDidMount(editor: any, monaco: Monaco) {
     // Define a custom theme with background color #1D2432
     monaco.editor.defineTheme("customTheme", {
@@ -88,37 +109,31 @@ export default function ExercisePage() {
     // Apply the custom theme
     monaco.editor.setTheme("customTheme");
   }
-  const handleRun=async()=>{
+  const handleRun = async () => {
     try {
       setIsLoading(true);
       // setOutput('Đang biên dịch...');
-      dispatch(setRunningTestCase(exerciseSelected?.exerciseId._id||""))
+      dispatch(setRunningTestCase(searchParams.get("id")! || ""))
       if (!code.includes('public class') || !code.includes('public static void main')) {
         throw new Error('Code phải có public class và hàm main');
       }
       const convertedTestCases = testCases.map((testCase) => {
-        // Map qua từng đối tượng trong mảng input và lấy giá trị (value)
+        // Map qua từng đối tượng trong mảng input và  :lấy giá trị (value)
         return testCase.input.map((item) => Object.values(item).map(String)).flat();
       });
       console.log(convertedTestCases)
-      await compileCode(code,convertedTestCases,exerciseSelected?.exerciseId._id||"");
+      await compileCode(code, convertedTestCases, searchParams.get("id")! || "");
     } catch (error) {
-      // if (error instanceof Error) {
-      //   setOutput(`Lỗi: ${error.message}`);
-      // } else {
-      //   setOutput('Lỗi không xác định khi biên dịch');
-      // }
       setIsLoading(false);
     }
   }
   const toggleTheme = () => {
-    // Toggling the theme between vs-dark and vs-light
     setTheme((prev) => {
-      const newTheme = prev === "vs-dark" ? "vs-light" : "vs-dark";
-      console.log("Toggling theme:", newTheme); // Log immediately after toggling
+      const newTheme = prev === "vs-dark" ? "light" : "vs-dark";
       return newTheme;
     });
   };
+
 
   return (
     <>
@@ -132,10 +147,7 @@ export default function ExercisePage() {
               <div>Language</div>
 
               <Button variant="outline" size="icon">
-                {/* {getLanguageTitle(
-                                    (segments[1].charAt(0).toUpperCase() + segments[1].slice(1)) as ELanguages
-                                )} */}
-                {courseStatus?.courseId.language}
+                {capitalize(segments[1])}
               </Button>
             </div>
             <div className="absolute right-8">
@@ -157,13 +169,10 @@ export default function ExercisePage() {
           </div>
           <Editor
             height={"calc(100svh - 7rem)"}
-            defaultLanguage={courseStatus?.courseId.language.toLowerCase()}
-            defaultValue={
-              defaultValue[segments[1] as keyof typeof defaultValue]
-            }
+            defaultLanguage={segments[1]}
             theme={theme}
             value={code}
-            onChange={(value)=>setCode(value||"")}
+            onChange={(value) => setCode(value || "")}
             onMount={handleEditorDidMount}
           />
           <div className="absolute bottom-8 right-8">
@@ -183,7 +192,7 @@ export default function ExercisePage() {
             </div>
           </div>
         </div>
-        <div className="col-span-1">
+        <div className="col-span-1 overflow-auto h-[calc(100vh-4rem)]">
           <TabsExercise study />
         </div>
       </div>

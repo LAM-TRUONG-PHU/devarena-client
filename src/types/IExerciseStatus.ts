@@ -5,5 +5,5 @@ export interface IExerciseStatus {
     _id: string;
     submissions: ISubmission[]
     status: string;
-    exerciseId: IExercise;
+    exerciseId: string;
 }

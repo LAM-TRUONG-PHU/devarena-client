@@ -1,6 +1,6 @@
 import { Separator } from "@/components/ui/separator";
 import { Heart } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import NavUser from "./nav-user";
 import {
@@ -66,9 +66,8 @@ export default function Header(props: HeaderProps) {
     return (
         <>
             <header
-                className={`${
-                    props.isSpecialPage && "sticky top-0"
-                } flex   h-16 shrink-0 items-center gap-2 border-pink_primary border-b-2 px-4 bg-white relative z-20`}
+                className={`${props.isSpecialPage && "sticky top-0"
+                    } flex   h-16 shrink-0 items-center gap-2 border-pink_primary border-b-2 px-4 bg-white relative z-20`}
             >
                 {props.showSidebar ? (
                     <>
@@ -96,9 +95,8 @@ export default function Header(props: HeaderProps) {
                     </div>
                 ) : (
                     <div
-                        className={`${
-                            props.showSidebar ? "w-1/3" : "w-1/4"
-                        } flex items-center gap-2 absolute left-4 hover:text-pink_primary transition-all cursor-pointer`}
+                        className={`${props.showSidebar ? "w-1/3" : "w-1/4"
+                            } flex items-center gap-2 absolute left-4 hover:text-pink_primary transition-all cursor-pointer`}
                         onClick={() => router.back()}
                     >
                         <ChevronLeft size={20} />
@@ -111,15 +109,24 @@ export default function Header(props: HeaderProps) {
                             {segments.map((segment, index) => {
                                 const isLast = index === segments.length - 1;
                                 const path = `/${segments.slice(0, index + 1).join("/")}`;
-                                segment = capitalize(decodeURIComponent(segment));
-                                const label = isValidLanguage(segment) ? getLanguageTitle(segment) : segment;
+                                const label = capitalize(decodeURIComponent(segment));
+
                                 return (
                                     <React.Fragment key={path}>
                                         {index > 0 && <BreadcrumbSeparator />}
                                         <BreadcrumbItem>
                                             {isLast ? (
                                                 <span className="font-semibold">{label}</span>
+                                            ) : index === segments.length - 2 ? (
+                                                // If this is the second-to-last segment (e.g., the [java] level), handle back navigation
+                                                <span
+                                                    onClick={() => router.back()}
+                                                    className="hover:text-pink_primary transition-all cursor-pointer"
+                                                >
+                                                    {label}
+                                                </span>
                                             ) : (
+                                                // Regular breadcrumb links
                                                 <Link
                                                     href={path}
                                                     className="hover:text-pink_primary transition-all"
@@ -132,13 +139,13 @@ export default function Header(props: HeaderProps) {
                                 );
                             })}
                         </BreadcrumbList>
+
                     </Breadcrumb>
                 )}
 
                 <div
-                    className={`${
-                        props.showSidebar || props.isSpecialPage ? "lg:w-1/3 w-2/5" : "w-1/4"
-                    } flex items-center gap-4 absolute right-0`}
+                    className={`${props.showSidebar || props.isSpecialPage ? "lg:w-1/3 w-2/5" : "w-1/4"
+                        } flex items-center gap-4 absolute right-0`}
                 >
                     <NavUser user={data.user} />
                 </div>

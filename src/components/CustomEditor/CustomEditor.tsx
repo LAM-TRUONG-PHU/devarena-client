@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Dispatch, LegacyRef, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
+import React, { Dispatch, LegacyRef, SetStateAction, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 
 import "react-quill-new/dist/quill.snow.css"; // Default styling for React Quill
@@ -34,9 +34,10 @@ interface ReactQuillWrapperProps extends ReactQuillProps {
 const CustomEditor = ({ content, onValueChange }: Pros) => {
     //   const [content, setcontent] = useState("");
     const dispatch = useAppDispatch();
-    const editorRef = useRef(null);
+    const editorRef = useRef<ReactQuill>(null);
     const [init, setInit] = useState<boolean>(false);
     const cloudinaryRef = useRef<any>(null); // Define type as 'any' for Cloudinary widget
+
     const handleChangeContent = async (e: any) => {
         dispatch(setContent(e));
     };
@@ -85,23 +86,27 @@ const CustomEditor = ({ content, onValueChange }: Pros) => {
 
     useEffect(() => {
         if (editorRef.current && typeof window !== "undefined") {
+            console.log("editorRef.current");
             //@ts-ignore
             const quill = editorRef.current.getEditor();
-            quill.clipboard.dangerouslyPasteHTML(0, content);
+            // quill.clipboard.dangerouslyPasteHTML(content || "");
+            const delta = quill.clipboard.convert({ html: content || "" });
+            quill.setContents(delta, "silent");
         }
+    }, [init]);
+
+    useEffect(() => {
+        setTimeout(() => {
+            setInit(true);
+
+        }, 500);
     }, []);
 
     return (
         <div>
-            {/* <Script
-        src="https://upload-widget.cloudinary.com/latest/global/all.js"
-        onLoad={() => {
-          console.log("Cloudinary Widget Script Loaded");
-          setInit(true);
-        }}
-      /> */}
             {/* <h2>Custom Editor</h2> */}
             <ReactQuillWrapper
+
                 fowardRef={editorRef}
                 //@ts-ignore
                 theme="snow"
