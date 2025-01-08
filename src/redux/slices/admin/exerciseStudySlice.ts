@@ -1,14 +1,18 @@
-import { TExerciseStudy } from "@/app/admin/study/[slug]/exercise/page";
-import { IExercise, ITestCase, StatusCompile } from "@/types/Exercise";
+import { TExerciseStudy } from "@/app/admin/study/[slug]/[exercise]/page";
+import { IExercise, IPersistTestCase, ITestCase, StatusCompile } from "@/types/Exercise";
 import { ICompileRes } from "@/types/ICompileRes";
+import { IExerciseStatus } from "@/types/IExerciseStatus";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosInstance } from "axios";
 
 interface ExerciseState {
     exercises: IExercise[];
     exercise: IExercise;
-    testCases: ITestCase[]
+    testCases: { [key: string]: ITestCase[] };
+    persistTestCases: { [key: string]: IPersistTestCase[] };
+    testCasesResult: { [key: string]: ITestCase[] };
     currentExercise: IExercise | null;
+    exerciseStatus: IExerciseStatus;
     loading: boolean;
     error: string | null;
 }
@@ -24,24 +28,27 @@ interface FetchCoursesParams {
 const initialState: ExerciseState = {
     exercises: [],
     exercise: {} as IExercise,
-    testCases: [],
+    testCases: {},
+    persistTestCases: {},
+    testCasesResult: {},
     currentExercise: null,
+    exerciseStatus: {} as IExerciseStatus,
     loading: false,
     error: null,
 
 };
 
-export const fetchExercises = createAsyncThunk<IExercisePayload, FetchCoursesParams, { rejectValue: string }>(
-    "course/fetchCourses",
-    async ({ axiosInstance }, { rejectWithValue }) => {
+export const fetchExercisesByCourse = createAsyncThunk<IExercisePayload, { axiosInstance: AxiosInstance, courseId: string }, { rejectValue: string }>(
+    "course/fetchCoursesByCourse",
+    async ({ axiosInstance, courseId }, { rejectWithValue }) => {
         try {
-            const response = await axiosInstance.get("/study");
+            const response = await axiosInstance.get(`/study/course/${courseId}`);
             return response.data;
         } catch (error: any) {
             return rejectWithValue(error.message);
         }
     }
-);
+)
 
 export const fetchExercise = createAsyncThunk<IExercise, { axiosInstance: AxiosInstance, id: string }, { rejectValue: string }>(
     "course/fetchCourse",
@@ -55,15 +62,35 @@ export const fetchExercise = createAsyncThunk<IExercise, { axiosInstance: AxiosI
     }
 )
 
+
+export const fetchExerciseStatus = createAsyncThunk<IExerciseStatus, { axiosInstance: AxiosInstance, userId: string, exerciseId: string }, { rejectValue: string }>(
+    "course/fetchExerciseStatus",
+    async ({ axiosInstance, userId, exerciseId }, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.get(`/exercise-status/user/${userId}/exercise/${exerciseId}`);
+            return response.data.data;
+        } catch (error: any) {
+            return rejectWithValue(error.message);
+        }
+    }
+)
+
+
 const exercisesSlice = createSlice({
     name: "exercise",
     initialState,
     reducers: {
+        setLoading(state, action: PayloadAction<boolean>) {
+            state.loading = action.payload;
+        },
         addExercise(state, action: PayloadAction<IExercise>) {
             state.exercises.push(action.payload);
         },
         setCurrentExercise(state, action: PayloadAction<IExercise | null>) {
             state.currentExercise = action.payload;
+        },
+        setExercise(state, action: PayloadAction<IExercise>) {
+            state.exercise = action.payload;
         },
         updateExercise(state, action: PayloadAction<IExercise>) {
             const index = state.exercises.findIndex((exercise) => exercise._id === action.payload._id);
@@ -74,58 +101,110 @@ const exercisesSlice = createSlice({
         deleteExercise(state, action: PayloadAction<string | undefined>) {
             state.exercises = state.exercises.filter((exercise) => exercise._id !== action.payload);
         },
-        setTestCases: (state, action: PayloadAction<ITestCase[]>) => {
-            state.testCases = action.payload;
+        setTestCases: (state, action: PayloadAction<{ key: string; testCases: ITestCase[] }>) => {
+            state.testCases[action.payload.key] = action.payload.testCases;
+            state.persistTestCases[action.payload.key] = action.payload.testCases.map((testCase) => ({ _id: testCase._id, input: testCase.input }));
         },
-        addTestCase: (state, action: PayloadAction<ITestCase>) => {
-            state.testCases = [...state.testCases!, action.payload];
+        setTestCasesResult(state, action: PayloadAction<{ key: string; testCases: ITestCase[] }>) {
+            state.testCasesResult[action.payload.key] = action.payload.testCases;
         },
-        removeTestCase: (state, action: PayloadAction<string>) => {
-            state.testCases = state.testCases!.filter((testCase) => testCase._id !== action.payload);
+        addTestCase: (state, action: PayloadAction<{ key: string; testCase: ITestCase }>) => {
+            if (!state.testCases[action.payload.key] || !state.persistTestCases[action.payload.key]) {
+                state.testCases[action.payload.key] = [];
+                state.persistTestCases[action.payload.key] = [];
+            }
+            state.testCases[action.payload.key].push(action.payload.testCase);
+            state.persistTestCases[action.payload.key].push({ _id: action.payload.testCase._id, input: action.payload.testCase.input });
+        },
+        removeTestCase: (state, action: PayloadAction<{ key: string; testCaseId: string }>) => {
+            if (state.testCases[action.payload.key]) {
+                state.testCases[action.payload.key] = state.testCases[action.payload.key].filter(
+                    (testCase) => testCase._id !== action.payload.testCaseId
+                );
+                state.persistTestCases[action.payload.key] = state.persistTestCases[action.payload.key].filter(
+                    (testCase) => testCase._id !== action.payload.testCaseId
+                )
+            }
         },
         setRunningTestCase: (state, action: PayloadAction<string>) => {
-            state.testCases.forEach((testCase) => {
-                testCase.statusCompile = StatusCompile.COMPILE_RUNNING
-            })
-            // state.testCases = state.testCases!.map((testCase) => testCase._id === action.payload ? { ...testCase, statusCompile: StatusCompile.COMPILE_RUNNING } : testCase);
+            const key = action.payload;
+            if (state.testCases[key]) {
+                state.testCases[key] = state.testCases[key].map((testCase) => ({
+                    ...testCase,
+                    statusCompile: StatusCompile.COMPILE_RUNNING,
+                }));
+
+            }
         },
-        updateStatusTestCase: (state, action: PayloadAction<{ index: number; res: ICompileRes }>) => {
-            state.testCases[action.payload.index].statusCompile = action.payload.res.isCorrect ? StatusCompile.COMPILE_SUCCESS : StatusCompile.COMPILE_FAILED
-            state.testCases[action.payload.index].output = action.payload.res.output
-            state.testCases[action.payload.index].outputExpected = action.payload.res.outputExpect
+        updateStatusTestCase: (
+            state,
+            action: PayloadAction<{ key: string; index: number; res: ICompileRes }>
+        ) => {
+            const { key, index, res } = action.payload;
+
+            if (state.testCases[key] && state.testCases[key][index]) {
+                const testCase = state.testCases[key][index];
+
+                // Update the test case fields
+                testCase.statusCompile = res.isCorrect ? StatusCompile.COMPILE_SUCCESS : StatusCompile.COMPILE_FAILED;
+                testCase.output = res.output;
+                testCase.outputExpected = res.outputExpect;
+            }
         },
+
         handleChangeInputTestCase: (
             state,
-            action: PayloadAction<{ id: string; key: string; value: string }>
+            action: PayloadAction<{ key: string; id: string; inputKey: string; value: string }>
         ) => {
-            const { id, key, value } = action.payload;
-            console.log(value)
-            // Tìm chỉ mục của testCase trong mảng state.testCases
-            const index = state.testCases.findIndex((testCase) => testCase._id === id);
-            const updatedTestCase = JSON.parse(JSON.stringify(state.testCases[index])) as ITestCase;
-            console.log(updatedTestCase)
-            updatedTestCase.input.map((obj) => {
-                if (obj[key] !== undefined) {
-                    obj[key] = value
-                    console.log(obj)
-                }
-            })
-            state.testCases[index] = updatedTestCase
+            const { key, id, inputKey, value } = action.payload;
 
-            return state;
-        }
+            // Ensure the key exists
+            if (state.testCases[key]) {
+                // Find the index of the test case to be updated
+                const testCaseIndex = state.testCases[key].findIndex((testCase) => testCase._id === id);
+
+                if (testCaseIndex !== -1) {
+                    // Clone the target test case
+                    const updatedTestCase = { ...state.testCases[key][testCaseIndex] };
+                    const updatedPersistTestCase = { ...state.persistTestCases[key][testCaseIndex] };
+
+                    // Update the input value in the test case
+                    updatedTestCase.input = updatedTestCase.input.map((inputObj) =>
+                        inputObj[inputKey] !== undefined
+                            ? { ...inputObj, [inputKey]: value }
+                            : inputObj
+                    );
+
+                    updatedPersistTestCase.input = updatedPersistTestCase.input.map((inputObj) =>
+                        inputObj[inputKey] !== undefined
+                            ? { ...inputObj, [inputKey]: value }
+                            : inputObj
+                    );
+
+
+
+                    // Replace the updated test case in the array
+                    state.testCases[key][testCaseIndex] = updatedTestCase;
+                    state.persistTestCases[key][testCaseIndex] = updatedPersistTestCase;
+                }
+            }
+        },
+
+        setVariableName(state, action: PayloadAction<string[]>) {
+            state.exercise.variableName = action.payload;
+        },
 
     },
     extraReducers: (builder) => {
-        builder.addCase(fetchExercises.pending, (state) => {
+        builder.addCase(fetchExercisesByCourse.pending, (state) => {
             state.loading = true;
             state.error = null;
         });
-        builder.addCase(fetchExercises.fulfilled, (state, action: PayloadAction<IExercisePayload>) => {
+        builder.addCase(fetchExercisesByCourse.fulfilled, (state, action: PayloadAction<IExercisePayload>) => {
             state.loading = false;
             state.exercises = action.payload.data;
         });
-        builder.addCase(fetchExercises.rejected, (state, action) => {
+        builder.addCase(fetchExercisesByCourse.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload!;
         });
@@ -141,6 +220,18 @@ const exercisesSlice = createSlice({
             state.loading = false;
             state.error = action.payload!;
         });
+        builder.addCase(fetchExerciseStatus.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        });
+        builder.addCase(fetchExerciseStatus.fulfilled, (state, action: PayloadAction<IExerciseStatus>) => {
+            state.loading = false;
+            state.exerciseStatus = action.payload;
+        });
+        builder.addCase(fetchExerciseStatus.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload!;
+        });
     },
 });
 
@@ -149,7 +240,7 @@ export const { addExercise, setCurrentExercise,
     setTestCases, removeTestCase,
     addTestCase,
     setRunningTestCase, updateStatusTestCase,
-    handleChangeInputTestCase
+    handleChangeInputTestCase, setVariableName, setTestCasesResult, setLoading, setExercise
 } = exercisesSlice.actions;
 
 export default exercisesSlice.reducer;

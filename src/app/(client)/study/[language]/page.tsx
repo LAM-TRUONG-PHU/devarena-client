@@ -24,7 +24,6 @@ import {
   setExerciseSelected,
 } from "@/redux/slices/ExerciseStatusSlice";
 import { createSlug } from "@/lib/helper";
-import { fetchExercises } from "@/redux/slices/admin/exerciseStudySlice";
 import { useSession } from "next-auth/react";
 import { IExercise } from "@/types/Exercise";
 import { set } from "store";
@@ -185,7 +184,7 @@ export default function LanguagePage() {
                 title={exercise.title}
                 tags={exercise.tags}
                 onClick={() => {
-                  router.push(`/study/${segments[1]}/${createSlug(exercise.title)}?id=${exercise._id}`);
+                  router.push(`/study/${segments[1]}/${createSlug(exercise.title)}?id=${exercise._id}&status=${exercise.status}`);
                 }} status={exercise.status}
                 score={exercise.score} />
             ))}
@@ -206,7 +205,7 @@ export default function LanguagePage() {
                   title={exercise.title}
                   tags={exercise.tags}
                   onClick={() => {
-                    router.push(`/study/${segments[1]}/${createSlug(exercise.title)}?id=${exercise._id}`);
+                    router.push(`/study/${segments[1]}/${createSlug(exercise.title)}?id=${exercise._id}&status=${exercise.status}`);
                   }}
                   status={exercise.status === EStatus.Solved ? "completed" : ""}
                   score={exercise.score}

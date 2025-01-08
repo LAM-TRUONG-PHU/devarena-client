@@ -1,4 +1,4 @@
-import { TExerciseStudy } from '@/app/admin/study/[slug]/exercise/page';
+import { TExerciseStudy } from '@/app/admin/study/[slug]/[exercise]/page';
 import { Editor, Monaco } from '@monaco-editor/react'
 import { usePathname } from 'next/navigation';
 import { UseFormReturn } from 'react-hook-form';
@@ -17,8 +17,8 @@ type defaultSolutionFormProps = {
 export default function SolutionCodeForm(props: defaultSolutionFormProps) {
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
+    const { exercise } = useAppSelector((state) => state.exercises);
 
-    const { currentExercise } = useAppSelector((state) => state.exercises);
     function handleEditorDidMount(editor: any, monaco: Monaco) {
         // Define a custom theme with background color #1D2432
         monaco.editor.defineTheme("customTheme", {
@@ -45,10 +45,10 @@ export default function SolutionCodeForm(props: defaultSolutionFormProps) {
                             height={"calc(100svh - 7rem)"}
                             defaultLanguage={segments[2].toLowerCase()}
                             defaultValue={
-                                currentExercise?.solution ||
+                                exercise.solution ||
                                 `// Write your code here\n\n`
                             }
-                            value={currentExercise?.solution || field.value}
+                            value={exercise.solution || field.value}
                             onChange={(value) => field.onChange(value)}
                             theme="vs-dark"
                             onMount={handleEditorDidMount}

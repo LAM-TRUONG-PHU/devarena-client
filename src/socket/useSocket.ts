@@ -1,7 +1,8 @@
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { ICompileRes } from "@/types/ICompileRes";
 import { useState, useEffect, useCallback } from "react";
 import { io } from "socket.io-client";
-
+import { setLoading } from "@/redux/slices/admin/exerciseStudySlice"
 // Cấu hình socket với các options cần thiết
 const socket = io("http://localhost:3001", {
   transports: ["websocket", "polling"],
@@ -29,7 +30,7 @@ export const useSocket = ({
   onReconnect?: (data: any) => void;
 }) => {
   const [connected, setConnected] = useState(socket.connected);
-
+  const dispatch = useAppDispatch()
   useEffect(() => {
     // Gửi uniqueId lên server khi kết nối
     socket.emit("register", { uniqueId });
@@ -77,6 +78,7 @@ export const useSocket = ({
     socket.on("completed", (result: any) => {
       console.log("Completed:", result);
       onCompleted?.(result);
+      dispatch(setLoading(false))
     });
 
     // Cleanup function to remove listeners when the component is unmounted

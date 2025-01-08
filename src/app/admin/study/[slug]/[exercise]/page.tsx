@@ -11,11 +11,11 @@ import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { usePrivate } from "@/hooks/usePrivateAxios";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { addExercise, updateExercise } from "@/redux/slices/admin/exerciseStudySlice";
-import { setCurrentStep } from "@/redux/slices/admin/StudyFormSlice";
+import { addExercise, fetchExercise, updateExercise } from "@/redux/slices/admin/exerciseStudySlice";
+import { setCurrentStep, setVariableCount, setVariableName } from "@/redux/slices/admin/StudyFormSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter, useSearchParams } from "next/navigation";
-import React, { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -76,31 +76,67 @@ export default function DetailExercisePage() {
     const { currentStep, totalStep } = useAppSelector((state) => state.studyForm);
     const axiosPrivate = usePrivate();
     const searchParams = useSearchParams();
-    const courseId = searchParams.get("id");
     const router = useRouter();
     const { toast } = useToast();
-    const { currentExercise } = useAppSelector((state) => state.exercises);
+    const pathname = usePathname();
+    const segments = pathname.split("/").filter(Boolean);
+    const { exercise } = useAppSelector((state) => state.exercises);
+
+
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            title: currentExercise?.title || "",
-            content: currentExercise?.content || "",
-            difficulty: currentExercise?.difficulty || "",
-            tags: currentExercise?.tags || [],
-            testcases: currentExercise?.testcases || [
+            title: "",
+            content: "",
+            difficulty: "",
+            tags: [],
+            testcases: [
                 {
                     input: [],
                     output: "",
                     hidden: false,
                 },
             ],
-            defaultCode: currentExercise?.defaultCode || "",
-            solution: currentExercise?.solution || "",
-            courseId: courseId || "",
-            score: currentExercise?.score || 0,
+            defaultCode: "",
+            solution: "",
+            courseId: "",
+            score: 0,
         },
     });
+
+
+
+    useEffect(() => {
+        if (segments[segments.length - 1] !== "exercise") {
+            dispatch(fetchExercise({ axiosInstance: axiosPrivate, id: searchParams.get("id")! }));
+            dispatch(setCurrentStep(0));
+        }
+
+    }, [searchParams]);
+    useEffect(() => {
+        if (exercise && Object.keys(exercise).length > 0) {
+            form.reset({
+
+                title: exercise.title || "",
+                content: exercise.content || "",
+                difficulty: exercise.difficulty || "",
+                tags: exercise.tags || [],
+                testcases: exercise.testcases || [
+                    {
+                        input: [],
+                        output: "",
+                        hidden: false,
+                    },
+                ],
+                defaultCode: exercise.defaultCode || "",
+                solution: exercise.solution || "",
+                courseId: exercise.courseId || "",
+                score: exercise.score || 0,
+            });
+        }
+    }, [exercise]);
+
 
     const handleNext = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
@@ -113,10 +149,17 @@ export default function DetailExercisePage() {
 
 
     async function onSubmit(data: z.infer<typeof formSchema>) {
+        console.log("data", data)
         setIsSubmitting(true);
-        if (currentExercise) {
+        if (exercise) {
             try {
-                await axiosPrivate.put(`/study/${currentExercise._id}`, data).then((res) => {
+                if (exercise.variableName?.length == 0) {
+                    data.testcases.forEach((testcase, index) => {
+                        data.testcases[index].input = [];
+                    });
+                }
+                console.log("data", data)
+                await axiosPrivate.put(`/study/${exercise._id}`, data).then((res) => {
                     toast({
                         title: "Success",
                         description: "Exercise updated successfully",

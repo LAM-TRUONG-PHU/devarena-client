@@ -13,21 +13,26 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "../ui/carousel";
-import { JSX } from "react";
+import { JSX, useEffect } from "react";
 import { useAppSelector } from "@/redux/hooks";
 import { IExercise } from "@/types/Exercise";
 import { Editor, Monaco } from "@monaco-editor/react";
 import { usePathname } from "next/navigation";
 import PrismCode from "../prism-code";
+import { Spinner } from "../ui/spinner";
+import { LoadingSpinner } from "../loading";
+import { createSlug } from "@/lib/helper";
+import TabsResult from "./tabs-result";
 
 type TabsExerciseProps = {
   study?: boolean;
 };
 
 export function TabsExercise({ study }: TabsExerciseProps) {
-  const { exercise } = useAppSelector(state => state.exercises)
+  const { exercise, loading, testCases } = useAppSelector(state => state.exercises)
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
+  const isExerciseLoaded = exercise && exercise.testcases && exercise.testcases[0]?.input.length > 0;
 
   const renderTabsTrigger = (
     value: string,
@@ -36,13 +41,15 @@ export function TabsExercise({ study }: TabsExerciseProps) {
   ) => (
     <CarouselItem>
       <TabsTrigger value={value} className="gap-1">
-        <span>{icon}</span>
+        {loading && value == "result" ? <LoadingSpinner /> : <span>{icon}</span>
+        }
         {label}
       </TabsTrigger>
     </CarouselItem>
   );
   return (
     <Tabs defaultValue="task" className="w-full flex flex-col h-full relative">
+
       <header className="flex sticky top-0 h-12 items-center border-foreground border-b-[0.5px] bg-white">
         <TabsList className="w-full max-w-sm mx-auto">
           <Carousel
@@ -62,7 +69,8 @@ export function TabsExercise({ study }: TabsExerciseProps) {
                   <ClipboardList size={20} />,
                   "Instruction"
                 )}
-              {renderTabsTrigger(
+
+              {isExerciseLoaded && renderTabsTrigger(
                 "test-case",
                 <MdOutlineTask size={20} />,
                 "Test Case"
@@ -72,34 +80,55 @@ export function TabsExercise({ study }: TabsExerciseProps) {
             <CarouselNext />
           </Carousel>
         </TabsList>
+
       </header>
+
 
       <TabsContent value="task" className="flex-1 p-4">
         <div
           dangerouslySetInnerHTML={{
-            // __html: exerciseSelected?.exerciseId.content,
             __html: exercise.content,
           }}
+
+
         ></div>
       </TabsContent>
       <TabsContent value="instruction" className="flex-1">
         <PrismCode code={exercise.solution!} language={segments[1]} />
       </TabsContent>
-      <TabsContent value="test-case" className="flex-1">
-        <TabsTestCase />
-      </TabsContent>
+
+      {(
+        <TabsContent value="test-case" className="flex-1">
+          <TabsTestCase />
+        </TabsContent>
+      )}
+
+
       <TabsContent value="result" className="mt-4">
-        <div className="flex justify-center my-4">
-          <ClipboardPen size={60} />
-        </div>
-        <div className="font-semibold text-lg text-center">
-          Run tests to check your code
-        </div>
-        <div className="text-center">
-          Run your code against tests to check whether <br />
-          it works, then give you the results here.
-        </div>
+        {testCases && testCases[exercise.title!] && testCases[exercise.title!].length > 0 && (
+          testCases[exercise.title!][0].hasOwnProperty("output") ? (
+            <div><TabsResult /> </div>
+          ) : (
+            <>
+              <div className="flex justify-center my-4">
+                <ClipboardPen size={60} />
+              </div>
+              <div className="font-semibold text-lg text-center">
+                Run tests to check your code
+              </div>
+              <div className="text-center">
+                Run your code against tests to check whether <br />
+                it works, then give you the results here.
+              </div>
+            </>
+          )
+
+        )}
+
       </TabsContent>
+
+
+
     </Tabs>
   );
 }

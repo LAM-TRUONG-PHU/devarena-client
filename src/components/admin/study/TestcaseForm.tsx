@@ -9,8 +9,9 @@ import {
     FormControl,
     FormMessage,
 } from "@/components/ui/form";
-import { TExerciseStudy } from "@/app/admin/study/[slug]/exercise/page";
+import { TExerciseStudy } from "@/app/admin/study/[slug]/[exercise]/page";
 import { useAppSelector } from "@/redux/hooks";
+import { Textarea } from "@/components/ui/textarea"
 
 type TestCaseFormProps = {
     form: UseFormReturn<TExerciseStudy, any, undefined>;
@@ -18,8 +19,8 @@ type TestCaseFormProps = {
 
 const TestcaseForm = ({ form }: TestCaseFormProps) => {
     const { control } = form;
-    const { exercise } = useAppSelector((state) => state.studyForm);
-    const { currentExercise } = useAppSelector((state) => state.exercises);
+    // const { exercise } = useAppSelector((state) => state.studyForm);
+    const { exercise } = useAppSelector((state) => state.exercises);
 
     // Manage testcases dynamically
     const { fields, append, remove } = useFieldArray({
@@ -62,10 +63,10 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
                                     <FormItem>
                                         <FormLabel>{variable}</FormLabel>
                                         <FormControl>
-                                            <Input
+                                            <Textarea
                                                 {...field}
                                                 placeholder={`Enter value for ${variable}`}
-                                                value={field.value || currentExercise?.testcases?.[testcaseIndex]?.input[variableIndex][variable] || ""}
+                                                value={field.value || exercise?.testcases?.[testcaseIndex]?.input[variableIndex][variable] || ""}
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -82,10 +83,10 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
                                 <FormItem>
                                     <FormLabel>Output</FormLabel>
                                     <FormControl>
-                                        <Input
+                                        <Textarea
                                             {...field}
                                             placeholder="Enter output value"
-                                            value={field.value || currentExercise?.testcases?.[testcaseIndex]?.output || ""}
+                                            value={field.value || exercise?.testcases?.[testcaseIndex]?.output || ""}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -102,7 +103,7 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
                                     <FormLabel>Hidden?</FormLabel>
                                     <FormControl>
                                         <Switch
-                                            checked={field.value || currentExercise?.testcases?.[testcaseIndex]?.hidden || false}
+                                            checked={field.value || exercise?.testcases?.[testcaseIndex]?.hidden || false}
                                             onCheckedChange={field.onChange}
                                         />
                                     </FormControl>
