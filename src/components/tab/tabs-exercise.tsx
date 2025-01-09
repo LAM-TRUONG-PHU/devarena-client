@@ -125,15 +125,9 @@ export function TabsExercise({ study }: TabsExerciseProps) {
         )}
 
       </TabsContent>
-<<<<<<< HEAD
       <TabsContent value="submission" className="flex-1">
         <TabSubmission />
       </TabsContent>
-=======
-
-
-
->>>>>>> a7b1d7916a28fec823f60aa63e71fe061754da42
     </Tabs>
   );
 }
