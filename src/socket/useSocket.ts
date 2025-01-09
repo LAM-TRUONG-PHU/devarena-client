@@ -19,10 +19,13 @@ export const useSocket = ({
   onWaitingInput,
   onCompleted,
   onReconnect,
+  onOutputSubmit,
 }: {
   uniqueId: string;
   onCompiling?: (message: string) => void;
   onOutput?: (output: ICompileRes) => void;
+  onOutputSubmit?: (output: ICompileRes) => void;
+
   onError?: (error: string) => void;
   onWaitingInput?: (message: string) => void;
   onCompleted?: (result: any) => void;
@@ -63,7 +66,10 @@ export const useSocket = ({
       console.log("Output:", output);
       onOutput?.(output);
     });
-
+    socket.on("output_submit", (output: ICompileRes) => {
+      console.log("Output:", output);
+      onOutputSubmit?.(output);
+    });
     socket.on("error", (error: string) => {
       console.error("Error:", error);
       onError?.(error);
@@ -83,6 +89,8 @@ export const useSocket = ({
     return () => {
       socket.off("compiling");
       socket.off("output");
+      socket.off("output_submit");
+
       socket.off("error");
       socket.off("waitingInput");
       socket.off("completed");
@@ -108,7 +116,7 @@ export const useSocket = ({
 
         socket.on("error", errorHandler);
         socket.emit(
-          "compile",
+          "compile2",
           { uniqueId, code, testCases, exerciseId },
           (response: any) => {
             socket.off("error", errorHandler);
@@ -122,6 +130,43 @@ export const useSocket = ({
       });
     },
     [uniqueId]
+  );
+
+  const submitCode = useCallback(
+    async (code: string, exerciseId: string, userId: string): Promise<void> => {
+      return new Promise((resolve, reject) => {
+        // Kiểm tra xem socket có kết nối không
+        if (!socket.connected) {
+          reject(new Error("Socket is not connected"));
+          return;
+        }
+  
+        // Xử lý lỗi nếu có
+        const errorHandler = (error: string) => {
+          socket.off("error", errorHandler);
+          reject(new Error(error));
+        };
+  
+        socket.on("error", errorHandler);
+  
+        // Gửi yêu cầu submit code
+        socket.emit(
+          "submit",
+          { code, exerciseId,userId },
+          (response: any) => {
+            socket.off("error", errorHandler); // Hủy lắng nghe lỗi sau khi có phản hồi
+            
+            // Kiểm tra xem có lỗi trong phản hồi không
+            if (response?.error) {
+              reject(new Error(response.error));
+            } else {
+              resolve();  // Submit thành công
+            }
+          }
+        );
+      });
+    },
+    []  // Dùng empty array để callback không thay đổi trừ khi có thay đổi về dependencies
   );
 
   const stopExecution = useCallback((): Promise<void> => {
@@ -148,6 +193,7 @@ export const useSocket = ({
     compileCode,
     stopExecution,
     isConnected,
+    submitCode
   };
 };
 

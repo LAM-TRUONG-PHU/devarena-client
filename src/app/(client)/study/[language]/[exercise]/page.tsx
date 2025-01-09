@@ -49,7 +49,7 @@ export default function ExercisePage() {
 
   const { data: session } = useSession()
   const { toast } = useToast()
-  const { connected, compileCode, stopExecution, isConnected } = useSocket(
+  const { connected, compileCode,submitCode, stopExecution, isConnected } = useSocket(
     {
       uniqueId: session?.user.id || "",
       onOutput: (output: ICompileRes) => {
@@ -127,6 +127,9 @@ export default function ExercisePage() {
       setIsLoading(false);
     }
   }
+  const handleSubmit = async()=>{
+      await submitCode(code,searchParams.get("id")! || "",session?.user.id || "")
+  }
   const toggleTheme = () => {
     setTheme((prev) => {
       const newTheme = prev === "vs-dark" ? "light" : "vs-dark";
@@ -185,7 +188,9 @@ export default function ExercisePage() {
                 <FaPlay />
                 Run
               </Button>
-              <Button variant="submit" size="editor">
+              <Button variant="submit" size="editor"
+                onClick={handleSubmit}
+              >
                 <TbCloudShare />
                 Submit
               </Button>

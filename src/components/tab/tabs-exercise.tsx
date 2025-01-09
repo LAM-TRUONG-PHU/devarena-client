@@ -1,6 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MdOutlineTask } from "react-icons/md";
 import { ClipboardList, ClipboardPen } from "lucide-react";
@@ -15,10 +13,10 @@ import {
 } from "../ui/carousel";
 import { JSX } from "react";
 import { useAppSelector } from "@/redux/hooks";
-import { IExercise } from "@/types/Exercise";
-import { Editor, Monaco } from "@monaco-editor/react";
+
 import { usePathname } from "next/navigation";
 import PrismCode from "../prism-code";
+import TabSubmission from "./tab-submission";
 
 type TabsExerciseProps = {
   study?: boolean;
@@ -68,6 +66,7 @@ export function TabsExercise({ study }: TabsExerciseProps) {
                 "Test Case"
               )}
               {renderTabsTrigger("result", <GoTerminal size={20} />, "Results")}
+              {renderTabsTrigger("submission", <GoTerminal size={20} />, "Submission")}
             </CarouselContent>
             <CarouselNext />
           </Carousel>
@@ -99,6 +98,9 @@ export function TabsExercise({ study }: TabsExerciseProps) {
           Run your code against tests to check whether <br />
           it works, then give you the results here.
         </div>
+      </TabsContent>
+      <TabsContent value="submission" className="flex-1">
+        <TabSubmission />
       </TabsContent>
     </Tabs>
   );

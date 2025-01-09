@@ -60,9 +60,9 @@ export const authOptions: AuthOptions = {
     ],
 
     callbacks: {
-        async jwt({ trigger, token, user, account, profile }) {
+        async jwt({ trigger, token, user, account, profile, session }) {
             // throw new Error("Invalid provider or credentials");
-
+       
             if (trigger === "signIn") {
                 if (account?.provider !== "credentials") {
                     await mainInstance
@@ -119,12 +119,24 @@ export const authOptions: AuthOptions = {
                     });
             }
             if (trigger === "update") {
-                token.error = "";
+                console.log("session")
+
+                if(session.access_token && session.refresh_token  ){
+                    console.log(session)
+
+                    token.access_token=session.access_token
+                    token.refresh_token=session.refresh_token 
+                }
+                else{
+                    token.error = "";
+
+                }
             }
             return token;
         },
 
-        async session({ session, token }) {
+        async session({ session, token,  newSession, trigger }) {
+           
             if (token.error) {
                 console.log("session error");
 
@@ -132,7 +144,7 @@ export const authOptions: AuthOptions = {
                 session.error = token.error.toString();
             }
             if (token.user) {
-                console.log(token);
+                // console.log(token);
                 session.user = token.user;
                 session.access_token = token.access_token;
                 session.refresh_token = token.refresh_token;
