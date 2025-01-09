@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { usePrivate } from "@/hooks/usePrivateAxios";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useSearchParams } from "next/navigation";
 
 interface ISubmission {
   status: string;
@@ -12,17 +13,21 @@ interface ISubmission {
 const TabSubmission = () => {
   const axios = usePrivate();
   const [subList, setSubList] = useState<ISubmission[]>([]);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    axios
-      .get(`/exercise-status/submission/677bc2473f311b3afd07ddb9`)
-      .then((res) => {
-        setSubList(res.data.data.submission);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, []);
+    const id = searchParams.get("id"); // Retrieve the id from the query string
+    if (id) {
+      axios
+        .get(`/exercise-status/submission/${id}`)
+        .then((res) => {
+          setSubList(res.data.data.submission);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    }
+  }, [ searchParams]);
 
   // Helper function to format the date
   const formatDate = (dateString: string) => {

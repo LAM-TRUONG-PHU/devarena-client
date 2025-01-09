@@ -4,6 +4,7 @@ import { ButtonCreateDialog } from "@/components/admin/study/ButtonCreateDialog"
 import StudyCard from "@/components/study/study-card";
 import { usePrivate } from "@/hooks/usePrivateAxios";
 import { ELanguages } from "@/types/language";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -19,12 +20,12 @@ export default function AdminStudyPage() {
   const axiosPrivate = usePrivate();
   const [courses, setCourses] = useState<ICourse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     const fetchCourses = async () => {
       try {
         setIsLoading(true);
         const response = await axiosPrivate.get("/course");
-        console.log(response.data.data);
         setCourses(response.data.data);
       } catch (error) {
         console.error("Error fetching courses:", error);
@@ -34,6 +35,8 @@ export default function AdminStudyPage() {
     };
     fetchCourses();
   }, []);
+
+
 
   return (
     <div className="w-full h-full relative">

@@ -11,52 +11,89 @@ import {
   setTestCases,
 } from "@/redux/slices/admin/exerciseStudySlice";
 import { Spinner } from "../ui/spinner";
+import { usePathname } from "next/navigation";
+import { createSlug } from "@/lib/helper";
+import { create } from "domain";
 
 export function TabsTestCase() {
   const dispatch = useAppDispatch();
   // const { testCases, exerciseSelected } = useAppSelector(
   //   (state) => state.exerciseStatus
   // );
-
+  const path = usePathname();
+  const segments = path.split("/").filter(Boolean);
   const [activeTab, setActiveTab] = useState("1");
-  const { exercise, testCases } = useAppSelector(state => state.exercises)
+  const { exercise, testCases, persistTestCases } = useAppSelector(state => state.exercises)
 
 
   useEffect(() => {
-    // Only run if testCases is empty
-    if (!testCases || testCases.length === 0) {
-      if (exercise.testcases) {
-        dispatch(setTestCases(exercise.testcases));
+    // Only run if testCases is empty 
+    if (!testCases[exercise.title] || testCases[exercise.title].length === 0) {
+      if (persistTestCases[exercise.title]) {
+        dispatch(setTestCases({ key: exercise.title, testCases: persistTestCases[exercise.title] }))
       }
+      else if (exercise.testcases) {
+
+        dispatch(
+          setTestCases({
+            key: exercise.title,
+            testCases: exercise.testcases.map((testcase, index) => {
+              return {
+                _id: (index + 1).toString(),
+                input: testcase.input,
+              };
+            }
+            ),
+          })
+        );
+      }
+
     }
-  }, [testCases, exercise.testcases, dispatch]);
+  }, [testCases, exercise.testcases, dispatch, persistTestCases,]);
 
   useEffect(() => {
     console.log(testCases)
   }, [testCases]);
 
   const handleAddTab = () => {
-    const newId = (testCases.length + 1).toString();
+    const key = exercise.title; // Replace with a dynamic key if needed
+    const currentTestCases = testCases[key] || []; // Get existing test cases for the key
+
+    const newId = (currentTestCases.length + 1).toString();
+    const newTestCase: ITestCase = {
+      _id: newId,
+      input: exercise.testcases ? exercise.testcases[0].input : [], // Provide default or fallback values
+
+    };
+
     dispatch(
       addTestCase({
-        _id: newId,
-        input: exercise.testcases![0].input!,
-        output: exercise.testcases![0].output!,
-        hidden: exercise.testcases![0].hidden,
-        statusCompile: StatusCompile.COMPILE_WAITING,
-        outputExpected: exercise.testcases![0].outputExpected
+        key,
+        testCase: newTestCase,
       })
     );
-  }
+  };
 
-  const handleCloseTab = (id: string) => {
-    dispatch(removeTestCase(id));
-    if (testCases!.length > 0 && id === activeTab) {
-      setActiveTab(testCases![0]._id); // Switch to the first tab if the active tab is closed
+
+  const handleCloseTab = (key: string, id: string) => {
+    const currentTestCases = testCases[key] || [];
+
+    dispatch(removeTestCase({ key, testCaseId: id }));
+
+    // Check if the active tab is being closed
+    if (activeTab === id) {
+      // Set a new active tab if there are remaining test cases
+      const remainingTestCases = currentTestCases.filter(testCase => testCase._id !== id);
+      if (remainingTestCases.length > 0) {
+        setActiveTab(remainingTestCases[0]._id); // Switch to the first remaining tab
+      } else {
+        setActiveTab("result"); // Switch to the result tab if there are no remaining tabs
+      }
     }
   };
-  const handleChangeInput = (id: string, key: string, value: string) => {
-    dispatch(handleChangeInputTestCase({ id, key, value: value.toString() }));
+
+  const handleChangeInput = (key: string, id: string, inputKey: string, value: string) => {
+    dispatch(handleChangeInputTestCase({ key, id, inputKey, value }));
   };
   const renderStatusIcon = (status: StatusCompile) => {
     switch (status) {
@@ -77,128 +114,87 @@ export function TabsTestCase() {
       onValueChange={setActiveTab}
       className="w-full flex flex-col h-full pt-2 "
     >
-      <header className="flex items-center px-4 bg-transparent relative">
-        <TabsList className="flex flex-wrap gap-4 bg-transparent justify-start pb-4">
-          {testCases ? (
-            testCases!.map((tab, i) => (
-              <div key={tab._id} className="relative group">
-                <TabsTrigger
-                  value={tab._id}
-                  className={`relative ${tab.statusCompile === StatusCompile.COMPILE_SUCCESS
-                    ? "bg-green-500"
-                    : tab.statusCompile === StatusCompile.COMPILE_FAILED
-                      ? "bg-red-500"
-                      : tab.statusCompile === StatusCompile.COMPILE_RUNNING
-                        ? "bg-yellow-500"
-                        : ""
-                    }`}
-                >
-                  {renderStatusIcon(tab.statusCompile)}
+      <header className="flex items-center px-4 bg-transparent ">
+        <TabsList className="bg-transparent">
+          {testCases && Object.entries(testCases).length > 0 ? (
+            Object.entries(testCases).map(([key, testCaseGroup]) => (
+              // Replace the key with a dynamic key if needed 
+              <div key={key} className="flex flex-wrap gap-4 bg-transparent justify-start pb-4">
+                {createSlug(key) === segments[segments.length - 1] && (
+                  <> {testCaseGroup.map((tab, i) => (
+                    <div key={tab._id} className="relative group">
+                      <TabsTrigger
+                        value={tab._id}
+                        className="!hover:bg-gray-200"
 
-                  {`
-                  Case ${i + 1}`}
-                  {true && (
-                    <div
-                      className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent tab switch when closing
-                        handleCloseTab(tab._id);
-                      }}
-                    >
-                      <IoIosCloseCircle />
+                      >
+
+                        {`Case ${i + 1}`}
+                        {true && (
+                          <div
+                            className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent tab switch when closing
+                              handleCloseTab(key, tab._id); // Pass the group key along with the tab ID
+                            }}
+                          >
+                            <IoIosCloseCircle />
+                          </div>
+                        )}
+                      </TabsTrigger>
                     </div>
-                  )}
-                </TabsTrigger>
+                  ))}
+                    <button
+                      onClick={handleAddTab}
+                      className="px-4 py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+                    >
+                      +
+                    </button></>
+                )}
+
+
               </div>
             ))
           ) : (
             <div>loading</div>
           )}
 
-          <button
-            onClick={handleAddTab}
-            className="px-4 py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
-          >
-            +
-          </button>
+
         </TabsList>
       </header>
 
-      {testCases!.map((tab, index) => (
-        <TabsContent key={tab._id} value={tab._id} className="flex-1">
-          <div className="bg-white w-full text-gray-800 p-4 flex flex-col gap-4">
-            {tab.input.map((obj, index) => {
-              const key = Object.keys(obj)[0]; // Lấy key từ object
-              const value = obj[key]; // Lấy value tương ứng
-              return (
-                <div key={index}>
-                  <div>{key} =</div>
-                  <input
-                    type="text"
-                    value={value} // Hiển thị giá trị ban đầu
-                    className="w-full p-3 rounded-xl bg-[#000a200d] outline-none"
-                    onChange={(e) =>
-                      handleChangeInput(tab._id, key, e.target.value)
-                    }
-                  />
-                </div>
-              );
-            })}
+      {testCases && Object.entries(testCases).length > 0 ? (
+        Object.entries(testCases).map(([groupKey, testCaseGroup]) => (
+          <div key={groupKey}>
+            {createSlug(groupKey) === segments[segments.length - 1] && (<>
+              {testCaseGroup.map((tab, index) => (
+                <TabsContent key={tab._id} value={tab._id} className="flex-1">
+                  <div className="bg-white w-full text-gray-800 p-4 flex flex-col gap-4">
+                    {tab.input.map((obj, index) => {
+                      const key = Object.keys(obj)[0]; // Extract key from object
+                      const value = obj[key]; // Extract value
+                      return (
+                        <div key={index}>
+                          <div>{key} =</div>
+                          <input
+                            type="text"
+                            value={value} // Display initial value
+                            className="w-full p-3 rounded-xl bg-[#000a200d] outline-none"
+                            onChange={(e) => handleChangeInput(groupKey, tab._id, key, e.target.value)}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </TabsContent>
+              ))}</>)}
 
-            {/* <div>
-              <div>A =</div>
-              <input type="text" className="w-full p-3 rounded-xl bg-[#000a200d] outline-none" />
-            </div>
-            <div>
-              <div>B =</div>
-              <input type="text" className="w-full p-3 rounded-xl bg-[#000a200d] outline-none" />
-            </div> */}
-            {tab.statusCompile === StatusCompile.COMPILE_SUCCESS ||
-              tab.statusCompile === StatusCompile.COMPILE_FAILED ? (
-              <>
-                <div>
-                  <div>Output = </div>
-                  <input
-                    type="text"
-                    className={`w-full p-3 rounded-xl outline-none ${tab.statusCompile === StatusCompile.COMPILE_SUCCESS
-                      ? "bg-green-200 text-green-600"
-                      : "bg-red-200 text-red-600"
-                      }`}
-                    value={tab.output}
-                    disabled
-                  />
-                </div>
-                <div>
-                  <div>Expected Output = </div>
-                  <input
-                    type="text"
-                    value={tab.outputExpected}
-
-                    className={`w-full p-3 rounded-xl outline-none ${tab.statusCompile === StatusCompile.COMPILE_SUCCESS
-                      ? "bg-green-200 text-green-600"
-                      : "bg-red-200 text-red-600"
-                      }`}
-                    disabled
-                  />
-                </div>
-              </>
-            ) : null}
           </div>
-        </TabsContent>
-      ))}
+        ))
+      ) : (
+        <div>loading</div>
+      )}
 
-      <TabsContent value="result" className="mt-4">
-        <div className="flex justify-center my-4">
-          <ClipboardPen size={60} />
-        </div>
-        <div className="font-semibold text-lg text-center">
-          Run tests to check your code
-        </div>
-        <div className="text-center">
-          Run your code against tests to check whether <br />
-          it works, then give you the results here.
-        </div>
-      </TabsContent>
     </Tabs>
   );
 }

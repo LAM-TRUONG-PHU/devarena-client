@@ -10,9 +10,9 @@ import { combineReducers } from "redux";
 
 import storage from "redux-persist/lib/storage";
 const testCasesPersistConfig = {
-    key: "exercise",
+    key: "persistTestCases",
     storage: storage,
-    whitelist: ["testCases"],
+    whitelist: ["persistTestCases"],
 }
 
 const rootReducer = combineReducers({

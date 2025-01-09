@@ -36,10 +36,11 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { useEffect, useMemo, useState } from "react";
 import { set } from "store";
 
-import { deleteExercise, setCurrentExercise } from "@/redux/slices/admin/exerciseStudySlice";
+import { deleteExercise, setCurrentExercise, setExercise } from "@/redux/slices/admin/exerciseStudySlice";
 import { usePrivate } from "@/hooks/usePrivateAxios";
 import { toast, useToast } from "@/hooks/use-toast";
 import { IoIosArrowRoundBack } from "react-icons/io";
+import { createSlug } from "@/lib/helper";
 
 type TableExerciseProps = {
     exercises: IExercise[];
@@ -154,8 +155,7 @@ export function TableExercise(props: TableExerciseProps) {
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => {
-                                router.push(`${pathname}/exercise?id=${courseId}`);
-                                dispatch(setCurrentExercise(exercise));
+                                router.push(`${pathname}/${createSlug(exercise.title)}?id=${exercise._id}`);
                             }}>Edit</DropdownMenuItem>
                             <DropdownMenuItem onClick={async () => {
                                 await axiosPrivate.delete(`/study/${exercise._id}`).then(() => {
@@ -195,14 +195,14 @@ export function TableExercise(props: TableExerciseProps) {
     });
 
     return (
-        <div className="w-full">
+        <div className="w-full relative">
             <Button
                 type="button"
                 variant="outline"
                 onClick={() => {
-                    router.replace("/admin/study");
+                    router.back();
                 }}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 p-0 w-8 h-8 rounded-full flex items-center justify-center"
+                className="absolute left-4 top-0 transform -translate-y-10 p-0 w-8 h-8 rounded-full"
             >
                 <IoIosArrowRoundBack className="w-10 h-10" />
             </Button>
@@ -219,8 +219,8 @@ export function TableExercise(props: TableExerciseProps) {
                         size="default"
                         onClick={() => {
                             router.push(`${pathname}/exercise?id=${courseId}`);
+                            dispatch(setExercise({} as IExercise));
                             dispatch(setCurrentStep(0));
-                            dispatch(setCurrentExercise(null));
                         }}
                     >
                         Add Exercise

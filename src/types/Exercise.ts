@@ -6,12 +6,19 @@ export enum StatusCompile {
 }
 export interface ITestCase {
     _id: string
-    input: [Record<string, string | number | any[]>]; // Flexible key-value mapping
-    output: string; // Allow flexible output types
-    hidden: boolean;
-    statusCompile: StatusCompile;
-    outputExpected: string
+    input: Record<string, string | number | any[]>[]; // Flexible key-value mapping
+    output?: string; // Allow flexible output types
+    hidden?: boolean;
+    statusCompile?: StatusCompile;
+    outputExpected?: string
 }
+
+
+export interface IPersistTestCase {
+    _id: string
+    input: Record<string, string | number | any[]>[];
+}
+
 export interface IExercise {
     _id?: string;
     language?: string;
@@ -24,5 +31,6 @@ export interface IExercise {
     score?: number;
     defaultCode?: string;
     solution?: string;
+    courseId?: string;
 
 }

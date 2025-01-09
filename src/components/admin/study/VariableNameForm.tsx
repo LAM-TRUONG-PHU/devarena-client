@@ -4,19 +4,20 @@ import React, { useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { setVariableName, setVariableCount } from "@/redux/slices/admin/StudyFormSlice";
-
+import { setVariableCount } from "@/redux/slices/admin/StudyFormSlice";
+import { setVariableName } from "@/redux/slices/admin/exerciseStudySlice";
 const VariableNameForm = () => {
-  const { exercise, variableCount } = useAppSelector((state) => state.studyForm);
-  const { currentExercise } = useAppSelector((state) => state.exercises);
+  const { variableCount } = useAppSelector((state) => state.studyForm);
   const dispatch = useAppDispatch();
+  const { exercise } = useAppSelector((state) => state.exercises);
+
 
   useEffect(() => {
-    if (currentExercise?.testcases?.[0]?.input) {
-      const inputLength = currentExercise?.testcases?.[0]?.input?.length;
+    if (exercise?.testcases?.[0]?.input) {
+      const inputLength = exercise?.testcases?.[0]?.input?.length;
       dispatch(setVariableCount(inputLength));
       dispatch(setVariableName(Array(inputLength).fill(
-        currentExercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0])
+        exercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0])
       )));
     }
   }, []);

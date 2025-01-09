@@ -1,5 +1,5 @@
 "use client";
-import React, { useDebugValue, useEffect, useRef, useState } from "react";
+import React, { use, useDebugValue, useEffect, useRef, useState } from "react";
 import Editor, { Monaco } from "@monaco-editor/react";
 import ThemeSwitch from "@/components/theme-switch";
 import { VscDebugRestart } from "react-icons/vsc";
@@ -18,12 +18,14 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { useSocket } from "@/socket/useSocket";
 import { useSession } from "next-auth/react";
 import { StatusCompile } from "@/types/Exercise";
-import { setRunningTestCase, setTestCases, updateStatusTestCase } from "@/redux/slices/ExerciseStatusSlice";
+import { fetchExerciseStatus, setLoading, setRunningTestCase, setTestCases, setTestCasesResult, updateStatusTestCase } from "@/redux/slices/admin/exerciseStudySlice";
 import { useToast } from "@/hooks/use-toast";
 import { ICompileRes } from "@/types/ICompileRes";
 import { capitalize } from "@/utils/capitalize";
 import { fetchExercise } from "@/redux/slices/admin/exerciseStudySlice";
 import { usePrivate } from "@/hooks/usePrivateAxios";
+import { LoadingSpinner } from "@/components/loading";
+import { EStatus } from "@/components/sort";
 
 const defaultValue = {
   cpp: `#include <iostream> \nusing namespace std; \nint main() { \n    cout << "Hello, World!"; \n    return 0; \n}`,
@@ -39,13 +41,12 @@ export default function ExercisePage() {
   const [theme, setTheme] = useState<"vs-dark" | "light">("vs-dark");
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
-  const [isLoading, setIsLoading] = useState(false)
   const [code, setCode] = useState("")
   const dispatch = useAppDispatch();
   const axiosPrivate = usePrivate();
   const searchParams = useSearchParams();
 
-  const { exercise, testCases } = useAppSelector(state => state.exercises)
+  const { exercise, testCases, loading, exerciseStatus } = useAppSelector(state => state.exercises)
 
   const { data: session } = useSession()
   const { toast } = useToast()
@@ -53,7 +54,25 @@ export default function ExercisePage() {
     {
       uniqueId: session?.user.id || "",
       onOutput: (output: ICompileRes) => {
-        dispatch(updateStatusTestCase({ index: output.testCaseIndex, res: output }))
+        dispatch(updateStatusTestCase({ key: exercise.title, index: output.testCaseIndex, res: output }))
+
+      },
+
+      onCompleted(result) {
+        dispatch(setTestCasesResult({ key: exercise.title, testCases: testCases[exercise.title] }))
+        toast({
+          title: "Kết quả",
+          description: result,
+          variant: "success",
+        });
+
+      },
+      onCompiling: () => {
+        toast({
+          title: "Biên dịch",
+          description: "Đang biên dịch...",
+          variant: "default",
+        });
       },
       onError: (error) => {
         toast({
@@ -77,8 +96,10 @@ export default function ExercisePage() {
         id: searchParams.get("id")!,
       }
     ))
+
   }, []);
 
+  console.log("exerciseStatus", exerciseStatus)
   useEffect(() => {
     if (exercise?.defaultCode) {
       setCode(exercise.defaultCode)
@@ -111,20 +132,40 @@ export default function ExercisePage() {
   }
   const handleRun = async () => {
     try {
-      setIsLoading(true);
-      // setOutput('Đang biên dịch...');
-      dispatch(setRunningTestCase(searchParams.get("id")! || ""))
-      if (!code.includes('public class') || !code.includes('public static void main')) {
-        throw new Error('Code phải có public class và hàm main');
+      dispatch(setLoading(true))
+
+      if (searchParams.get("status") == EStatus.Unsolved) {
+        await axiosPrivate.post("/exercise-status", {
+          exerciseId: searchParams.get("id")!,
+          userId: session?.user.id,
+        })
       }
-      const convertedTestCases = testCases.map((testCase) => {
-        // Map qua từng đối tượng trong mảng input và  :lấy giá trị (value)
-        return testCase.input.map((item) => Object.values(item).map(String)).flat();
-      });
-      console.log(convertedTestCases)
-      await compileCode(code, convertedTestCases, searchParams.get("id")! || "");
-    } catch (error) {
-      setIsLoading(false);
+
+
+      dispatch(setRunningTestCase(searchParams.get("id")! || ""));
+
+      if (!code.includes("public class") || !code.includes("public static void main")) {
+        throw new Error("Code phải có public class và hàm main");
+      }
+
+      // Flatten the grouped test cases into a single array of inputs
+      const convertedTestCases = Object.values(testCases[exercise.title])
+        .flat() // Flatten all groups into a single array
+        .map((testCase) =>
+          testCase.input.map((item) =>
+            Object.values(item).map(String) // Convert all input values to strings
+          ).flat()
+        );
+
+
+      await compileCode(code, convertedTestCases, searchParams.get("id")! || "")
+    } catch (error: any) {
+      toast({
+        title: "Lỗi",
+        description: error.message || "Đã có lỗi xảy ra",
+        variant: "error",
+      })
+      dispatch(setLoading(false));
     }
   }
   const handleSubmit = async()=>{
@@ -184,9 +225,12 @@ export default function ExercisePage() {
                 variant={theme == "vs-dark" ? "run-dark" : "run-light"}
                 size="editor"
                 onClick={handleRun}
+                disabled={loading}
               >
-                <FaPlay />
-                Run
+                {loading ? <LoadingSpinner /> : <>
+                  <FaPlay />
+                  Run</>}
+
               </Button>
               <Button variant="submit" size="editor"
                 onClick={handleSubmit}

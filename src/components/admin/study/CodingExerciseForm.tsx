@@ -21,7 +21,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
-import { formSchema, TExerciseStudy } from "@/app/admin/study/[slug]/exercise/page";
+import { formSchema, TExerciseStudy } from "@/app/admin/study/[slug]/[exercise]/page";
 import { ESkills } from "@/components/sort";
 import { IExercise } from "@/types/Exercise";
 
@@ -100,7 +100,7 @@ type CodingExerciseFormProps = {
     form: UseFormReturn<TExerciseStudy, any, undefined>;
 };
 export function CodingExerciseForm(props: CodingExerciseFormProps) {
-    const { currentExercise } = useAppSelector((state) => state.exercises);
+
     return (
         <div className="mb-4">
             <FormField
@@ -177,7 +177,7 @@ export function CodingExerciseForm(props: CodingExerciseFormProps) {
                                     field.onChange(selected);
                                 }}
                                 value={field.value || []}
-                                defaultValue={currentExercise?.tags || field.value || []}
+                                defaultValue={field.value || []}
                                 placeholder="Select tags"
                                 variant="inverted"
                                 animation={2}
