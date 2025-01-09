@@ -68,8 +68,12 @@ export function TabsTestCase() {
 
     dispatch(
       addTestCase({
-        key,
-        testCase: newTestCase,
+        _id: newId,
+        input: exerciseSelected?.exerciseId.testcases![0].input!,
+        output: exerciseSelected?.exerciseId.testcases![0].output!,
+        status: false,
+        statusCompile: StatusCompile.COMPILE_WAITING,
+        outputExpected: "10"
       })
     );
   };
