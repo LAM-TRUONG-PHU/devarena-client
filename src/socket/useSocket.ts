@@ -156,7 +156,7 @@ export const useSocket = ({
   );
 
   const submitCode = useCallback(
-    async (code: string, exerciseId: string, userId: string): Promise<void> => {
+    async (code: string, exerciseId: string, userId: string, language: string): Promise<void> => {
       dispatch(setLoadingSubList(true))
 
       return new Promise((resolve, reject) => {
@@ -181,7 +181,7 @@ export const useSocket = ({
         // Gửi yêu cầu submit code
         socket.emit(
           "submit",
-          { code, exerciseId, userId },
+          { code, exerciseId, userId, language },
           async (response: any) => {
 
             dispatch(setLoadingSubList(false))
