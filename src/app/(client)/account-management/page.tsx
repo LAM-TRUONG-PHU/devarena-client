@@ -1,5 +1,6 @@
 "use client";
 import AccountSignInForm from "@/components/account-management/account-sign-in-form";
+import ConnectedProvider from "@/components/account-management/connected-provider";
 import PersonalInfoForm from "@/components/account-management/personal-info-form";
 import { Algorithm, C } from "@/components/mastery";
 import { Button } from "@/components/ui/button";
@@ -73,6 +74,7 @@ export default function AccountManagementPage() {
                         </div>
                     </div>
                     <AccountSignInForm />
+                    <ConnectedProvider/>
                 </div>
             </div>
         </div>

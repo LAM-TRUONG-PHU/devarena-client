@@ -47,6 +47,7 @@ export default function ExercisePage() {
   const searchParams = useSearchParams();
 
   const { exercise, testCases, loading, exerciseStatus } = useAppSelector(state => state.exercises)
+  const language = capitalize(segments[1]);
 
   const { data: session } = useSession()
   const { toast } = useToast()
@@ -156,9 +157,9 @@ export default function ExercisePage() {
             Object.values(item).map(String) // Convert all input values to strings
           ).flat()
         );
+        console.log(language)
 
-
-      await compileCode(code, convertedTestCases, searchParams.get("id")! || "")
+      await compileCode(code, convertedTestCases, searchParams.get("id")! || "",language.toLowerCase())
     } catch (error: any) {
       toast({
         title: "Lỗi",
@@ -169,7 +170,7 @@ export default function ExercisePage() {
     }
   }
   const handleSubmit = async()=>{
-      await submitCode(code,searchParams.get("id")! || "",session?.user.id || "")
+      await submitCode(code,searchParams.get("id")! || "",session?.user.id || "",language.toLowerCase())
   }
   const toggleTheme = () => {
     setTheme((prev) => {

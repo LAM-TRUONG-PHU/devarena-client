@@ -86,6 +86,10 @@ export const useSocket = ({
       onCompleted?.(result);
       dispatch(setLoading(false))
     });
+    socket.on("complete_submit", (result: any) => {
+      console.log("Completed:", result);
+
+    });
 
     // Cleanup function to remove listeners when the component is unmounted
     return () => {
@@ -104,7 +108,7 @@ export const useSocket = ({
   }, [uniqueId, onCompiling, onOutput, onError, onWaitingInput, onCompleted, onReconnect]);
 
   const compileCode = useCallback(
-    (code: string, testCases: string[][], exerciseId: string): Promise<void> => {
+    (code: string, testCases: string[][], exerciseId: string, language: string): Promise<void> => {
       return new Promise((resolve, reject) => {
         if (!socket.connected) {
           reject(new Error("Socket is not connected"));
@@ -118,8 +122,8 @@ export const useSocket = ({
 
         socket.on("error", errorHandler);
         socket.emit(
-          "compile2",
-          { uniqueId, code, testCases, exerciseId },
+          "compile",
+          { uniqueId, code, testCases, exerciseId,language },
           (response: any) => {
             socket.off("error", errorHandler);
             if (response?.error) {
@@ -135,7 +139,7 @@ export const useSocket = ({
   );
 
   const submitCode = useCallback(
-    async (code: string, exerciseId: string, userId: string): Promise<void> => {
+    async (code: string, exerciseId: string, userId: string,language: string): Promise<void> => {
       return new Promise((resolve, reject) => {
         // Kiểm tra xem socket có kết nối không
         if (!socket.connected) {
@@ -154,7 +158,7 @@ export const useSocket = ({
         // Gửi yêu cầu submit code
         socket.emit(
           "submit",
-          { code, exerciseId,userId },
+          { code, exerciseId,userId,language },
           (response: any) => {
             socket.off("error", errorHandler); // Hủy lắng nghe lỗi sau khi có phản hồi
             
