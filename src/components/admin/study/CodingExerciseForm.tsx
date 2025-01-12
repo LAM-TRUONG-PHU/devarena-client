@@ -110,7 +110,9 @@ export function CodingExerciseForm(props: CodingExerciseFormProps) {
                     <FormItem>
                         <FormLabel>Title</FormLabel>
                         <FormControl>
-                            <Input {...field} placeholder="Enter title" />
+                            <Input {...field} placeholder="Enter title" value={
+                                field.value
+                            } />
                         </FormControl>
                         <FormMessage className="text-right" />
                     </FormItem>

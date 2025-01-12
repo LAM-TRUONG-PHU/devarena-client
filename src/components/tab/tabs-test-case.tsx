@@ -17,43 +17,10 @@ import { create } from "domain";
 
 export function TabsTestCase() {
   const dispatch = useAppDispatch();
-  // const { testCases, exerciseSelected } = useAppSelector(
-  //   (state) => state.exerciseStatus
-  // );
   const path = usePathname();
   const segments = path.split("/").filter(Boolean);
   const [activeTab, setActiveTab] = useState("1");
   const { exercise, testCases, persistTestCases } = useAppSelector(state => state.exercises)
-
-
-  useEffect(() => {
-    // Only run if testCases is empty 
-    if (!testCases[exercise.title] || testCases[exercise.title].length === 0) {
-      if (persistTestCases[exercise.title]) {
-        dispatch(setTestCases({ key: exercise.title, testCases: persistTestCases[exercise.title] }))
-      }
-      else if (exercise.testcases) {
-
-        dispatch(
-          setTestCases({
-            key: exercise.title,
-            testCases: exercise.testcases.map((testcase, index) => {
-              return {
-                _id: (index + 1).toString(),
-                input: testcase.input,
-              };
-            }
-            ),
-          })
-        );
-      }
-
-    }
-  }, [testCases, exercise.testcases, dispatch, persistTestCases,]);
-
-  useEffect(() => {
-    console.log(testCases)
-  }, [testCases]);
 
   const handleAddTab = () => {
     const key = exercise.title; // Replace with a dynamic key if needed
@@ -116,7 +83,7 @@ export function TabsTestCase() {
       defaultValue={activeTab}
       value={activeTab}
       onValueChange={setActiveTab}
-      className="w-full flex flex-col h-full pt-2 "
+      className="w-full flex flex-col h-full pt-2"
     >
       <header className="flex items-center px-4 bg-transparent ">
         <TabsList className="bg-transparent">

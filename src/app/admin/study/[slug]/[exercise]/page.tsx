@@ -52,7 +52,8 @@ export const formSchema = z.object({
         z.object({
             input: z.array(
                 z.record(z.any())
-            ), output: z.any(),
+            ),
+            output: z.any(),
             hidden: z.boolean(),
         })
     ),
@@ -100,7 +101,7 @@ export default function DetailExercisePage() {
             ],
             defaultCode: "",
             solution: "",
-            courseId: "",
+            courseId: searchParams.get("id")!,
             score: 0,
         },
     });
@@ -115,7 +116,7 @@ export default function DetailExercisePage() {
 
     }, [searchParams]);
     useEffect(() => {
-        if (exercise && Object.keys(exercise).length > 0) {
+        if (exercise && Object.keys(exercise).length > 1) {
             form.reset({
 
                 title: exercise.title || "",
@@ -131,7 +132,7 @@ export default function DetailExercisePage() {
                 ],
                 defaultCode: exercise.defaultCode || "",
                 solution: exercise.solution || "",
-                courseId: exercise.courseId || "",
+                courseId: exercise.courseId || searchParams.get("id")!,
                 score: exercise.score || 0,
             });
         }
@@ -147,17 +148,18 @@ export default function DetailExercisePage() {
         dispatch(setCurrentStep(currentStep - 1));
     };
 
-
+    console.log("exercise", exercise);
     async function onSubmit(data: z.infer<typeof formSchema>) {
         console.log("data", data)
         setIsSubmitting(true);
-        if (exercise) {
+        if (exercise.variableName?.length == 0) {
+            data.testcases.forEach((testcase, index) => {
+                data.testcases[index].input = [];
+            });
+        }
+        if (segments[segments.length - 1] !== "exercise") {
             try {
-                if (exercise.variableName?.length == 0) {
-                    data.testcases.forEach((testcase, index) => {
-                        data.testcases[index].input = [];
-                    });
-                }
+
                 console.log("data", data)
                 await axiosPrivate.put(`/study/${exercise._id}`, data).then((res) => {
                     toast({
@@ -237,7 +239,7 @@ export default function DetailExercisePage() {
                                 Previous
                             </Button>
                             {currentStep === steps.length - 1 ? (
-                                <Button type="submit" disabled={isSubmitting}>
+                                <Button type="submit" disabled={isSubmitting} onClick={() => { console.log("qwd") }}>
                                     {isSubmitting ? <LoadingSpinner /> : "Submit"}
                                 </Button>
                             ) : (

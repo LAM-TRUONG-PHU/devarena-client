@@ -30,7 +30,7 @@ function PrismCode({ code, plugins, language }: TProps) {
         .join("\n");
 
     return (
-        <pre className={!plugins ? "" : plugins.join(" ")} data-start="0">
+        <pre className={!plugins ? "!m-4 !bg-gray-100 !rounded-xl" : plugins.join(" ")} data-start="0">
             <code
                 ref={codeRef}
                 className={`language-${language}`}

@@ -1,64 +1,46 @@
 "use client";
-import React, { use, useDebugValue, useEffect, useRef, useState } from "react";
-import Editor, { Monaco } from "@monaco-editor/react";
-import ThemeSwitch from "@/components/theme-switch";
-import { VscDebugRestart } from "react-icons/vsc";
-import { SlOptionsVertical } from "react-icons/sl";
-import { MdFormatAlignLeft } from "react-icons/md";
-import { Button } from "@/components/ui/button";
-import { TbCloudShare } from "react-icons/tb";
-import { FaPlay } from "react-icons/fa6";
-import { usePathname, useSearchParams } from "next/navigation";
-import ChangeLanguage from "@/components/change-language";
-import { set } from "react-hook-form";
-import { getLanguageTitle } from "@/utils/get-language-title";
-import { ELanguages } from "@/types/language";
-import { TabsExercise } from "@/components/tab/tabs-exercise";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { useSocket } from "@/socket/useSocket";
-import { useSession } from "next-auth/react";
-import { StatusCompile } from "@/types/Exercise";
-import { fetchExerciseStatus, setLoading, setRunningTestCase, setTestCases, setTestCasesResult, updateStatusTestCase } from "@/redux/slices/admin/exerciseStudySlice";
-import { useToast } from "@/hooks/use-toast";
-import { ICompileRes } from "@/types/ICompileRes";
-import { capitalize } from "@/utils/capitalize";
-import { fetchExercise } from "@/redux/slices/admin/exerciseStudySlice";
-import { usePrivate } from "@/hooks/usePrivateAxios";
 import { LoadingSpinner } from "@/components/loading";
 import { EStatus } from "@/components/sort";
-
-const defaultValue = {
-  cpp: `#include <iostream> \nusing namespace std; \nint main() { \n    cout << "Hello, World!"; \n    return 0; \n}`,
-  python: `print("Hello, World!")`,
-  java: `public class Main { \n    public static void main(String[] args) { \n        System.out.println("Hello, World!"); \n    } \n}`,
-  javascript: `console.log("Hello, World!");`,
-  typescript: `console.log("Hello, World!");`,
-  csharp: `using System; \nclass Program { \n    static void Main() { \n        Console.WriteLine("Hello, World!"); \n    } \n}`,
-  c: `#include <stdio.h> \nint main() { \n    printf("Hello, World!"); \n    return 0; \n}`,
-};
+import { TabsExercise } from "@/components/tab/tabs-exercise";
+import ThemeSwitch from "@/components/theme-switch";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { usePrivate } from "@/hooks/usePrivateAxios";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { fetchExercise, setCode, setLoadingTestCase, setRunningTestCase, setSubList, setTestCases, setTestCasesResult, updateStatusTestCase } from "@/redux/slices/admin/exerciseStudySlice";
+import { useSocket } from "@/socket/useSocket";
+import { ICompileRes } from "@/types/ICompileRes";
+import { capitalize } from "@/utils/capitalize";
+import Editor, { Monaco } from "@monaco-editor/react";
+import { useSession } from "next-auth/react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { FaPlay } from "react-icons/fa6";
+import { MdFormatAlignLeft } from "react-icons/md";
+import { SlOptionsVertical } from "react-icons/sl";
+import { TbCloudShare } from "react-icons/tb";
+import { VscDebugRestart } from "react-icons/vsc";
 
 export default function ExercisePage() {
   const [theme, setTheme] = useState<"vs-dark" | "light">("vs-dark");
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
-  const [code, setCode] = useState("")
   const dispatch = useAppDispatch();
   const axiosPrivate = usePrivate();
   const searchParams = useSearchParams();
 
-  const { exercise, testCases, loading, exerciseStatus } = useAppSelector(state => state.exercises)
+  const { exercise, testCases, loading, exerciseStatus, loadingTestCase, persistTestCases, loadingSubList, compile, code } = useAppSelector(state => state.exercises)
   const language = capitalize(segments[1]);
 
   const { data: session } = useSession()
   const { toast } = useToast()
-  const { connected, compileCode,submitCode, stopExecution, isConnected } = useSocket(
+  const { connected, compileCode, submitCode, stopExecution, isConnected } = useSocket(
     {
       uniqueId: session?.user.id || "",
       onOutput: (output: ICompileRes) => {
         dispatch(updateStatusTestCase({ key: exercise.title, index: output.testCaseIndex, res: output }))
 
       },
-
       onCompleted(result) {
         dispatch(setTestCasesResult({ key: exercise.title, testCases: testCases[exercise.title] }))
         toast({
@@ -91,6 +73,31 @@ export default function ExercisePage() {
   );
 
   useEffect(() => {
+    // Only run if testCases is empty 
+    if (!testCases[exercise.title] || testCases[exercise.title].length === 0) {
+      if (persistTestCases[exercise.title]) {
+        dispatch(setTestCases({ key: exercise.title, testCases: persistTestCases[exercise.title] }))
+      }
+      else if (exercise.testcases) {
+
+        dispatch(
+          setTestCases({
+            key: exercise.title,
+            testCases: exercise.testcases.map((testcase, index) => {
+              return {
+                _id: (index + 1).toString(),
+                input: testcase.input,
+              };
+            }
+            ),
+          })
+        );
+      }
+
+    }
+  }, [testCases, exercise.testcases, dispatch, persistTestCases,]);
+
+  useEffect(() => {
     dispatch(fetchExercise(
       {
         axiosInstance: axiosPrivate,
@@ -100,22 +107,23 @@ export default function ExercisePage() {
 
   }, []);
 
-  console.log("exerciseStatus", exerciseStatus)
   useEffect(() => {
-    if (exercise?.defaultCode) {
-      setCode(exercise.defaultCode)
-    }
-  }, [exercise])
+    axiosPrivate
+      .get(`/exercise-status/submission/${searchParams.get("id")!}`)
+      .then((res) => {
+        dispatch(setSubList(res.data.data.submission));
+      })
+      .catch((err) => {
+        console.error(err);
+      });
 
-  // useEffect(() => {
-  //   const testCasesTemp =
-  //     exerciseSelected?.exerciseId.testcases!.map((testCase) => ({
-  //       ...testCase,
-  //       statusCompile: StatusCompile.COMPILE_WAITING,
-  //     })) || [];
-  //   dispatch(setTestCases(testCasesTemp));
-  //   console.log("testcaseTemp", testCasesTemp)
-  // }, [exerciseSelected]);
+  }, [loadingSubList == true, loading == true, compile == "Accepted"]);
+
+  useEffect(() => {
+    if (!code[`${exercise.title}`]) {
+      dispatch(setCode({ key: exercise.title, code: exercise.defaultCode }))
+    }
+  }, [exercise.title, exercise.defaultCode, code[`${exercise.title}`], dispatch]);
 
   function handleEditorDidMount(editor: any, monaco: Monaco) {
     // Define a custom theme with background color #1D2432
@@ -133,7 +141,7 @@ export default function ExercisePage() {
   }
   const handleRun = async () => {
     try {
-      dispatch(setLoading(true))
+      dispatch(setLoadingTestCase(true))
 
       if (searchParams.get("status") == EStatus.Unsolved) {
         await axiosPrivate.post("/exercise-status", {
@@ -145,11 +153,13 @@ export default function ExercisePage() {
 
       dispatch(setRunningTestCase(searchParams.get("id")! || ""));
 
-      if (!code.includes("public class") || !code.includes("public static void main")) {
-        throw new Error("Code phải có public class và hàm main");
+
+      if (!code[`${exercise.title}`].includes("public class") || !code[`${exercise.title}`].includes("public static void main")) {
+        throw new Error("Code need to have public class and main function");
       }
 
-      // Flatten the grouped test cases into a single array of inputs
+
+      // Flatten the grouped te st cases into a single array of inputs
       const convertedTestCases = Object.values(testCases[exercise.title])
         .flat() // Flatten all groups into a single array
         .map((testCase) =>
@@ -159,18 +169,20 @@ export default function ExercisePage() {
         );
         console.log(language)
 
-      await compileCode(code, convertedTestCases, searchParams.get("id")! || "",language.toLowerCase())
+      await compileCode(code[`${exercise.title}`], convertedTestCases, searchParams.get("id")! || "",language.toLowerCase())
     } catch (error: any) {
       toast({
         title: "Lỗi",
         description: error.message || "Đã có lỗi xảy ra",
         variant: "error",
       })
-      dispatch(setLoading(false));
+      dispatch(setLoadingTestCase(false));
     }
   }
-  const handleSubmit = async()=>{
-      await submitCode(code,searchParams.get("id")! || "",session?.user.id || "",language.toLowerCase())
+  const handleSubmit = async () => {
+    if (searchParams.get("status") == EStatus.InProgress) {
+    }
+    await submitCode(code[`${exercise.title}`], searchParams.get("id")! || "", session?.user.id || "",language.toLowerCase())
   }
   const toggleTheme = () => {
     setTheme((prev) => {
@@ -216,8 +228,8 @@ export default function ExercisePage() {
             height={"calc(100svh - 7rem)"}
             defaultLanguage={segments[1]}
             theme={theme}
-            value={code}
-            onChange={(value) => setCode(value || "")}
+            value={code[`${exercise.title}`] ?? ''}
+            onChange={(value) => dispatch(setCode({ key: exercise.title, code: value }))}
             onMount={handleEditorDidMount}
           />
           <div className="absolute bottom-8 right-8">
@@ -226,9 +238,9 @@ export default function ExercisePage() {
                 variant={theme == "vs-dark" ? "run-dark" : "run-light"}
                 size="editor"
                 onClick={handleRun}
-                disabled={loading}
+                disabled={loadingTestCase}
               >
-                {loading ? <LoadingSpinner /> : <>
+                {loadingTestCase ? <LoadingSpinner /> : <>
                   <FaPlay />
                   Run</>}
 
@@ -236,8 +248,9 @@ export default function ExercisePage() {
               <Button variant="submit" size="editor"
                 onClick={handleSubmit}
               >
-                <TbCloudShare />
-                Submit
+                {loadingSubList ? <LoadingSpinner /> : <><TbCloudShare />
+                  Submit</>}
+
               </Button>
             </div>
           </div>

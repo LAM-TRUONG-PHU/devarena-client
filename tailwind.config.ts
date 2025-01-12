@@ -57,6 +57,7 @@ export default {
                 blue_discord: "#5865F2",
                 pink_primary: "#FF2395",
                 pink_background: "rgba(247, 187, 215, 0.5)",
+                green_primary: "#64CB41",
                 sidebar: {
                     DEFAULT: "hsl(var(--sidebar-background))",
                     foreground: "hsl(var(--sidebar-foreground))",
@@ -70,13 +71,13 @@ export default {
             },
             keyframes: {
                 "caret-blink": {
-                  "0%,70%,100%": { opacity: "1" },
-                  "20%,50%": { opacity: "0" },
+                    "0%,70%,100%": { opacity: "1" },
+                    "20%,50%": { opacity: "0" },
                 },
-              },
-              animation: {
+            },
+            animation: {
                 "caret-blink": "caret-blink 1.25s ease-out infinite",
-              },
+            },
             borderRadius: {
                 lg: "var(--radius)",
                 md: "calc(var(--radius) - 2px)",

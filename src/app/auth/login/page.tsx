@@ -1,4 +1,5 @@
 "use client";
+import { LoadingSpinner } from "@/components/loading";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -21,6 +22,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaDiscord, FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
+import { set } from "store";
 import { z } from "zod";
 const formSchema = z.object({
     username: z.string().min(1, {
@@ -37,6 +39,7 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
     const { data: session, update } = useSession();
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (session?.error) {
@@ -63,6 +66,7 @@ export default function LoginPage() {
     });
 
     async function onSubmit(data: z.infer<typeof formSchema>) {
+        setLoading(true);
         const res = await signIn("credentials", {
             redirect: false,
             username: data.username,
@@ -75,13 +79,16 @@ export default function LoginPage() {
                 description: res.error,
                 variant: "error",
             });
+            setLoading(false);
         } else if (res?.ok) {
-            const session = await getSession();
-            if (session?.user.role === "admin") {
-                router.push("/admin/study");
-            } else {
-                router.push("/study");
+            await getSession().then((session) => {
+                if (session?.user.role === "admin") {
+                    router.push("/admin/study");
+                } else {
+                    router.push("/study");
+                }
             }
+            )
         }
     }
 
@@ -203,8 +210,8 @@ export default function LoginPage() {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" className="w-full text-white px-4 py-2 rounded-lg shadow mt-10">
-                            Login
+                        <Button type="submit" className="w-full text-white px-4 py-2 rounded-lg shadow mt-10" disabled={loading}>
+                            {loading ? (<LoadingSpinner />) : "Login"}
                         </Button>
                     </form>
                 </Form>

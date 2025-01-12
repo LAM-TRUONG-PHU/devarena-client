@@ -7,6 +7,7 @@ import { Provider } from "react-redux";
 import { store } from "@/redux/store";
 import Script from "next/script";
 import Header from "@/components/header";
+import DialogLoading from "@/components/dialog-loading";
 
 export default function AdminLayout({
   children,

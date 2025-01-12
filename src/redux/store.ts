@@ -9,18 +9,19 @@ import { persistStore, persistReducer } from "redux-persist";
 import { combineReducers } from "redux";
 
 import storage from "redux-persist/lib/storage";
-const testCasesPersistConfig = {
-    key: "persistTestCases",
+const exercisesPersistConfig = {
+    key: "persistExercises",
     storage: storage,
-    whitelist: ["persistTestCases"],
-}
+    whitelist: ["persistTestCases", "code"], // Include both states to persist
+};
+
 
 const rootReducer = combineReducers({
     contest: contestSlice,
     filter: filterSlice,
     studyForm: studyFormSlice,
     exerciseStatus: ExerciseStatusSlice,
-    exercises: persistReducer(testCasesPersistConfig, exercisesSlice),
+    exercises: persistReducer(exercisesPersistConfig, exercisesSlice),
     course: courseSlice,
 });
 
