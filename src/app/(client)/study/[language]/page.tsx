@@ -28,6 +28,7 @@ import { useSession } from "next-auth/react";
 import { IExercise } from "@/types/Exercise";
 import { set } from "store";
 import { capitalize } from "@/utils/capitalize";
+import DialogLoading from "@/components/dialog-loading";
 
 export type SortOptionTitle = "Filter" | "Status" | "Skills" | "Difficulty";
 
@@ -51,8 +52,15 @@ export default function LanguagePage() {
   const [exercises, setExercises] = useState<(IExercise & {
     status: EStatus
   })[]>([]);
+  const [filteredExercises, setFilteredExercises] = useState<(IExercise & {
+    status: EStatus
+  })[]>([]);
 
 
+
+  useEffect(() => {
+    console.log("filteredExercises", filteredExercises);
+  }, [filteredExercises]);
   useEffect(() => {
     const getExercisesByUserAndCourse = async () => {
       try {
@@ -83,12 +91,41 @@ export default function LanguagePage() {
       }
 
     }
+
+
     getExercisesByUserAndCourse();
 
   }, [axiosPrivate, dispatch, status]);
+  useEffect(() => {
+    const applyFilters = () => {
+      let filtered = [...exercises];
 
-  console.log(exercises)
+      // Apply Status Filter
+      if (statusFilter.selected.length) {
+        filtered = filtered.filter((exercise) =>
+          statusFilter.selected.includes(exercise.status)
+        );
+      }
 
+      // Apply Difficulty Filter
+      if (difficultyFilter.selected.length) {
+        filtered = filtered.filter((exercise) =>
+          difficultyFilter.selected.includes(exercise.difficulty as EDifficulty)
+        );
+      }
+
+      // Apply Skills Filter
+      if (skillsFilter.selected.length) {
+        filtered = filtered.filter((exercise) =>
+          skillsFilter.selected.some((skill) => exercise.tags.includes(skill))
+        );
+      }
+
+
+      setFilteredExercises(filtered);
+    };
+    applyFilters();
+  }, [statusFilter.selected, difficultyFilter.selected, skillsFilter.selected, exercises]);
 
   return (
     <>
@@ -177,7 +214,7 @@ export default function LanguagePage() {
         ) : (<>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-5">
 
-            {exercises.filter((exercise) => exercise.status == EStatus.InProgress).map((exercise) => (
+            {filteredExercises.filter((exercise) => exercise.status == EStatus.InProgress).map((exercise) => (
               <ExerciseCard
                 key={exercise._id}
                 language={language}
@@ -186,13 +223,15 @@ export default function LanguagePage() {
                 onClick={() => {
                   router.push(`/study/${segments[1]}/${createSlug(exercise.title)}?id=${exercise._id}&status=${exercise.status}`);
                 }} status={exercise.status}
-                score={exercise.score} />
+                score={exercise.score}
+                difficulty={exercise.difficulty as EDifficulty}
+              />
             ))}
 
 
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {exercises.filter((exercise) => { return exercise.status == EStatus.Unsolved || exercise.status == EStatus.Solved })
+            {filteredExercises.filter((exercise) => { return exercise.status == EStatus.Unsolved || exercise.status == EStatus.Solved })
               .sort((a, b) => {
                 if (a.status === EStatus.Solved && b.status !== EStatus.Solved) return -1;
                 if (a.status !== EStatus.Solved && b.status === EStatus.Solved) return 1;
@@ -205,10 +244,11 @@ export default function LanguagePage() {
                   title={exercise.title}
                   tags={exercise.tags}
                   onClick={() => {
-                    router.push(`/study/${segments[1]}/${createSlug(exercise.title)}?id=${exercise._id}&status=${exercise.status}`);
+                    router.push(`/study/${segments[1]}/${createSlug(exercise.title)}?id=${exercise._id}&status=${exercise.status}`)
                   }}
                   status={exercise.status === EStatus.Solved ? "completed" : ""}
                   score={exercise.score}
+                  difficulty={exercise.difficulty as EDifficulty}
                 />
               ))}
           </div></>)}

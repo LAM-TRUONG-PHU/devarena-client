@@ -8,13 +8,13 @@ import { createSlug } from '@/lib/helper';
 import { CheckCircle, ClipboardPen, XCircle } from 'lucide-react';
 import { Spinner } from '../ui/spinner';
 import { Textarea } from "@/components/ui/textarea"
+import { LoadingSpinner } from '../loading';
 
 export default function TabsResult() {
     const [activeTab, setActiveTab] = useState("1");
-    const { testCasesResult, loading } = useAppSelector(state => state.exercises)
+    const { testCasesResult, loading, loadingTestCase } = useAppSelector(state => state.exercises)
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
-    console.log("testCasesResult", testCasesResult)
 
 
     const renderStatusIcon = (status: StatusCompile) => {
@@ -38,27 +38,8 @@ export default function TabsResult() {
                 onValueChange={setActiveTab}
                 className="w-full flex flex-col h-full pt-2 "
             >
-                {loading ? (
-                    <>
-
-                        <div className='animate-pulse flex items-center px-4 '>
-                            <div className="flex justify-between items-center mb-2">
-                                <div className="font-semibold w-1/2 h-4 bg-gray-200 rounded"></div>
-                                <div className="w-1/4 h-4 bg-gray-200 rounded"></div>
-                            </div>
-                            <div className="flex justify-between items-center mb-2">
-                                <div className="font-semibold w-1/2 h-4 bg-gray-200 rounded"></div>
-                                <div className="w-1/4 h-4 bg-gray-200 rounded"></div>
-                            </div>
-                            <div className="flex justify-between items-center mb-2">
-                                <div className="font-semibold w-1/2 h-4 bg-gray-200 rounded"></div>
-                                <div className="w-1/4 h-4 bg-gray-200 rounded"></div>
-                            </div>
-
-                        </div>
-
-
-                    </>
+                {loadingTestCase ? (
+                    <LoadingSpinner />
                 ) : (<header className="flex items-center px-4 bg-transparent ">
                     <TabsList className="bg-transparent">
                         {testCasesResult && Object.entries(testCasesResult).length > 0 ? (
@@ -101,24 +82,7 @@ export default function TabsResult() {
                 </header>)}
 
 
-                {loading ? (<div>
-                    <div className="animate-pulse">
-                        <div className="flex justify-between items-center mb-2">
-                            <div className="font-semibold w-1/2 h-4 bg-gray-200 rounded"></div>
-                            <div className="w-1/4 h-4 bg-gray-200 rounded"></div>
-                        </div>
-                        <div className="flex flex-col space-y-2">
-                            <div className="w-full h-4 bg-gray-200 rounded"></div>
-                            <div className="w-full h-4 bg-gray-200 rounded"></div>
-                        </div>
-                        <div className="mt-4">
-                            <div className="w-full h-4 bg-gray-200 rounded"></div>
-                        </div>
-                        <div className="mt-4">
-                            <div className="w-full h-4 bg-gray-200 rounded"></div>
-                        </div>
-                    </div>
-                </div>) : (
+                {loadingTestCase ? (<></>) : (
                     <>
                         {testCasesResult && Object.entries(testCasesResult).length > 0 ? (
                             Object.entries(testCasesResult).map(([groupKey, testCaseGroup]) => (

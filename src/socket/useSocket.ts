@@ -2,7 +2,9 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { ICompileRes } from "@/types/ICompileRes";
 import { useState, useEffect, useCallback } from "react";
 import { io } from "socket.io-client";
-import { setLoading } from "@/redux/slices/admin/exerciseStudySlice"
+import { setCompile, setLoading, setLoadingSubList, setLoadingTestCase, setSubList } from "@/redux/slices/admin/exerciseStudySlice"
+import { usePrivate } from "@/hooks/usePrivateAxios";
+import { useSearchParams } from "next/navigation";
 // Cấu hình socket với các options cần thiết
 const socket = io("http://localhost:3001", {
   transports: ["websocket", "polling"],
@@ -34,6 +36,9 @@ export const useSocket = ({
 }) => {
   const [connected, setConnected] = useState(socket.connected);
   const dispatch = useAppDispatch()
+  const axiosPrivate = usePrivate()
+  const searchParams = useSearchParams();
+
   useEffect(() => {
     // Gửi uniqueId lên server khi kết nối
     socket.emit("register", { uniqueId });
@@ -61,6 +66,9 @@ export const useSocket = ({
     socket.on("compiling", (message: string) => {
       console.log("Compiling:", message);
       onCompiling?.(message);
+      dispatch(setLoadingTestCase(true))
+      dispatch(setLoadingSubList(true))
+
     });
 
     socket.on("output", (output: ICompileRes) => {
@@ -72,8 +80,12 @@ export const useSocket = ({
       onOutputSubmit?.(output);
     });
     socket.on("error", (error: string) => {
-      console.error("Error:", error);
+      dispatch(setLoadingSubList(false))
+      dispatch(setLoadingTestCase(false))
+      dispatch(setCompile("Compile Error"));
       onError?.(error);
+      console.error("Error:", error);
+
     });
 
     socket.on("waitingInput", (message: string) => {
@@ -84,7 +96,10 @@ export const useSocket = ({
     socket.on("completed", (result: any) => {
       console.log("Completed:", result);
       onCompleted?.(result);
-      dispatch(setLoading(false))
+      dispatch(setLoadingTestCase(false))
+      dispatch(setLoadingSubList(false))
+      dispatch(setCompile("Accepted"));
+
     });
 
     // Cleanup function to remove listeners when the component is unmounted
@@ -118,7 +133,7 @@ export const useSocket = ({
 
         socket.on("error", errorHandler);
         socket.emit(
-          "compile2",
+          "compile",
           { uniqueId, code, testCases, exerciseId },
           (response: any) => {
             socket.off("error", errorHandler);
@@ -136,33 +151,47 @@ export const useSocket = ({
 
   const submitCode = useCallback(
     async (code: string, exerciseId: string, userId: string): Promise<void> => {
+      dispatch(setLoadingSubList(true))
+
       return new Promise((resolve, reject) => {
         // Kiểm tra xem socket có kết nối không
         if (!socket.connected) {
+          console.error("Socket is not connected before emitting submit event");
           reject(new Error("Socket is not connected"));
           return;
+        } else {
+          console.log("Socket is connected. Preparing to emit...");
         }
-  
+
         // Xử lý lỗi nếu có
         const errorHandler = (error: string) => {
           socket.off("error", errorHandler);
+          dispatch(setLoadingSubList(false))
           reject(new Error(error));
         };
-  
+
         socket.on("error", errorHandler);
-  
+
         // Gửi yêu cầu submit code
         socket.emit(
           "submit",
-          { code, exerciseId,userId },
-          (response: any) => {
-            socket.off("error", errorHandler); // Hủy lắng nghe lỗi sau khi có phản hồi
-            
+          { code, exerciseId, userId },
+          async (response: any) => {
+
+            dispatch(setLoadingSubList(false))
             // Kiểm tra xem có lỗi trong phản hồi không
             if (response?.error) {
               reject(new Error(response.error));
             } else {
-              resolve();  // Submit thành công
+              try {
+                axiosPrivate.put(`/exercise-status/exercise/${exerciseId}`)
+                resolve();
+              } catch (axiosError) {
+                console.error("Failed to update exercise status:", axiosError);
+                reject(axiosError);
+              }
+
+
             }
           }
         );

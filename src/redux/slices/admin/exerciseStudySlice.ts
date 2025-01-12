@@ -4,6 +4,15 @@ import { ICompileRes } from "@/types/ICompileRes";
 import { IExerciseStatus } from "@/types/IExerciseStatus";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosInstance } from "axios";
+import { set } from "store";
+
+interface ISubmission {
+    status: string;
+    score: number;
+    result: string;
+    createdAt: string; // Update to string as returned by the API
+}
+
 
 interface ExerciseState {
     exercises: IExercise[];
@@ -15,6 +24,11 @@ interface ExerciseState {
     exerciseStatus: IExerciseStatus;
     loading: boolean;
     error: string | null;
+    loadingTestCase: boolean;
+    subList: ISubmission[];
+    loadingSubList: boolean;
+    compile: "Accepted" | "Compile Error" | null;
+    code: { [key: string]: string };
 }
 
 interface IExercisePayload {
@@ -35,6 +49,11 @@ const initialState: ExerciseState = {
     exerciseStatus: {} as IExerciseStatus,
     loading: false,
     error: null,
+    loadingTestCase: false,
+    loadingSubList: false,
+    subList: [],
+    compile: null,
+    code: {},
 
 };
 
@@ -193,6 +212,23 @@ const exercisesSlice = createSlice({
         setVariableName(state, action: PayloadAction<string[]>) {
             state.exercise.variableName = action.payload;
         },
+        setLoadingTestCase(state, action: PayloadAction<boolean>) {
+            state.loadingTestCase = action.payload;
+        },
+        setSubList(state, action: PayloadAction<ISubmission[]>) {
+            state.subList = action.payload;
+        },
+        setLoadingSubList(state, action: PayloadAction<boolean>) {
+            state.loadingSubList = action.payload;
+        },
+        setCompile(state, action: PayloadAction<"Accepted" | "Compile Error">) {
+            state.compile = action.payload;
+        },
+        setCode(state, action: PayloadAction<{
+            key: string; code: string | undefined
+        }>) {
+            state.code[action.payload.key] = action.payload.code || "";
+        }
 
     },
     extraReducers: (builder) => {
@@ -238,9 +274,9 @@ const exercisesSlice = createSlice({
 export const { addExercise, setCurrentExercise,
     updateExercise, deleteExercise,
     setTestCases, removeTestCase,
-    addTestCase,
-    setRunningTestCase, updateStatusTestCase,
-    handleChangeInputTestCase, setVariableName, setTestCasesResult, setLoading, setExercise
+    addTestCase, setCode,
+    setRunningTestCase, updateStatusTestCase, setLoadingTestCase, setLoadingSubList,
+    handleChangeInputTestCase, setVariableName, setTestCasesResult, setLoading, setExercise, setSubList, setCompile
 } = exercisesSlice.actions;
 
 export default exercisesSlice.reducer;

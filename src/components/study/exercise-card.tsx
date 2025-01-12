@@ -16,6 +16,7 @@ type CardProps = {
     onClick: () => void;
     status: string;
     score: number | undefined;
+    difficulty: EDifficulty;
 };
 export default function ExerciseCard(props: CardProps) {
     return (
@@ -36,7 +37,7 @@ export default function ExerciseCard(props: CardProps) {
                 </div>
                 <div className="flex items-center">
                     <div
-                        className={`aspect-square rounded-full border border-foreground w-10 justify-center items-center flex text-xs p-1  font-semibold   ${props.status === "in-progress" && "border-pink_primary text-pink_primary"
+                        className={`aspect-square rounded-full border border-foreground w-10 justify-center items-center flex text-xs p-1  font-semibold   ${props.status === "in-progress" ? "border-pink_primary text-pink_primary" : props.status === "completed" ? "border-green_primary text-green_primary" : "border-foreground text-foreground"
                             }`}
                     >
                         {props.status == "completed" ? props.score : 0}/{props.score}
@@ -44,7 +45,7 @@ export default function ExerciseCard(props: CardProps) {
                 </div>
             </div>
             <div className="flex flex-wrap gap-2">
-                <Difficulty variant={EDifficulty.Easy} />
+                <Difficulty variant={props.difficulty} />
 
                 {props.tags.map((tag, index) => (
                     <span key={index} className="tag">
@@ -71,7 +72,7 @@ export default function ExerciseCard(props: CardProps) {
                         <Button
                             onClick={() => { }}
                             variant="outline"
-                            className="border-pink_primary text-pink_primary"
+                            className="border-green_primary text-green_primary"
                         >
                             Completed
                             <MdOutlineCheckCircle />

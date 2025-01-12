@@ -53,28 +53,32 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
                             Remove
                         </button>
                     </div>
-                    <div className="flex flex-col space-y-2">
-                        {exercise.variableName!.map((variable, variableIndex) => (
-                            <FormField
-                                key={variableIndex}
-                                control={control}
-                                name={`testcases.${testcaseIndex}.input.${variableIndex}.${variable}`}
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{variable}</FormLabel>
-                                        <FormControl>
-                                            <Textarea
-                                                {...field}
-                                                placeholder={`Enter value for ${variable}`}
-                                                value={field.value || exercise?.testcases?.[testcaseIndex]?.input[variableIndex][variable] || ""}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        ))}
-                    </div>
+
+                    {exercise.variableName !== undefined && (
+                        <div className="flex flex-col space-y-2">
+                            {exercise.variableName.map((variable, variableIndex) => (
+                                <FormField
+                                    key={variableIndex}
+                                    control={control}
+                                    name={`testcases.${testcaseIndex}.input.${variableIndex}.${variable}`}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{variable}</FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    {...field}
+                                                    placeholder={`Enter value for ${variable}`}
+                                                    value={field.value || exercise?.testcases?.[testcaseIndex]?.input[variableIndex][variable] || ""}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            ))}
+                        </div>
+                    )}
+
                     <div className="mt-4">
                         <FormField
                             control={control}
