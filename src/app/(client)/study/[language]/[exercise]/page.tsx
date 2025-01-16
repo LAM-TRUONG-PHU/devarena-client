@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { usePrivate } from "@/hooks/usePrivateAxios";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { fetchExercise, setCode, setLoadingTestCase, setRunningTestCase, setSubList, setTestCases, setTestCasesResult, updateStatusTestCase } from "@/redux/slices/admin/exerciseStudySlice";
+import { fetchExercise, setCode, setCompile, setLoadingSubList, setLoadingTestCase, setRunningTestCase, setSubList, setTestCases, setTestCasesResult, updateStatusTestCase } from "@/redux/slices/admin/exerciseStudySlice";
 import { useSocket } from "@/socket/useSocket";
 import { ICompileRes } from "@/types/ICompileRes";
 import { capitalize } from "@/utils/capitalize";
@@ -104,8 +104,13 @@ export default function ExercisePage() {
         id: searchParams.get("id")!,
       }
     ))
+    dispatch(setCompile(null));
+    dispatch(setLoadingTestCase(false));
+    dispatch(setLoadingSubList(false));
+    dispatch(setRunningTestCase(""));
 
   }, []);
+
 
   useEffect(() => {
     axiosPrivate
@@ -142,15 +147,6 @@ export default function ExercisePage() {
   const handleRun = async () => {
     try {
       dispatch(setLoadingTestCase(true))
-
-      if (searchParams.get("status") == EStatus.Unsolved) {
-        await axiosPrivate.post("/exercise-status", {
-          exerciseId: searchParams.get("id")!,
-          userId: session?.user.id,
-        })
-      }
-
-
       dispatch(setRunningTestCase(searchParams.get("id")! || ""));
 
 
@@ -167,9 +163,8 @@ export default function ExercisePage() {
             Object.values(item).map(String) // Convert all input values to strings
           ).flat()
         );
-        console.log(language)
 
-      await compileCode(code[`${exercise.title}`], convertedTestCases, searchParams.get("id")! || "",language.toLowerCase())
+      await compileCode(code[`${exercise.title}`], convertedTestCases, searchParams.get("id")! || "", language.toLowerCase(), session?.user.id || "");
     } catch (error: any) {
       toast({
         title: "Lỗi",
@@ -180,9 +175,7 @@ export default function ExercisePage() {
     }
   }
   const handleSubmit = async () => {
-    if (searchParams.get("status") == EStatus.InProgress) {
-    }
-    await submitCode(code[`${exercise.title}`], searchParams.get("id")! || "", session?.user.id || "",language.toLowerCase())
+    await submitCode(code[`${exercise.title}`], searchParams.get("id")! || "", session?.user.id || "", language.toLowerCase())
   }
   const toggleTheme = () => {
     setTheme((prev) => {

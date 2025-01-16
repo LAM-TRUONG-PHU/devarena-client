@@ -52,11 +52,11 @@ export default function TabsResult() {
                                                 <TabsTrigger
                                                     value={tab._id}
                                                     className={`relative ${tab.statusCompile === StatusCompile.COMPILE_SUCCESS
-                                                        ? "bg-green-200 text-green-600"
+                                                        ? "bg-green_secondary text-green_primary"
                                                         : tab.statusCompile === StatusCompile.COMPILE_FAILED
-                                                            ? "bg-red-500"
+                                                            ? "bg-red_secondary text-red_primary"
                                                             : tab.statusCompile === StatusCompile.COMPILE_RUNNING
-                                                                ? "bg-yellow-500"
+                                                                ? "bg-yellow_secondary text-yellow_primary"
                                                                 : ""
                                                         }`}
                                                 >

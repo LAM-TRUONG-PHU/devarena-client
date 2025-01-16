@@ -2,15 +2,18 @@ import { TExerciseStudy } from "@/app/admin/study/[slug]/[exercise]/page";
 import { IExercise, IPersistTestCase, ITestCase, StatusCompile } from "@/types/Exercise";
 import { ICompileRes } from "@/types/ICompileRes";
 import { IExerciseStatus } from "@/types/IExerciseStatus";
+import { IResultSubmit } from "@/types/IResultSubmit";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosInstance } from "axios";
 import { set } from "store";
 
 interface ISubmission {
-    status: string;
+    status: "accepted" | "wrong answer" | "compile error";
     score: number;
     result: string;
-    createdAt: string; // Update to string as returned by the API
+    createdAt: string;
+    totalTime: number;
+    code: string;
 }
 
 
@@ -27,8 +30,13 @@ interface ExerciseState {
     loadingTestCase: boolean;
     subList: ISubmission[];
     loadingSubList: boolean;
-    compile: "Accepted" | "Compile Error" | null;
+    compile: "Accepted" | "Compile Error" | "Test Result" | "Wrong Answer" | null;
     code: { [key: string]: string };
+    resultSubmit: IResultSubmit & {
+        submittedAt: string;
+        codeFailed?: string;
+    };
+
 }
 
 interface IExercisePayload {
@@ -54,6 +62,7 @@ const initialState: ExerciseState = {
     subList: [],
     compile: null,
     code: {},
+    resultSubmit: {} as IResultSubmit & { submittedAt: string }
 
 };
 
@@ -221,13 +230,18 @@ const exercisesSlice = createSlice({
         setLoadingSubList(state, action: PayloadAction<boolean>) {
             state.loadingSubList = action.payload;
         },
-        setCompile(state, action: PayloadAction<"Accepted" | "Compile Error">) {
+        setCompile(state, action: PayloadAction<"Accepted" | "Compile Error" | "Test Result" | "Wrong Answer" | null>) {
             state.compile = action.payload;
         },
         setCode(state, action: PayloadAction<{
             key: string; code: string | undefined
         }>) {
             state.code[action.payload.key] = action.payload.code || "";
+        },
+        setResultSubmit(state, action: PayloadAction<IResultSubmit & {
+            submittedAt: string, codeFailed?: string
+        }>) {
+            state.resultSubmit = action.payload;
         }
 
     },
@@ -276,7 +290,7 @@ export const { addExercise, setCurrentExercise,
     setTestCases, removeTestCase,
     addTestCase, setCode,
     setRunningTestCase, updateStatusTestCase, setLoadingTestCase, setLoadingSubList,
-    handleChangeInputTestCase, setVariableName, setTestCasesResult, setLoading, setExercise, setSubList, setCompile
+    handleChangeInputTestCase, setVariableName, setTestCasesResult, setLoading, setExercise, setSubList, setCompile, setResultSubmit
 } = exercisesSlice.actions;
 
 export default exercisesSlice.reducer;

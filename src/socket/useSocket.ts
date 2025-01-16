@@ -2,9 +2,11 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { ICompileRes } from "@/types/ICompileRes";
 import { useState, useEffect, useCallback } from "react";
 import { io } from "socket.io-client";
-import { setCompile, setLoading, setLoadingSubList, setLoadingTestCase, setSubList } from "@/redux/slices/admin/exerciseStudySlice"
+import { setCompile, setLoading, setLoadingSubList, setLoadingTestCase, setResultSubmit, setSubList } from "@/redux/slices/admin/exerciseStudySlice"
 import { usePrivate } from "@/hooks/usePrivateAxios";
 import { useSearchParams } from "next/navigation";
+import { IResultSubmit } from "@/types/IResultSubmit";
+import { now } from "next-auth/client/_utils";
 // Cấu hình socket với các options cần thiết
 const socket = io("http://localhost:3001", {
   transports: ["websocket", "polling"],
@@ -79,11 +81,27 @@ export const useSocket = ({
       console.log("Output:", output);
       onOutputSubmit?.(output);
     });
-    socket.on("error", (error: string) => {
+    socket.on("error", (error) => {
       dispatch(setLoadingSubList(false))
       dispatch(setLoadingTestCase(false))
       dispatch(setCompile("Compile Error"));
-      onError?.(error);
+      const date = new Date();
+      const formattedDate = new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).format(date);
+
+      dispatch(setResultSubmit({
+        submittedAt: formattedDate,
+        result: "Compile Error",    // Default result
+        codeFailed: error.message
+      }));
+
+      // onError?.(error);
       console.error("Error:", error);
 
     });
@@ -94,15 +112,34 @@ export const useSocket = ({
     });
 
     socket.on("completed", (result: any) => {
-      console.log("Completed:", result);
-      onCompleted?.(result);
       dispatch(setLoadingTestCase(false))
-      dispatch(setLoadingSubList(false))
-      dispatch(setCompile("Accepted"));
+      dispatch(setCompile("Test Result"));
+
+      console.log("Completed test result:", result);
+      onCompleted?.(result);
 
     });
-    socket.on("complete_submit", (result: any) => {
-      console.log("Completed:", result);
+    socket.on("complete_submit", (result: IResultSubmit) => {
+      const date = new Date();
+      const formattedDate = new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).format(date);
+
+      if (result.status == 200) {
+        dispatch(setCompile("Accepted"));
+
+      } else if (result.status == 400) {
+        dispatch(setCompile("Wrong Answer"));
+      }
+      dispatch(setResultSubmit({ ...result, submittedAt: formattedDate }));
+      dispatch(setLoadingSubList(false))
+
+      onCompleted?.(result);
 
     });
 
@@ -125,7 +162,7 @@ export const useSocket = ({
   }, [uniqueId, onCompiling, onOutput, onError, onWaitingInput, onCompleted, onReconnect]);
 
   const compileCode = useCallback(
-    (code: string, testCases: string[][], exerciseId: string, language: string): Promise<void> => {
+    (code: string, testCases: string[][], exerciseId: string, language: string, userId: string): Promise<void> => {
       return new Promise((resolve, reject) => {
         if (!socket.connected) {
           reject(new Error("Socket is not connected"));
@@ -140,7 +177,7 @@ export const useSocket = ({
         socket.on("error", errorHandler);
         socket.emit(
           "compile",
-          { uniqueId, code, testCases, exerciseId },
+          { uniqueId, code, testCases, exerciseId, language, userId },
           (response: any) => {
             socket.off("error", errorHandler);
             if (response?.error) {

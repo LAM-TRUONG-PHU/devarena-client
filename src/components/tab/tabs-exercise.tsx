@@ -1,7 +1,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MdOutlineTask } from "react-icons/md";
-import { ClipboardList, ClipboardPen } from "lucide-react";
+import { ChevronsUpDown, ClipboardList, ClipboardPen } from "lucide-react";
 import { GoTerminal } from "react-icons/go";
 import { TabsTestCase } from "./tabs-test-case";
 import {
@@ -23,31 +23,35 @@ import { createSlug } from "@/lib/helper";
 import TabsResult from "./tabs-result";
 import { FaHistory } from "react-icons/fa";
 import { MdOutlineIntegrationInstructions } from "react-icons/md";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { FaRegClock } from "react-icons/fa6";
+import { Separator } from "../ui/separator";
+import { ChartRuntime } from "../study/chart-runtime";
+import { capitalize } from "@/utils/capitalize";
+import { Textarea } from "../ui/textarea";
+import { StatusCompile } from "@/types/Exercise";
+
 
 type TabsExerciseProps = {
   study?: boolean;
 };
 
 export function TabsExercise({ study }: TabsExerciseProps) {
-  const { exercise, loading, testCases, loadingTestCase, loadingSubList, compile, code } = useAppSelector(state => state.exercises)
+  const { exercise, loading, testCases, loadingTestCase, loadingSubList, compile, code, resultSubmit, testCasesResult } = useAppSelector(state => state.exercises)
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
   const isExerciseLoaded = exercise && exercise.testcases && exercise.testcases[0]?.input.length > 0;
   const [activeTab, setActiveTab] = useState("task");
   const carouselRefs = useRef<{ [key: string]: HTMLElement | null }>({});
-  // const [accepted, setAccepted] = useState(false);
 
   useEffect(() => {
-    if (loadingTestCase) {
+    if (compile == "Test Result" && activeTab !== "result") {
       setActiveTab("result")
-    } else if (compile == "Accepted" || compile == "Compile Error") {
+    } else if ((compile == "Accepted" || compile == "Compile Error" || compile == "Wrong Answer") && activeTab !== "compile") {
       setActiveTab("compile")
-      // setAccepted(true)
+    } else {
+      setActiveTab("task")
     }
-  }, [loadingTestCase, compile]);
-
-  useEffect(() => {
-    console.log("compile", compile)
   }, [compile]);
 
   useEffect(() => {
@@ -106,7 +110,7 @@ export function TabsExercise({ study }: TabsExerciseProps) {
                 )}
 
               {renderTabsTrigger("submission", <FaHistory size={20} />, "Submission")}
-              {(compile == "Accepted" || compile == "Compile Error") && renderTabsTrigger("compile", <FaHistory size={20} />, compile)}
+              {(compile == "Accepted" || compile == "Compile Error" || compile == "Wrong Answer") && renderTabsTrigger("compile", <FaHistory size={20} />, compile)}
             </CarouselContent>
             <CarouselNext />
           </Carousel>
@@ -164,9 +168,116 @@ export function TabsExercise({ study }: TabsExerciseProps) {
       <TabsContent value="submission" className="flex-1">
         <TabSubmission />
       </TabsContent>
-      <TabsContent value="compile" className="flex-1">
+      <TabsContent value="compile" className="flex-1 p-4 bg-white space-y-2">
 
-        <div className="bg-white">
+        <div className="space-y-2">
+          <div className="flex items-center space-x-1">
+            <div className={`${compile == "Accepted" ? "text-green_primary" : "text-red_primary"} font-semibold text-lg`}>{compile}</div>
+            {compile == "Accepted" && (<div className="text-sm ">{resultSubmit.result} testcases passed</div>
+            )}
+          </div>
+          <div className="flex items-center gap-1">
+            <Avatar className="h-6 w-6">
+              <AvatarImage src={"/avatar.jpg"} alt={''} className="rounded-full object-cover" />
+              <AvatarFallback> {'Phu'}</AvatarFallback>
+            </Avatar>
+
+            <div className="text-left text-sm leading-tight">
+              <span className="truncate font-semibold">{'Phu'} </span>
+              submitted at {resultSubmit?.submittedAt}
+            </div>
+
+          </div>
+          <div className="p-4 !bg-gray-100 !rounded-xl">
+            {compile == "Accepted" ? (<>
+              <div className="flex gap-1 items-center">
+                <FaRegClock />
+                <div>Runtime</div>
+              </div>
+              <div className="flex items-center">
+                <div><span className="font-semibold text-lg">{resultSubmit?.totalRuntime && Number(resultSubmit?.totalRuntime / 1000).toFixed(2)}</span> s </div>
+                <Separator orientation="vertical" className="mx-2 h-6" />
+                <div>Beats
+                  <span className="font-semibold text-lg"> {Number(resultSubmit?.compareTime).toFixed(2)}</span> %
+                </div>
+              </div>
+              <ChartRuntime />
+
+            </>) : compile == "Wrong Answer" ? (<>{testCasesResult && Object.entries(testCasesResult).length > 0 ? (
+              Object.entries(testCasesResult).map(([groupKey, testCaseGroup]) => (
+                <div key={groupKey}>
+                  {createSlug(groupKey) === segments[segments.length - 1] && (<>
+                    {testCaseGroup.map((tab, index) => (
+                      <TabsContent key={tab._id} value={tab._id} className="flex-1">
+                        <div className="bg-white w-full text-gray-800 p-4 flex flex-col gap-4">
+                          {tab.input.map((obj, index) => {
+                            const key = Object.keys(obj)[0]; // Extract key from object
+                            const value = obj[key]; // Extract value
+                            return (
+                              <div key={index}>
+                                <div>{key} =</div>
+                                <input
+                                  disabled
+                                  type="text"
+                                  value={value} // Display initial value
+                                  className="w-full p-3 rounded-xl bg-[#000a200d] outline-none"
+                                />
+                              </div>
+                            );
+                          })}
+
+                          {(tab.statusCompile === StatusCompile.COMPILE_SUCCESS ||
+                            tab.statusCompile === StatusCompile.COMPILE_FAILED) && (
+                              <>
+                                <div>
+                                  <div>Output = </div>
+
+                                  <Textarea
+                                    className="w-full p-3 rounded-xl outline-none"
+                                    value={tab.output}
+                                    disabled />
+                                </div>
+                                <div>
+                                  <div>Expected Output = </div>
+                                  <Textarea
+                                    className="w-full p-3 rounded-xl outline-none"
+                                    value={tab.outputExpected}
+                                    disabled />
+                                </div>
+                              </>
+                            )}
+                        </div>
+                      </TabsContent>
+                    ))}</>)}
+
+                </div>
+              ))
+            ) : (
+
+              <TabsContent value="result" className="mt-4">
+                <div className="flex justify-center my-4">
+                  <ClipboardPen size={60} />
+                </div>
+                <div className="font-semibold text-lg text-center">
+                  Run tests to check your code
+                </div>
+                <div className="text-center">
+                  Run your code against tests to check whether <br />
+                  it works, then give you the results here.
+                </div>
+              </TabsContent>
+            )}</>) : (<>
+              <PrismCode code={resultSubmit.codeFailed || ""} language={segments[1]} />
+
+            </>)}
+
+
+
+          </div>
+        </div>
+
+        <div >
+          <div className="font-medium">Code | {capitalize(segments[1])}</div>
           <PrismCode code={code[`${exercise.title}`]} language={segments[1]} />
         </div>
       </TabsContent>

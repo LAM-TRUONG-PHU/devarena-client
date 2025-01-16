@@ -6,4 +6,5 @@ export interface IExerciseStatus {
     submissions: ISubmission[]
     status: string;
     exerciseId: string;
+
 }

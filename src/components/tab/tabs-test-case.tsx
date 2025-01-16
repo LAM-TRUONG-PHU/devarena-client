@@ -35,12 +35,8 @@ export function TabsTestCase() {
 
     dispatch(
       addTestCase({
-        _id: newId,
-        input: exerciseSelected?.exerciseId.testcases![0].input!,
-        output: exerciseSelected?.exerciseId.testcases![0].output!,
-        status: false,
-        statusCompile: StatusCompile.COMPILE_WAITING,
-        outputExpected: "10"
+        key,
+        testCase: newTestCase,
       })
     );
   };
@@ -96,10 +92,7 @@ export function TabsTestCase() {
                     <div key={tab._id} className="relative group">
                       <TabsTrigger
                         value={tab._id}
-                        className="!hover:bg-gray-200"
-
-                      >
-
+                        className="!hover:bg-gray-200">
                         {`Case ${i + 1}`}
                         {true && (
                           <div
@@ -142,14 +135,14 @@ export function TabsTestCase() {
                 <TabsContent key={tab._id} value={tab._id} className="flex-1">
                   <div className="bg-white w-full text-gray-800 p-4 flex flex-col gap-4">
                     {tab.input.map((obj, index) => {
-                      const key = Object.keys(obj)[0]; // Extract key from object
-                      const value = obj[key]; // Extract value
+                      const key = Object.keys(obj)[0];
+                      const value = obj[key];
                       return (
                         <div key={index}>
                           <div>{key} =</div>
                           <input
                             type="text"
-                            value={value} // Display initial value
+                            value={value}
                             className="w-full p-3 rounded-xl bg-[#000a200d] outline-none"
                             onChange={(e) => handleChangeInput(groupKey, tab._id, key, e.target.value)}
                           />
@@ -158,7 +151,8 @@ export function TabsTestCase() {
                     })}
                   </div>
                 </TabsContent>
-              ))}</>)}
+              ))}
+            </>)}
 
           </div>
         ))
