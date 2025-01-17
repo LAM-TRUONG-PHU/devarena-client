@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
 import {
     ChartConfig,
@@ -9,9 +9,8 @@ import {
     ChartLegendContent,
     ChartTooltip,
     ChartTooltipContent,
-} from "@/components/ui/chart"
-import { useAppSelector } from "@/redux/hooks"
-
+} from "@/components/ui/chart";
+import { useAppSelector } from "@/redux/hooks";
 
 export const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -28,27 +27,26 @@ export const formatDate = (dateString: string) => {
     return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 };
 
-
 const chartConfig = {
     runtime: {
         label: "Runtime",
         color: "#2563eb",
     },
-
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
 export function ChartRuntime() {
-    const { subList } = useAppSelector(state => state.exercises)
+    const { subList } = useAppSelector((state) => state.exercises);
+    console.log("subList", subList);
     const sortedSubList = [...subList]
+        .filter((submission) => submission.totalTime > 0)
         .sort((a, b) => a.totalTime - b.totalTime)
         .slice(0, 5);
 
     // Map sorted submissions to chart data
-    const chartData = sortedSubList.map(submission => ({
+    const chartData = sortedSubList.map((submission) => ({
         date: formatDate(submission.createdAt),
         runtime: submission.totalTime / 1000,
     }));
-
 
     return (
         <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
@@ -66,5 +64,5 @@ export function ChartRuntime() {
                 <Bar dataKey="runtime" fill="#2563eb" radius={4} />
             </BarChart>
         </ChartContainer>
-    )
+    );
 }

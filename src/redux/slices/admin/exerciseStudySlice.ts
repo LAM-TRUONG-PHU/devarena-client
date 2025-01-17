@@ -1,4 +1,5 @@
 import { TExerciseStudy } from "@/app/admin/study/[slug]/[exercise]/page";
+import { C } from "@/components/mastery";
 import { IExercise, IPersistTestCase, ITestCase, StatusCompile } from "@/types/Exercise";
 import { ICompileRes } from "@/types/ICompileRes";
 import { IExerciseStatus } from "@/types/IExerciseStatus";
@@ -15,7 +16,6 @@ interface ISubmission {
     totalTime: number;
     code: string;
 }
-
 
 interface ExerciseState {
     exercises: IExercise[];
@@ -36,7 +36,6 @@ interface ExerciseState {
         submittedAt: string;
         codeFailed?: string;
     };
-
 }
 
 interface IExercisePayload {
@@ -62,47 +61,47 @@ const initialState: ExerciseState = {
     subList: [],
     compile: null,
     code: {},
-    resultSubmit: {} as IResultSubmit & { submittedAt: string }
-
+    resultSubmit: {} as IResultSubmit & { submittedAt: string },
 };
 
-export const fetchExercisesByCourse = createAsyncThunk<IExercisePayload, { axiosInstance: AxiosInstance, courseId: string }, { rejectValue: string }>(
-    "course/fetchCoursesByCourse",
-    async ({ axiosInstance, courseId }, { rejectWithValue }) => {
-        try {
-            const response = await axiosInstance.get(`/study/course/${courseId}`);
-            return response.data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
-        }
+export const fetchExercisesByCourse = createAsyncThunk<
+    IExercisePayload,
+    { axiosInstance: AxiosInstance; courseId: string },
+    { rejectValue: string }
+>("course/fetchCoursesByCourse", async ({ axiosInstance, courseId }, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.get(`/study/course/${courseId}`);
+        return response.data;
+    } catch (error: any) {
+        return rejectWithValue(error.message);
     }
-)
+});
 
-export const fetchExercise = createAsyncThunk<IExercise, { axiosInstance: AxiosInstance, id: string }, { rejectValue: string }>(
-    "course/fetchCourse",
-    async ({ axiosInstance, id }, { rejectWithValue }) => {
-        try {
-            const response = await axiosInstance.get(`/study/${id}`);
-            return response.data.data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
-        }
+export const fetchExercise = createAsyncThunk<
+    IExercise,
+    { axiosInstance: AxiosInstance; id: string },
+    { rejectValue: string }
+>("course/fetchCourse", async ({ axiosInstance, id }, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.get(`/study/${id}`);
+        return response.data.data;
+    } catch (error: any) {
+        return rejectWithValue(error.message);
     }
-)
+});
 
-
-export const fetchExerciseStatus = createAsyncThunk<IExerciseStatus, { axiosInstance: AxiosInstance, userId: string, exerciseId: string }, { rejectValue: string }>(
-    "course/fetchExerciseStatus",
-    async ({ axiosInstance, userId, exerciseId }, { rejectWithValue }) => {
-        try {
-            const response = await axiosInstance.get(`/exercise-status/user/${userId}/exercise/${exerciseId}`);
-            return response.data.data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
-        }
+export const fetchExerciseStatus = createAsyncThunk<
+    IExerciseStatus,
+    { axiosInstance: AxiosInstance; userId: string; exerciseId: string },
+    { rejectValue: string }
+>("course/fetchExerciseStatus", async ({ axiosInstance, userId, exerciseId }, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.get(`/exercise-status/user/${userId}/exercise/${exerciseId}`);
+        return response.data.data;
+    } catch (error: any) {
+        return rejectWithValue(error.message);
     }
-)
-
+});
 
 const exercisesSlice = createSlice({
     name: "exercise",
@@ -131,7 +130,10 @@ const exercisesSlice = createSlice({
         },
         setTestCases: (state, action: PayloadAction<{ key: string; testCases: ITestCase[] }>) => {
             state.testCases[action.payload.key] = action.payload.testCases;
-            state.persistTestCases[action.payload.key] = action.payload.testCases.map((testCase) => ({ _id: testCase._id, input: testCase.input }));
+            state.persistTestCases[action.payload.key] = action.payload.testCases.map((testCase) => ({
+                _id: testCase._id,
+                input: testCase.input,
+            }));
         },
         setTestCasesResult(state, action: PayloadAction<{ key: string; testCases: ITestCase[] }>) {
             state.testCasesResult[action.payload.key] = action.payload.testCases;
@@ -142,16 +144,19 @@ const exercisesSlice = createSlice({
                 state.persistTestCases[action.payload.key] = [];
             }
             state.testCases[action.payload.key].push(action.payload.testCase);
-            state.persistTestCases[action.payload.key].push({ _id: action.payload.testCase._id, input: action.payload.testCase.input });
+            state.persistTestCases[action.payload.key].push({
+                _id: action.payload.testCase._id,
+                input: action.payload.testCase.input,
+            });
         },
         removeTestCase: (state, action: PayloadAction<{ key: string; testCaseId: string }>) => {
             if (state.testCases[action.payload.key]) {
                 state.testCases[action.payload.key] = state.testCases[action.payload.key].filter(
                     (testCase) => testCase._id !== action.payload.testCaseId
                 );
-                state.persistTestCases[action.payload.key] = state.persistTestCases[action.payload.key].filter(
-                    (testCase) => testCase._id !== action.payload.testCaseId
-                )
+                state.persistTestCases[action.payload.key] = state.persistTestCases[
+                    action.payload.key
+                ].filter((testCase) => testCase._id !== action.payload.testCaseId);
             }
         },
         setRunningTestCase: (state, action: PayloadAction<string>) => {
@@ -161,7 +166,6 @@ const exercisesSlice = createSlice({
                     ...testCase,
                     statusCompile: StatusCompile.COMPILE_RUNNING,
                 }));
-
             }
         },
         updateStatusTestCase: (
@@ -174,10 +178,23 @@ const exercisesSlice = createSlice({
                 const testCase = state.testCases[key][index];
 
                 // Update the test case fields
-                testCase.statusCompile = res.isCorrect ? StatusCompile.COMPILE_SUCCESS : StatusCompile.COMPILE_FAILED;
+                testCase.statusCompile = res.isCorrect
+                    ? StatusCompile.COMPILE_SUCCESS
+                    : StatusCompile.COMPILE_FAILED;
                 testCase.output = res.output;
                 testCase.outputExpected = res.outputExpect;
             }
+        },
+        updateOutputTestCaseResultSubmit: (
+            state,
+            action: PayloadAction<
+                IResultSubmit & {
+                    submittedAt: string;
+                    codeFailed?: string;
+                }
+            >
+        ) => {
+            console.log("Update output test case result submit:", action.payload);
         },
 
         handleChangeInputTestCase: (
@@ -198,18 +215,12 @@ const exercisesSlice = createSlice({
 
                     // Update the input value in the test case
                     updatedTestCase.input = updatedTestCase.input.map((inputObj) =>
-                        inputObj[inputKey] !== undefined
-                            ? { ...inputObj, [inputKey]: value }
-                            : inputObj
+                        inputObj[inputKey] !== undefined ? { ...inputObj, [inputKey]: value } : inputObj
                     );
 
                     updatedPersistTestCase.input = updatedPersistTestCase.input.map((inputObj) =>
-                        inputObj[inputKey] !== undefined
-                            ? { ...inputObj, [inputKey]: value }
-                            : inputObj
+                        inputObj[inputKey] !== undefined ? { ...inputObj, [inputKey]: value } : inputObj
                     );
-
-
 
                     // Replace the updated test case in the array
                     state.testCases[key][testCaseIndex] = updatedTestCase;
@@ -230,30 +241,45 @@ const exercisesSlice = createSlice({
         setLoadingSubList(state, action: PayloadAction<boolean>) {
             state.loadingSubList = action.payload;
         },
-        setCompile(state, action: PayloadAction<"Accepted" | "Compile Error" | "Test Result" | "Wrong Answer" | null>) {
+        setCompile(
+            state,
+            action: PayloadAction<"Accepted" | "Compile Error" | "Test Result" | "Wrong Answer" | null>
+        ) {
             state.compile = action.payload;
         },
-        setCode(state, action: PayloadAction<{
-            key: string; code: string | undefined
-        }>) {
+        setCode(
+            state,
+            action: PayloadAction<{
+                key: string;
+                code: string | undefined;
+            }>
+        ) {
             state.code[action.payload.key] = action.payload.code || "";
         },
-        setResultSubmit(state, action: PayloadAction<IResultSubmit & {
-            submittedAt: string, codeFailed?: string
-        }>) {
+        setResultSubmit(
+            state,
+            action: PayloadAction<
+                IResultSubmit & {
+                    submittedAt: string;
+                    codeFailed?: string;
+                }
+            >
+        ) {
             state.resultSubmit = action.payload;
-        }
-
+        },
     },
     extraReducers: (builder) => {
         builder.addCase(fetchExercisesByCourse.pending, (state) => {
             state.loading = true;
             state.error = null;
         });
-        builder.addCase(fetchExercisesByCourse.fulfilled, (state, action: PayloadAction<IExercisePayload>) => {
-            state.loading = false;
-            state.exercises = action.payload.data;
-        });
+        builder.addCase(
+            fetchExercisesByCourse.fulfilled,
+            (state, action: PayloadAction<IExercisePayload>) => {
+                state.loading = false;
+                state.exercises = action.payload.data;
+            }
+        );
         builder.addCase(fetchExercisesByCourse.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload!;
@@ -285,12 +311,28 @@ const exercisesSlice = createSlice({
     },
 });
 
-export const { addExercise, setCurrentExercise,
-    updateExercise, deleteExercise,
-    setTestCases, removeTestCase,
-    addTestCase, setCode,
-    setRunningTestCase, updateStatusTestCase, setLoadingTestCase, setLoadingSubList,
-    handleChangeInputTestCase, setVariableName, setTestCasesResult, setLoading, setExercise, setSubList, setCompile, setResultSubmit
+export const {
+    addExercise,
+    setCurrentExercise,
+    updateExercise,
+    deleteExercise,
+    setTestCases,
+    removeTestCase,
+    addTestCase,
+    setCode,
+    setRunningTestCase,
+    updateStatusTestCase,
+    setLoadingTestCase,
+    setLoadingSubList,
+    handleChangeInputTestCase,
+    setVariableName,
+    setTestCasesResult,
+    setLoading,
+    setExercise,
+    setSubList,
+    setCompile,
+    setResultSubmit,
+    updateOutputTestCaseResultSubmit,
 } = exercisesSlice.actions;
 
 export default exercisesSlice.reducer;
