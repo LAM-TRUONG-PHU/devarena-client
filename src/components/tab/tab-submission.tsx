@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { usePrivate } from "@/hooks/usePrivateAxios";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useSearchParams } from "next/navigation";
-import { setSubList } from "@/redux/slices/admin/exerciseStudySlice";
-import { useAppSelector } from "@/redux/hooks";
+import { setCompile, setSubList, setSubmissionId, setClickTracker, setLoading } from "@/redux/slices/admin/exerciseStudySlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { capitalize } from "@/utils/capitalize";
 import { FaRegClock } from "react-icons/fa";
 
@@ -26,11 +26,22 @@ const formatDate = (dateString: string) => {
     }).format(date);
     return { formattedDate, detailedDate };
 };
-const TabSubmission = () => {
-    const axios = usePrivate();
-    const searchParams = useSearchParams();
-    const { subList } = useAppSelector((state) => state.exercises);
 
+
+const formatStatus = (status: string): string => {
+    return status
+        .split(" ") // Split the string into words
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize the first letter of each word
+        .join(" "); // Join the words back into a string
+};
+const TabSubmission = () => {
+    const dispatch = useAppDispatch();
+    const { subList, submissionId, clickTracker } = useAppSelector((state) => state.exercises);
+
+    useEffect(() => {
+        console.log(submissionId);
+        console.log(`Click Tracker: ${clickTracker}`); // Logs the click count for debugging
+    }, [submissionId, clickTracker]);
     return (
         <div className="w-full overflow-x-auto">
             <Table>
@@ -49,18 +60,22 @@ const TabSubmission = () => {
                             const { formattedDate, detailedDate } = formatDate(submission.createdAt);
 
                             return (
-                                <TableRow key={index}>
+                                <TableRow key={index} onClick={() => {
+                                    dispatch(setSubmissionId(submission._id!));
+                                    dispatch(setCompile(formatStatus(submission.status) as "Accepted" | "Compile Error" | "Wrong Answer"));
+                                    dispatch(setClickTracker(clickTracker + 1));
+                                    dispatch(setLoading(true));
+                                }}>
                                     <TableCell>{subList.length - index}</TableCell>
 
                                     <TableCell title={detailedDate}>
                                         <div
-                                            className={`${
-                                                submission.status === "accepted"
-                                                    ? "text-green_primary"
-                                                    : "text-red_primary"
-                                            } text-base font-medium`}
+                                            className={`${submission.status === "accepted"
+                                                ? "text-green_primary"
+                                                : "text-red_primary"
+                                                } text-base font-medium`}
                                         >
-                                            {capitalize(submission.status)}
+                                            {formatStatus(submission.status)}
                                         </div>{" "}
                                         <div className="text-xs">{formattedDate}</div>{" "}
                                     </TableCell>

@@ -4,6 +4,6 @@ export interface IResultSubmit {
     status?: number;
     compareTime?: number;
     totalRuntime?: number;
-    testcases?: ITestCase[];
+    testcase?: ITestCase;
     result: string;
 }

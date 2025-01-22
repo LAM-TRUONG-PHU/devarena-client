@@ -15,6 +15,8 @@ import {
     setLoadingTestCase,
     setRunningTestCase,
     setSubList,
+    setSubmission,
+    setSubmissionId,
     setTestCases,
     setTestCasesResult,
     updateOutputTestCaseResultSubmit,
@@ -51,6 +53,7 @@ export default function ExercisePage() {
         compile,
         code,
         resultSubmit,
+        submission
     } = useAppSelector((state) => state.exercises);
     const language = capitalize(segments[1]);
 
@@ -61,11 +64,11 @@ export default function ExercisePage() {
         onOutput: (output: ICompileRes) => {
             dispatch(updateStatusTestCase({ key: exercise.title, index: output.testCaseIndex, res: output }));
         },
-        onCompleted(result) {
+        onCompleted() {
             dispatch(setTestCasesResult({ key: exercise.title, testCases: testCases[exercise.title] }));
             toast({
-                title: "Kết quả",
-                description: result,
+                title: "Result",
+                description: "Completed",
                 variant: "success",
             });
         },
@@ -113,21 +116,25 @@ export default function ExercisePage() {
     }, [testCases, exercise.testcases, dispatch, persistTestCases]);
 
     useEffect(() => {
+        dispatch(setCompile(null));
+        dispatch(setLoadingTestCase(false));
+        dispatch(setLoadingSubList(false));
+        dispatch(setRunningTestCase(""));
+        dispatch(setSubmissionId(""));
+        dispatch(setSubmission({}));
         dispatch(
             fetchExercise({
                 axiosInstance: axiosPrivate,
                 id: searchParams.get("id")!,
             })
         );
-        dispatch(setCompile(null));
-        dispatch(setLoadingTestCase(false));
-        dispatch(setLoadingSubList(false));
-        dispatch(setRunningTestCase(""));
+
     }, []);
+
 
     useEffect(() => {
         axiosPrivate
-            .get(`/exercise-status/submission/${searchParams.get("id")!}`)
+            .get(`/exercise-status/exercise/${searchParams.get("id")!}/submission`)
             .then((res) => {
                 dispatch(setSubList(res.data.data.submission));
             })
@@ -197,7 +204,8 @@ export default function ExercisePage() {
         }
     };
     const handleSubmit = async () => {
-        dispatch(setCompile(null));
+        dispatch(setSubmission({}));
+
         await submitCode(
             code[`${exercise.title}`],
             searchParams.get("id")! || "",

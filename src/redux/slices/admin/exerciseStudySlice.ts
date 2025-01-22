@@ -15,6 +15,8 @@ interface ISubmission {
     createdAt: string;
     totalTime: number;
     code: string;
+    _id?: string;
+    testcase?: ITestCase;
 }
 
 interface ExerciseState {
@@ -29,6 +31,8 @@ interface ExerciseState {
     error: string | null;
     loadingTestCase: boolean;
     subList: ISubmission[];
+    submission: ISubmission | {};
+    submissionId: string;
     loadingSubList: boolean;
     compile: "Accepted" | "Compile Error" | "Test Result" | "Wrong Answer" | null;
     code: { [key: string]: string };
@@ -36,6 +40,7 @@ interface ExerciseState {
         submittedAt: string;
         codeFailed?: string;
     };
+    clickTracker: number;
 }
 
 interface IExercisePayload {
@@ -59,9 +64,12 @@ const initialState: ExerciseState = {
     loadingTestCase: false,
     loadingSubList: false,
     subList: [],
+    submission: {},
+    submissionId: "",
     compile: null,
     code: {},
     resultSubmit: {} as IResultSubmit & { submittedAt: string },
+    clickTracker: 0
 };
 
 export const fetchExercisesByCourse = createAsyncThunk<
@@ -238,6 +246,12 @@ const exercisesSlice = createSlice({
         setSubList(state, action: PayloadAction<ISubmission[]>) {
             state.subList = action.payload;
         },
+        setSubmission(state, action: PayloadAction<ISubmission | {}>) {
+            state.submission = action.payload;
+        },
+        setSubmissionId(state, action: PayloadAction<string>) {
+            state.submissionId = action.payload;
+        },
         setLoadingSubList(state, action: PayloadAction<boolean>) {
             state.loadingSubList = action.payload;
         },
@@ -267,6 +281,10 @@ const exercisesSlice = createSlice({
         ) {
             state.resultSubmit = action.payload;
         },
+        setClickTracker(state, action: PayloadAction<number>) {
+            state.clickTracker = action.payload;
+        }
+
     },
     extraReducers: (builder) => {
         builder.addCase(fetchExercisesByCourse.pending, (state) => {
@@ -333,6 +351,9 @@ export const {
     setCompile,
     setResultSubmit,
     updateOutputTestCaseResultSubmit,
+    setSubmission,
+    setSubmissionId,
+    setClickTracker
 } = exercisesSlice.actions;
 
 export default exercisesSlice.reducer;
