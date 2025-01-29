@@ -167,7 +167,6 @@ export default function ExercisePage() {
             Object.values(item).map(String) // Convert all input values to strings
           ).flat()
         );
-        console.log(language)
 
       await compileCode(code[`${exercise.title}`], convertedTestCases, searchParams.get("id")! || "",language.toLowerCase())
     } catch (error: any) {

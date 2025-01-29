@@ -1,12 +1,24 @@
 "use client";
 import React, { useEffect } from "react";
 import ChallengeCard from "@/components/contest/challenge-card";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname, useSearchParams } from "next/navigation";
 import { Progress } from "@/components/ui/progress";
 import { C } from "@/components/mastery";
 import Image from "next/image";
 import { Trophy } from "lucide-react";
+import { useAppDispatch } from "@/redux/hooks";
+import { fetchContestExercises } from "@/redux/slices/contestClientSlice";
+import { useAppSelector } from "@/redux/hooks";
+import { usePrivate } from "@/hooks/usePrivateAxios";
 export default function ChallengePage() {
+    const dispatch = useAppDispatch();
+    const { exerciseCard } = useAppSelector((state) => state.contestClient);
+    const axiosInstance = usePrivate();
+    const params = useSearchParams();
+    const id = params.get("id");
+    useEffect(() => {
+      dispatch(fetchContestExercises({ axiosInstance: axiosInstance, contestId: id as string}));
+    }, [id]);
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
     const title = segments[1]
@@ -50,7 +62,21 @@ export default function ChallengePage() {
                 </div>
             </div>
             <div className="pr-14 pl-10 py-4 grid grid-cols-1 md:grid-cols-2 gap-4 ">
-                <ChallengeCard
+                {
+                    exerciseCard.map((exercise) => (
+                        <ChallengeCard
+                            title={exercise.title}
+                            date="12th March 2022"
+                            buttonText="View Challenge"
+                            onClick={() => console.log("Clicked")}
+                            key={exercise._id}
+                            id={exercise._id}
+                            difficulty={exercise.difficulty}
+                            score={exercise.score}
+                        />
+                    ))
+                }
+                {/* <ChallengeCard
                     title={"#1: Multiples of 3 and 5"}
                     date="12th March 2022"
                     buttonText="View Challenge"
@@ -61,7 +87,7 @@ export default function ChallengePage() {
                     date="12th March 2022"
                     buttonText="View Challenge"
                     onClick={() => console.log("Clicked")}
-                />
+                /> */}
             </div>
         </>
     );

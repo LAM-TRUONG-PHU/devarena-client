@@ -140,7 +140,7 @@ export const useSocket = ({
         socket.on("error", errorHandler);
         socket.emit(
           "compile",
-          { uniqueId, code, testCases, exerciseId },
+          { uniqueId, code, testCases, exerciseId,language },
           (response: any) => {
             socket.off("error", errorHandler);
             if (response?.error) {

@@ -7,7 +7,7 @@ export enum StatusCompile {
 export interface ITestCase {
     _id: string
     input: Record<string, string | number | any[]>[]; // Flexible key-value mapping
-    output?: string; // Allow flexible output types
+    // output?: string; // Allow flexible output types
     hidden?: boolean;
     statusCompile?: StatusCompile;
     outputExpected?: string
@@ -34,3 +34,21 @@ export interface IExercise {
     courseId?: string;
 
 }
+export interface IContestExercise {
+    _id: string;
+    contestId: string;
+    difficulty: string;
+    title: string;
+    content: string;
+    score:number;
+    defaultCode:ICode;
+    solutions:ICode;
+    testcases?: ITestCase[];
+
+   
+  }
+  interface ICode {
+    language:string;
+    code:string;
+  }
+  

@@ -7,6 +7,9 @@ type ChallengeCardProps = {
     date: string;
     countdown?: string;
     buttonText: string;
+    id: string;
+    score: number;
+    difficulty: string;
     onClick: () => void;
 };
 export default function ChallengeCard(props: ChallengeCardProps) {
@@ -17,12 +20,12 @@ export default function ChallengeCard(props: ChallengeCardProps) {
                     <div className="flex justify-between items-center">
                         <div className="text-md font-medium text-gray-900">{props.title}</div>
                         <div className="aspect-square rounded-full border border-foreground w-fit items-center flex text-xs p-1  font-semibold   ">
-                            0/10
+                            {props.score}
                         </div>
                     </div>
                     <div className="flex justify-between">
-                        <Difficulty variant={EDifficulty.Hard} />
-
+                        {/* <Difficulty variant={EDifficulty.Hard} /> */}
+                        <Difficulty variant={props.difficulty as EDifficulty} />
                         <Button onClick={props.onClick} variant="outline">
                             {props.buttonText}
                         </Button>

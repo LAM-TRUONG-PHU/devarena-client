@@ -43,7 +43,6 @@ const CustomEditor = ({ content, onValueChange }: Pros) => {
     };
     useEffect(() => {
         const timeoutId = setTimeout(() => {
-            console.log("initial");
             //@ts-ignore
             const myWidget = window.cloudinary.createUploadWidget(
                 {
