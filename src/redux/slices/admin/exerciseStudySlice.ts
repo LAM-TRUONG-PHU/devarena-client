@@ -17,6 +17,7 @@ interface ISubmission {
     code: string;
     _id?: string;
     testcase?: ITestCase;
+    errorCode?: string;
 }
 
 interface ExerciseState {
@@ -45,10 +46,6 @@ interface ExerciseState {
 
 interface IExercisePayload {
     data: IExercise[];
-}
-
-interface FetchCoursesParams {
-    axiosInstance: AxiosInstance;
 }
 
 const initialState: ExerciseState = {

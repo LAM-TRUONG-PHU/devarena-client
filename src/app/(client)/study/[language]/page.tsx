@@ -29,6 +29,8 @@ import { IExercise } from "@/types/Exercise";
 import { set } from "store";
 import { capitalize } from "@/utils/capitalize";
 import DialogLoading from "@/components/dialog-loading";
+import { fetchAchievementsByRefIdAndRequiredScore } from "@/redux/slices/achievementSlice";
+import { AlertAchievementDialog } from "@/components/alert-achievement-dialog";
 
 export type SortOptionTitle = "Filter" | "Status" | "Skills" | "Difficulty";
 
@@ -56,27 +58,70 @@ export default function LanguagePage() {
     status: EStatus
   })[]>([]);
 
+  const { achievement, yourPreAchievement } = useAppSelector((state) => state.achievement)
+  const baseImageURL = `${process.env.NEXT_PUBLIC_BACKEND_UPLOAD_URL}/achievements`;
+  const totalSolvedScore = exercises.reduce((total, exercise) => {
+    return exercise.status === EStatus.Solved ? total + exercise.score! : total;
+  }, 0);
+
+  const [open, setOpen] = useState(false);
+
+  console.log("achievement", achievement);
   useEffect(() => {
     const getExercisesByUserAndCourse = async () => {
       try {
         if (status === "authenticated") {
-          await axiosPrivate
-            .get(`/study/course/${courseId}/user/${session?.user.id}`)
-            .then((res) => {
-              setCourseTitle(res.data.data.courseTitle);
-              const { exercisesStatus }: { exercisesStatus: IExerciseStatus[] } = res.data.data
-              setExercises(res.data.data.exercisesByCourse.map((exercise: IExercise) => {
-                const exerciseStatus = exercisesStatus.find((exercisesStatus) => exercisesStatus.exerciseId == exercise._id)
+          const response = await axiosPrivate.get(
+            `/study/course/${courseId}/user/${session?.user.id}`
+          );
 
-                if (exerciseStatus == undefined) {
-                  return { ...exercise, status: EStatus.Unsolved }
-                } else {
-                  return { ...exercise, status: exerciseStatus.status == "completed" ? EStatus.Solved : EStatus.InProgress }
-                }
-              }));
-              setLoading(false);
+          setCourseTitle(response.data.data.courseTitle);
 
+          const { exercisesStatus }: { exercisesStatus: IExerciseStatus[] } =
+            response.data.data;
+
+          const exercisesWithStatus = response.data.data.exercisesByCourse.map(
+            (exercise: IExercise) => {
+              const exerciseStatus = exercisesStatus.find(
+                (exercisesStatus) => exercisesStatus.exerciseId == exercise._id
+              );
+
+              if (exerciseStatus == undefined) {
+                return { ...exercise, status: EStatus.Unsolved };
+              } else {
+                return {
+                  ...exercise,
+                  status:
+                    exerciseStatus.status == "completed"
+                      ? EStatus.Solved
+                      : EStatus.InProgress,
+                };
+              }
+            }
+          );
+
+          setExercises(exercisesWithStatus);
+
+          const totalSolvedScore = exercisesWithStatus.reduce(
+            (total: number, exercise: IExercise & { status: EStatus }) =>
+              exercise.status === EStatus.Solved
+                ? total + exercise.score!
+                : total,
+            0
+          );
+
+
+          // Dispatch the action with the calculated requiredScore
+          dispatch(
+            fetchAchievementsByRefIdAndRequiredScore({
+              axiosInstance: axiosPrivate,
+              id: courseId!,
+              totalSolvedScore
             })
+          );
+
+
+          setLoading(false);
         } else {
           setLoading(false);
         }
@@ -84,13 +129,12 @@ export default function LanguagePage() {
         setLoading(false);
         console.error("Error fetching exercises:", error);
       }
-
-    }
+    };
 
 
     getExercisesByUserAndCourse();
+  }, [status, session?.user.id, courseId, axiosPrivate, dispatch]);
 
-  }, [axiosPrivate, dispatch, status]);
   useEffect(() => {
     const applyFilters = () => {
       let filtered = [...exercises];
@@ -121,9 +165,18 @@ export default function LanguagePage() {
     };
     applyFilters();
   }, [statusFilter.selected, difficultyFilter.selected, skillsFilter.selected, exercises]);
+  useEffect(() => {
+    console.log("yourPreAchievement", yourPreAchievement);
+    if (yourPreAchievement) {
+      setOpen(true);
+    }
+  }, [yourPreAchievement]);
+
 
   return (
     <>
+      <AlertAchievementDialog open={open} onOpenChange={setOpen} yourPreAchievement={yourPreAchievement} />
+
 
       <div className="flex shrink-0 items-center justify-between lg:pr-14 lg:pl-10  py-6 bg-white shadow-sm">
         <div className="flex items-center gap-4">
@@ -148,29 +201,25 @@ export default function LanguagePage() {
         </div>
         <div className="space-y-1 scale-90 lg:scale-100">
           <div className="text-sm">
-            <span className="text-pink_primary">17 more points</span> to get
+            <span className="text-pink_primary">{
+              achievement?.requiredScore! - totalSolvedScore
+            } more points</span> to get
             your this mastery!
           </div>
           <div className="flex justify-between items-center">
-            <Progress value={50} />
-            <div className="text-xs ml-2">50%</div>
+            <Progress value={totalSolvedScore * 100 / achievement?.requiredScore!} />
+            <div className="text-xs ml-2">
+              {totalSolvedScore * 100 / achievement?.requiredScore!}%
+            </div>
           </div>
           <div className="flex justify-between items-center">
             <div className="flex gap-2">
               <div className="aspect-square rounded-full border border-foreground w-fit items-center flex text-xs p-1  font-semibold   ">
-                0/25
+                {totalSolvedScore}/{achievement?.requiredScore}
               </div>
             </div>
             <div className="size-10">
-              {language === ELanguages.C && (
-                <C.TierOne />
-              )}
-              {language === ELanguages.Java && (
-                <Java.TierOne />
-              )}
-              {language === ELanguages.Cpp && (
-                <Cpp.TierOne />
-              )}
+              <img src={`${baseImageURL}/${achievement?.image}`} alt="achievement" />
             </div>
           </div>
         </div>

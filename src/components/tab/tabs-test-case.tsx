@@ -14,6 +14,7 @@ import { Spinner } from "../ui/spinner";
 import { usePathname } from "next/navigation";
 import { createSlug } from "@/lib/helper";
 import { create } from "domain";
+import { Textarea } from "../ui/textarea";
 
 export function TabsTestCase() {
   const dispatch = useAppDispatch();
@@ -140,8 +141,7 @@ export function TabsTestCase() {
                       return (
                         <div key={index}>
                           <div>{key} =</div>
-                          <input
-                            type="text"
+                          <Textarea
                             value={value}
                             className="w-full p-3 rounded-xl bg-[#000a200d] outline-none"
                             onChange={(e) => handleChangeInput(groupKey, tab._id, key, e.target.value)}

@@ -12,16 +12,6 @@ const VariableNameForm = () => {
   const { exercise } = useAppSelector((state) => state.exercises);
 
 
-  useEffect(() => {
-    if (exercise?.testcases?.[0]?.input) {
-      const inputLength = exercise?.testcases?.[0]?.input?.length;
-      dispatch(setVariableCount(inputLength));
-      dispatch(setVariableName(Array(inputLength).fill(
-        exercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0])
-      )));
-    }
-  }, []);
-
   const handleVariableCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const count = parseInt(value, 10);

@@ -15,13 +15,15 @@ import { set } from "store";
 import { LoadingSpinner } from "@/components/loading";
 import { ICourse, ICourseStatus } from "@/types/ICourse";
 import { EStatus } from "@/components/sort";
+import { useAppDispatch } from "@/redux/hooks";
+import { fetchAchievementsByRefIdAndRequiredScore } from "@/redux/slices/achievementSlice";
 
 export default function StudyPage() {
     const router = useRouter();
     const axiosPrivate = usePrivate();
     const { data: session, status } = useSession();
     const [loading, setLoading] = useState(false);
-
+    const dispatch = useAppDispatch();
 
     const [courses, setCourses] = useState<(ICourse & { status: EStatus })[]>([]);
     useEffect(() => {
@@ -54,6 +56,7 @@ export default function StudyPage() {
             }
         };
         fetchCourses();
+
     }, [status]);
 
     return (

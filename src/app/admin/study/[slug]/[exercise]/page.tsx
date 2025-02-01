@@ -106,16 +106,40 @@ export default function DetailExercisePage() {
         },
     });
 
-
+    // useEffect(() => {
+    //     if (exercise?.testcases?.[0]?.input) {
+    //         const inputLength = exercise?.testcases?.[0]?.input?.length;
+    //         dispatch(setVariableCount(inputLength));
+    //         dispatch(setVariableName(Array(inputLength).fill(
+    //             exercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0])
+    //         )));
+    //     }
+    // }, [exercise?.testcases?.[0]?.input]);
 
     useEffect(() => {
         if (segments[segments.length - 1] !== "exercise") {
-            dispatch(fetchExercise({ axiosInstance: axiosPrivate, id: searchParams.get("id")! }));
+            dispatch(fetchExercise({ axiosInstance: axiosPrivate, id: searchParams.get("id")! }))
+
+
+
             dispatch(setCurrentStep(0));
         }
 
     }, [searchParams]);
+
     useEffect(() => {
+        if (exercise?.testcases?.[0]?.input) {
+
+            const inputLength = exercise?.testcases?.[0]?.input?.length;
+            dispatch(setVariableCount(inputLength));
+            console.log("exercise variablename", Array(inputLength).fill(
+                exercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0])
+            ));
+            dispatch(setVariableName(Array(inputLength).fill(
+                exercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0])
+            )));
+        }
+
         if (exercise && Object.keys(exercise).length > 1) {
             form.reset({
 
@@ -148,10 +172,10 @@ export default function DetailExercisePage() {
         dispatch(setCurrentStep(currentStep - 1));
     };
 
-    console.log("exercise", exercise);
     async function onSubmit(data: z.infer<typeof formSchema>) {
-        console.log("data", data)
         setIsSubmitting(true);
+
+        console.log("data", data)
         if (exercise.variableName?.length == 0) {
             data.testcases.forEach((testcase, index) => {
                 data.testcases[index].input = [];
@@ -160,7 +184,6 @@ export default function DetailExercisePage() {
         if (segments[segments.length - 1] !== "exercise") {
             try {
 
-                console.log("data", data)
                 await axiosPrivate.put(`/study/${exercise._id}`, data).then((res) => {
                     toast({
                         title: "Success",
@@ -239,7 +262,7 @@ export default function DetailExercisePage() {
                                 Previous
                             </Button>
                             {currentStep === steps.length - 1 ? (
-                                <Button type="submit" disabled={isSubmitting} onClick={() => { console.log("qwd") }}>
+                                <Button type="submit" disabled={isSubmitting}>
                                     {isSubmitting ? <LoadingSpinner /> : "Submit"}
                                 </Button>
                             ) : (

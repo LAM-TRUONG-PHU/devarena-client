@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -14,7 +13,9 @@ import {
     useReactTable,
 } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import * as React from "react";
 
+import { LoadingSpinner } from "@/components/loading";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -26,29 +27,25 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { IExercise } from "@/types/Exercise";
-import { LoadingSpinner } from "@/components/loading";
+import { useAppDispatch } from "@/redux/hooks";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { setCurrentStep } from "@/redux/slices/admin/StudyFormSlice";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { useEffect, useMemo, useState } from "react";
-import { set } from "store";
+import { useState } from "react";
 
-import { deleteExercise, setCurrentExercise, setExercise } from "@/redux/slices/admin/exerciseStudySlice";
+import { useToast } from "@/hooks/use-toast";
 import { usePrivate } from "@/hooks/usePrivateAxios";
-import { toast, useToast } from "@/hooks/use-toast";
-import { IoIosArrowRoundBack } from "react-icons/io";
-import { createSlug } from "@/lib/helper";
+import { IAchievement } from "@/types/IAchievement";
+import DialogAchievement from "./DialogAchievement";
+import { deleteAchievement } from "@/redux/slices/achievementSlice";
 
-type TableExerciseProps = {
-    exercises: IExercise[];
+type TableAchievementProps = {
+    achievements: IAchievement[];
     loading: boolean;
-
 };
 
-export function TableExercise(props: TableExerciseProps) {
+
+
+export function TableAchievement(props: TableAchievementProps) {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
@@ -63,8 +60,9 @@ export function TableExercise(props: TableExerciseProps) {
     const [_id, setId] = useState<string | null>(null);
     const axiosPrivate = usePrivate();
     const { toast } = useToast();
+    const baseImageURL = `${process.env.NEXT_PUBLIC_BACKEND_UPLOAD_URL}/achievements`;
 
-    const columns: ColumnDef<IExercise>[] = [
+    const columns: ColumnDef<IAchievement>[] = [
         {
             id: "select",
             header: ({ table }) => (
@@ -92,6 +90,15 @@ export function TableExercise(props: TableExerciseProps) {
             cell: ({ row }) => <div className="capitalize">{row.getValue("_id")}</div>,
         },
         {
+            accessorKey: "image",
+            header: "Image",
+            cell: ({ row }) => (
+                <div className="capitalize">
+                    <img src={`${baseImageURL}/${row.getValue("image")}`} alt="Achievement" className="w-10 h-10" />
+                </div>
+            ),
+        },
+        {
             accessorKey: "title",
             header: ({ column }) => {
                 return (
@@ -104,45 +111,16 @@ export function TableExercise(props: TableExerciseProps) {
             cell: ({ row }) => <div className="capitalize">{row.getValue("title")}</div>,
         },
         {
-            accessorKey: "difficulty",
-            header: "Difficulty",
-            cell: ({ row }) => <div className="capitalize">{row.getValue("difficulty")}</div>,
-        },
-        {
-            accessorKey: "tags",
-            header: "Tags",
-            cell: ({ row }) => (
-                <div className="capitalize flex gap-2">
-                    {(row.getValue("tags") as string[]).length > 2 ? (
-                        <>
-                            {(row.getValue("tags") as string[])
-                                .slice(0, 2) // Show only the first two tags
-                                .map((tag: string) => (
-                                    <span key={tag} className="tag bg-gray-200">
-                                        {tag}
-                                    </span>
-                                ))}
-                            <span className="tag bg-gray-200">
-                                +{(row.getValue("tags") as string[]).length - 2} more
-                            </span>
-                        </>
-                    ) : (
-                        (row.getValue("tags") as string[]).map((tag: string) => (
-                            <span key={tag} className="tag bg-gray-200">
-                                {tag}
-                            </span>
-                        ))
-                    )}
-                </div>
-            ),
+            accessorKey: "requiredScore",
+            header: "Required Score",
+            cell: ({ row }) => <div className="capitalize">{row.getValue("requiredScore")}</div>,
         },
 
         {
             id: "actions",
             enableHiding: false,
             cell: ({ row }) => {
-                const exercise = row.original;
-
+                const achievement = row.original;
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -154,18 +132,24 @@ export function TableExercise(props: TableExerciseProps) {
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => {
-                                router.push(`${pathname}/${createSlug(exercise.title)}?id=${exercise._id}`);
-                            }}>Edit</DropdownMenuItem>
+                            <DropdownMenuItem onClick={(e) => { e.preventDefault() }}><DialogAchievement achievement={achievement} /></DropdownMenuItem>
                             <DropdownMenuItem onClick={async () => {
-                                await axiosPrivate.delete(`/study/${exercise._id}`).then(() => {
-                                    dispatch(deleteExercise(exercise._id));
+                                try {
+                                    await axiosPrivate.delete(`/achievement/${achievement._id}`).then(() => {
+                                        dispatch(deleteAchievement(achievement._id));
+                                    });
                                     toast({
                                         title: "Success",
-                                        description: "Exercise deleted successfully",
+                                        description: "Achievement deleted successfully",
                                         variant: "success",
                                     });
-                                })
+                                } catch (e: any) {
+                                    toast({
+                                        title: "Error",
+                                        description: e.response?.data?.message || "Something went wrong",
+                                        variant: "error",
+                                    });
+                                }
 
                             }}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
@@ -173,10 +157,13 @@ export function TableExercise(props: TableExerciseProps) {
                 );
             },
         },
+
     ];
 
+
+
     const table = useReactTable({
-        data: props.exercises,
+        data: props.achievements,
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
@@ -197,25 +184,10 @@ export function TableExercise(props: TableExerciseProps) {
     return (
         <div className="w-full relative">
 
-            <div className="flex items-center py-4 justify-between">
-                <Input
-                    placeholder="Filter title..."
-                    value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-                    onChange={(event) => table.getColumn("title")?.setFilterValue(event.target.value)}
-                    className="max-w-sm"
-                />
+            <div className="flex items-center py-4 justify-end">
+
                 <div className="flex gap-4">
-                    <Button
-                        variant="default"
-                        size="default"
-                        onClick={() => {
-                            router.push(`${pathname}/exercise?id=${courseId}`);
-                            dispatch(setExercise({} as IExercise));
-                            dispatch(setCurrentStep(0));
-                        }}
-                    >
-                        Create Exercise
-                    </Button>
+                    <DialogAchievement />
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="ml-auto">

@@ -52,18 +52,17 @@ export default function TabsResult() {
                                                 <div key={tab._id} className="relative group">
                                                     <TabsTrigger
                                                         value={tab._id}
-                                                        className={`relative ${
-                                                            tab.statusCompile ===
-                                                            StatusCompile.COMPILE_SUCCESS
+                                                        className={`relative ${tab.statusCompile ===
+                                                                StatusCompile.COMPILE_SUCCESS
                                                                 ? "bg-green_secondary text-green_primary"
                                                                 : tab.statusCompile ===
-                                                                  StatusCompile.COMPILE_FAILED
-                                                                ? "bg-red_secondary text-red_primary"
-                                                                : tab.statusCompile ===
-                                                                  StatusCompile.COMPILE_RUNNING
-                                                                ? "bg-yellow_secondary text-yellow_primary"
-                                                                : ""
-                                                        }`}
+                                                                    StatusCompile.COMPILE_FAILED
+                                                                    ? "bg-red_secondary text-red_primary"
+                                                                    : tab.statusCompile ===
+                                                                        StatusCompile.COMPILE_RUNNING
+                                                                        ? "bg-yellow_secondary text-yellow_primary"
+                                                                        : ""
+                                                            }`}
                                                     >
                                                         {renderStatusIcon(tab.statusCompile!)}
 
@@ -99,9 +98,8 @@ export default function TabsResult() {
                                                             return (
                                                                 <div key={index}>
                                                                     <div>{key} =</div>
-                                                                    <input
+                                                                    <Textarea
                                                                         disabled
-                                                                        type="text"
                                                                         value={value} // Display initial value
                                                                         className="w-full p-3 rounded-xl bg-[#000a200d] outline-none"
                                                                     />
@@ -112,27 +110,27 @@ export default function TabsResult() {
                                                         {(tab.statusCompile ===
                                                             StatusCompile.COMPILE_SUCCESS ||
                                                             tab.statusCompile ===
-                                                                StatusCompile.COMPILE_FAILED) && (
-                                                            <>
-                                                                <div>
-                                                                    <div>Output = </div>
+                                                            StatusCompile.COMPILE_FAILED) && (
+                                                                <>
+                                                                    <div>
+                                                                        <div>Output = </div>
 
-                                                                    <Textarea
-                                                                        className="w-full p-3 rounded-xl outline-none"
-                                                                        value={tab.output}
-                                                                        disabled
-                                                                    />
-                                                                </div>
-                                                                <div>
-                                                                    <div>Expected Output = </div>
-                                                                    <Textarea
-                                                                        className="w-full p-3 rounded-xl outline-none"
-                                                                        value={tab.outputExpected}
-                                                                        disabled
-                                                                    />
-                                                                </div>
-                                                            </>
-                                                        )}
+                                                                        <Textarea
+                                                                            className="w-full p-3 rounded-xl outline-none"
+                                                                            value={tab.output}
+                                                                            disabled
+                                                                        />
+                                                                    </div>
+                                                                    <div>
+                                                                        <div>Expected Output = </div>
+                                                                        <Textarea
+                                                                            className="w-full p-3 rounded-xl outline-none"
+                                                                            value={tab.outputExpected}
+                                                                            disabled
+                                                                        />
+                                                                    </div>
+                                                                </>
+                                                            )}
                                                     </div>
                                                 </TabsContent>
                                             ))}

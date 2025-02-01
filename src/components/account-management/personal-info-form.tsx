@@ -58,7 +58,7 @@ export default function PersonalInfoForm() {
                         onSubmit={personalInfoForm.handleSubmit(personalInfoOnSubmit)}
                         className="space-y-4 m-8"
                     >
-                        {/* <DialogUpdateAvatar /> */}
+                        <DialogUpdateAvatar />
 
                         <div className="flex-1 space-y-4">
                             <FormField
@@ -101,11 +101,10 @@ export default function PersonalInfoForm() {
                                 )}
                                 <Button
                                     type="submit"
-                                    className={`col-span-1 font-semibold  col-start-2 ${
-                                        !hasChanged
+                                    className={`col-span-1 font-semibold  col-start-2 ${!hasChanged
                                             ? "text-gray-300  border-gray-300 pointer-events-none"
                                             : ""
-                                    }`}
+                                        }`}
                                     size="account"
                                     variant={hasChanged ? "default" : "outline"}
                                 >

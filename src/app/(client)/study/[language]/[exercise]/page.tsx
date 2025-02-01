@@ -97,7 +97,7 @@ export default function ExercisePage() {
     useEffect(() => {
         // Only run if testCases is empty
         if (!testCases[exercise.title] || testCases[exercise.title].length === 0) {
-            if (persistTestCases[exercise.title]) {
+            if (persistTestCases[exercise.title] != undefined && persistTestCases[exercise.title].length > 0) {
                 dispatch(setTestCases({ key: exercise.title, testCases: persistTestCases[exercise.title] }));
             } else if (exercise.testcases) {
                 dispatch(

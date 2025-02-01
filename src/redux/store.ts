@@ -9,6 +9,7 @@ import { persistStore, persistReducer } from "redux-persist";
 import { combineReducers } from "redux";
 
 import storage from "redux-persist/lib/storage";
+import achievementSlice from "./slices/achievementSlice";
 const exercisesPersistConfig = {
     key: "persistExercises",
     storage: storage,
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
     studyForm: studyFormSlice,
     exerciseStatus: ExerciseStatusSlice,
     exercises: persistReducer(exercisesPersistConfig, exercisesSlice),
+    achievement: achievementSlice,
     course: courseSlice,
 });
 

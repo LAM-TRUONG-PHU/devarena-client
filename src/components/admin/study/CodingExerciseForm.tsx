@@ -129,7 +129,7 @@ export function CodingExerciseForm(props: CodingExerciseFormProps) {
                                 {...field}
                                 placeholder="Enter score"
                                 type="number"
-                                value={field.value} // Assuming field.value is expected to be a number
+                                value={field.value}
                                 onChange={(e) => {
                                     const numericValue = e.target.value === "" ? "" : Number(e.target.value); // Handle empty input gracefully
                                     field.onChange(numericValue);
