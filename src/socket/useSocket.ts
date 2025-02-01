@@ -1,10 +1,12 @@
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { ICompileRes } from "@/types/ICompileRes";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { io } from "socket.io-client";
-import { setCompile, setLoading, setLoadingSubList, setLoadingTestCase, setSubList } from "@/redux/slices/admin/exerciseStudySlice"
+import { setCompile, setLoading, setLoadingSubList, setLoadingTestCase, setResultSubmit, setSubList } from "@/redux/slices/admin/exerciseStudySlice"
 import { usePrivate } from "@/hooks/usePrivateAxios";
 import { useSearchParams } from "next/navigation";
+import { IResultSubmit } from "@/types/IResultSubmit";
+import { now } from "next-auth/client/_utils";
 // Cấu hình socket với các options cần thiết
 const socket = io("http://localhost:3001", {
   transports: ["websocket", "polling"],
@@ -16,6 +18,8 @@ const socket = io("http://localhost:3001", {
 
 export const useSocket = ({
   uniqueId,
+  exerciseId,
+
   onCompiling,
   onOutput,
   onError,
@@ -23,32 +27,44 @@ export const useSocket = ({
   onCompleted,
   onReconnect,
   onOutputSubmit,
+  onOutputCompile,
 }: {
   uniqueId: string;
+  exerciseId: string
   onCompiling?: (message: string) => void;
   onOutput?: (output: ICompileRes) => void;
   onOutputSubmit?: (output: ICompileRes) => void;
 
   onError?: (error: string) => void;
   onWaitingInput?: (message: string) => void;
-  onCompleted?: (result: any) => void;
+  onCompleted?: () => void;
   onReconnect?: (data: any) => void;
+  onOutputCompile?: (data: any) => void;
+
 }) => {
   const [connected, setConnected] = useState(socket.connected);
   const dispatch = useAppDispatch()
-  const axiosPrivate = usePrivate()
-  const searchParams = useSearchParams();
+  const isRegistered = useRef(false);
+
+  // Effect riêng để handle registration
+  useEffect(() => {
+    if (!isRegistered.current) {
+      socket.emit("register", { uniqueId, exerciseId });
+      isRegistered.current = true;
+    }
+
+    return () => {
+      isRegistered.current = false;
+    };
+  }, [uniqueId, exerciseId]);
 
   useEffect(() => {
     // Gửi uniqueId lên server khi kết nối
-    socket.emit("register", { uniqueId });
-
-    // Lắng nghe các sự kiện từ server
-    socket.on("connect", () => {
-      setConnected(true);
-      console.log("Connected to WebSocket server");
+ 
+    socket.on("restoreExecution", (data) => {
+      console.log("restore")
+      console.log(data);
     });
-
     socket.on("re-connect-response", (data) => {
       console.log(data);
       onReconnect?.(data);
@@ -79,11 +95,27 @@ export const useSocket = ({
       console.log("Output:", output);
       onOutputSubmit?.(output);
     });
-    socket.on("error", (error: string) => {
+    socket.on("error", (error) => {
       dispatch(setLoadingSubList(false))
       dispatch(setLoadingTestCase(false))
       dispatch(setCompile("Compile Error"));
-      onError?.(error);
+      const date = new Date();
+      const formattedDate = new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).format(date);
+
+      dispatch(setResultSubmit({
+        submittedAt: formattedDate,
+        result: "Compile Error",    // Default result
+        codeFailed: error.message
+      }));
+
+      // onError?.(error);
       console.error("Error:", error);
 
     });
@@ -94,15 +126,41 @@ export const useSocket = ({
     });
 
     socket.on("completed", (result: any) => {
-      console.log("Completed:", result);
-      onCompleted?.(result);
       dispatch(setLoadingTestCase(false))
-      dispatch(setLoadingSubList(false))
-      dispatch(setCompile("Accepted"));
+      dispatch(setCompile("Test Result"));
+      console.log("Completed test result:", result);
+      onCompleted?.();
 
     });
-    socket.on("complete_submit", (result: any) => {
-      console.log("Completed:", result);
+
+    socket.on("output_compile", (result: any) => {
+     
+      console.log("output_comile: ", result);
+      onOutputCompile?.(result)
+
+    });
+    socket.on("complete_submit", (result: IResultSubmit) => {
+      console.log("Completed submit:", result);
+      const date = new Date();
+      const formattedDate = new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).format(date);
+
+      if (result.status == 200) {
+        dispatch(setCompile("Accepted"));
+
+      } else if (result.status == 400) {
+        dispatch(setCompile("Wrong Answer"));
+      }
+      dispatch(setResultSubmit({ ...result, submittedAt: formattedDate }));
+      dispatch(setLoadingSubList(false))
+
+      onCompleted?.();
 
     });
 
@@ -111,6 +169,7 @@ export const useSocket = ({
       socket.off("compiling");
       socket.off("output");
       socket.off("output_submit");
+      socket.off("output_compile");
 
       socket.off("error");
       socket.off("waitingInput");
@@ -120,12 +179,14 @@ export const useSocket = ({
       socket.off("disconnect");
       socket.off("re-connect-response");
       socket.off("complete_submit");
+      socket.off("restoreExecution");
 
+      
     };
   }, [uniqueId, onCompiling, onOutput, onError, onWaitingInput, onCompleted, onReconnect]);
 
   const compileCode = useCallback(
-    (code: string, testCases: string[][], exerciseId: string, language: string): Promise<void> => {
+    (code: string, testCases: string[][], exerciseId: string, language: string, userId: string): Promise<void> => {
       return new Promise((resolve, reject) => {
         if (!socket.connected) {
           reject(new Error("Socket is not connected"));
@@ -140,7 +201,7 @@ export const useSocket = ({
         socket.on("error", errorHandler);
         socket.emit(
           "compile",
-          { uniqueId, code, testCases, exerciseId,language },
+          { uniqueId, code, testCases, exerciseId, language, userId },
           (response: any) => {
             socket.off("error", errorHandler);
             if (response?.error) {
@@ -190,7 +251,6 @@ export const useSocket = ({
               reject(new Error(response.error));
             } else {
               try {
-                axiosPrivate.put(`/exercise-status/exercise/${exerciseId}`)
                 resolve();
               } catch (axiosError) {
                 console.error("Failed to update exercise status:", axiosError);

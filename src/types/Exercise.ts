@@ -7,7 +7,7 @@ export enum StatusCompile {
 export interface ITestCase {
     _id: string
     input: Record<string, string | number | any[]>[]; // Flexible key-value mapping
-    // output?: string; // Allow flexible output types
+    output?: string; // Allow flexible output types
     hidden?: boolean;
     statusCompile?: StatusCompile;
     outputExpected?: string

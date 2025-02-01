@@ -58,6 +58,11 @@ export default {
                 pink_primary: "#FF2395",
                 pink_background: "rgba(247, 187, 215, 0.5)",
                 green_primary: "#64CB41",
+                green_secondary: "#EFFAEB",
+                yellow_primary: "#FFA500",
+                yellow_secondary: "#FFF7E6",
+                red_primary: "#FF0000",
+                red_secondary: "#FFECEC",
                 sidebar: {
                     DEFAULT: "hsl(var(--sidebar-background))",
                     foreground: "hsl(var(--sidebar-foreground))",

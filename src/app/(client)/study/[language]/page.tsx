@@ -56,11 +56,6 @@ export default function LanguagePage() {
     status: EStatus
   })[]>([]);
 
-
-
-  useEffect(() => {
-    console.log("filteredExercises", filteredExercises);
-  }, [filteredExercises]);
   useEffect(() => {
     const getExercisesByUserAndCourse = async () => {
       try {
@@ -221,7 +216,7 @@ export default function LanguagePage() {
                 title={exercise.title}
                 tags={exercise.tags}
                 onClick={() => {
-                  router.push(`/study/${segments[1]}/${createSlug(exercise.title)}?id=${exercise._id}&status=${exercise.status}`);
+                  router.push(`/study/${segments[1]}/${createSlug(exercise.title)}?id=${exercise._id}`);
                 }} status={exercise.status}
                 score={exercise.score}
                 difficulty={exercise.difficulty as EDifficulty}
@@ -244,7 +239,7 @@ export default function LanguagePage() {
                   title={exercise.title}
                   tags={exercise.tags}
                   onClick={() => {
-                    router.push(`/study/${segments[1]}/${createSlug(exercise.title)}?id=${exercise._id}&status=${exercise.status}`)
+                    router.push(`/study/${segments[1]}/${createSlug(exercise.title)}?id=${exercise._id}`)
                   }}
                   status={exercise.status === EStatus.Solved ? "completed" : ""}
                   score={exercise.score}

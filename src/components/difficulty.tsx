@@ -10,18 +10,17 @@ export default function Difficulty({ variant, isProfile }: { variant: EDifficult
                         variant === EDifficulty.Easy
                             ? "#64CB41"
                             : variant === EDifficulty.Medium
-                            ? "#FFA500"
-                            : "#FF0000",
+                                ? "#FFA500"
+                                : "#FF0000",
                     backgroundColor:
                         variant === EDifficulty.Easy
                             ? "#EFFAEB"
                             : variant === EDifficulty.Medium
-                            ? "#FFF7E6"
-                            : "#FFECEC",
+                                ? "#FFF7E6"
+                                : "#FFECEC",
                 }}
-                className={`rounded-xl ${
-                    isProfile ? "font-medium gap-4 w-full" : "w-fit font-semibold"
-                }  h-fit   items-center justify-between flex text-xs py-1 px-4`}
+                className={`rounded-xl ${isProfile ? "font-medium gap-4 w-full" : "w-fit font-semibold"
+                    }  h-fit   items-center justify-between flex text-xs py-1 px-4`}
             >
                 {variant[0].toUpperCase() + variant.slice(1)}{" "}
                 {isProfile && <div className="font-semibold">2/10</div>}

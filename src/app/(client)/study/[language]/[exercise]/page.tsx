@@ -7,8 +7,26 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { usePrivate } from "@/hooks/usePrivateAxios";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { fetchExercise, setCode, setLoadingTestCase, setRunningTestCase, setSubList, setTestCases, setTestCasesResult, updateStatusTestCase } from "@/redux/slices/admin/exerciseStudySlice";
+import {
+  fetchExercise,
+  setAllTestCasesResultRunning,
+  setCode,
+  setCompile,
+  setLoadingSubList,
+  setLoadingTestCase,
+  setRunningTestCase,
+  setSubList,
+  setSubmission,
+  setSubmissionId,
+  setTestCases,
+  setTestCasesResult,
+  updateOutputCompiling,
+  updateOutputTestCaseResultSubmit,
+  updateStatusTestCase,
+  updateStatusTestCaseResult,
+} from "@/redux/slices/admin/exerciseStudySlice";
 import { useSocket } from "@/socket/useSocket";
+import { StatusCompile } from "@/types/Exercise";
 import { ICompileRes } from "@/types/ICompileRes";
 import { capitalize } from "@/utils/capitalize";
 import Editor, { Monaco } from "@monaco-editor/react";
@@ -29,26 +47,56 @@ export default function ExercisePage() {
   const axiosPrivate = usePrivate();
   const searchParams = useSearchParams();
 
-  const { exercise, testCases, loading, exerciseStatus, loadingTestCase, persistTestCases, loadingSubList, compile, code } = useAppSelector(state => state.exercises)
+  const {
+    exercise,
+    testCases,
+    loading,
+    loadingTestCase,
+    persistTestCases,
+    loadingSubList,
+    compile,
+    code,
+    resultSubmit,
+    submission,
+  } = useAppSelector((state) => state.exercises);
   const language = capitalize(segments[1]);
 
-  const { data: session } = useSession()
-  const { toast } = useToast()
-  const { connected, compileCode, submitCode, stopExecution, isConnected } = useSocket(
-    {
+  const { data: session } = useSession();
+  const { toast } = useToast();
+  const { connected, compileCode, submitCode, stopExecution, isConnected } =
+    useSocket({
       uniqueId: session?.user.id || "",
+      exerciseId: exercise._id||"",
       onOutput: (output: ICompileRes) => {
-        dispatch(updateStatusTestCase({ key: exercise.title, index: output.testCaseIndex, res: output }))
-
+        dispatch(
+          updateStatusTestCase({
+            key: exercise.title,
+            index: output.testCaseIndex,
+            res: output,
+          })
+        );
+        // dispatch(updateStatusTestCaseResult({ key: exercise.title, testCaseId: output.testCaseIndex.toString(), status: StatusCompile.COMPILE_SUCCESS }));
       },
-      onCompleted(result) {
-        dispatch(setTestCasesResult({ key: exercise.title, testCases: testCases[exercise.title] }))
+      onOutputCompile(data:any) {
+          dispatch(updateOutputCompiling({
+            index:data.testCaseIndex,
+            output:data.chunk,
+            key: exercise.title,
+
+          }))
+      },
+      onCompleted() {
+        dispatch(
+          setTestCasesResult({
+            key: exercise.title,
+            testCases: testCases[exercise.title],
+          })
+        );
         toast({
-          title: "Kết quả",
-          description: result,
+          title: "Result",
+          description: "Completed",
           variant: "success",
         });
-
       },
       onCompiling: () => {
         toast({
@@ -65,65 +113,73 @@ export default function ExercisePage() {
         });
       },
       onWaitingInput: (message) => {
-        console.log(message)
-      }
-
-    }
-
-  );
+        console.log(message);
+      },
+      onOutputSubmit: (output: ICompileRes) => {
+        dispatch(updateOutputTestCaseResultSubmit(resultSubmit));
+      },
+    });
 
   useEffect(() => {
-    // Only run if testCases is empty 
+    // Only run if testCases is empty and we have either persistTestCases or exercise.testcases
     if (!testCases[exercise.title] || testCases[exercise.title].length === 0) {
       if (persistTestCases[exercise.title]) {
-        dispatch(setTestCases({ key: exercise.title, testCases: persistTestCases[exercise.title] }))
-      }
-      else if (exercise.testcases) {
-
         dispatch(
           setTestCases({
             key: exercise.title,
-            testCases: exercise.testcases.map((testcase, index) => {
-              return {
-                _id: (index + 1).toString(),
-                input: testcase.input,
-              };
-            }
-            ),
+            testCases: persistTestCases[exercise.title],
+          })
+        );
+      } else if (exercise.testcases) {
+        dispatch(
+          setTestCases({
+            key: exercise.title,
+            testCases: exercise.testcases.map((testcase, index) => ({
+              _id: (index + 1).toString(),
+              input: testcase.input,
+            })),
           })
         );
       }
-
     }
-  }, [testCases, exercise.testcases, dispatch, persistTestCases,]);
+  }, [exercise.testcases, exercise.title, dispatch, persistTestCases]);
 
   useEffect(() => {
-    dispatch(fetchExercise(
-      {
+    dispatch(setCompile(null));
+    dispatch(setLoadingTestCase(false));
+    dispatch(setLoadingSubList(false));
+    dispatch(setRunningTestCase(""));
+    dispatch(setSubmissionId(""));
+    dispatch(setSubmission({}));
+    dispatch(
+      fetchExercise({
         axiosInstance: axiosPrivate,
         id: searchParams.get("id")!,
-      }
-    ))
-
+      })
+    );
   }, []);
 
   useEffect(() => {
     axiosPrivate
-      .get(`/exercise-status/submission/${searchParams.get("id")!}`)
+      .get(`/exercise-status/exercise/${searchParams.get("id")!}/submission`)
       .then((res) => {
         dispatch(setSubList(res.data.data.submission));
       })
       .catch((err) => {
         console.error(err);
       });
-
   }, [loadingSubList == true, loading == true, compile == "Accepted"]);
 
   useEffect(() => {
     if (!code[`${exercise.title}`]) {
-      dispatch(setCode({ key: exercise.title, code: exercise.defaultCode }))
+      dispatch(setCode({ key: exercise.title, code: exercise.defaultCode }));
     }
-  }, [exercise.title, exercise.defaultCode, code[`${exercise.title}`], dispatch]);
+  }, [
+    exercise.title,
+    exercise.defaultCode,
+    code[`${exercise.title}`],
+    dispatch,
+  ]);
 
   function handleEditorDidMount(editor: any, monaco: Monaco) {
     // Define a custom theme with background color #1D2432
@@ -141,55 +197,61 @@ export default function ExercisePage() {
   }
   const handleRun = async () => {
     try {
-      dispatch(setLoadingTestCase(true))
-
-      if (searchParams.get("status") == EStatus.Unsolved) {
-        await axiosPrivate.post("/exercise-status", {
-          exerciseId: searchParams.get("id")!,
-          userId: session?.user.id,
-        })
-      }
-
-
+      dispatch(setAllTestCasesResultRunning(exercise.title));
+      dispatch(setCompile(null));
+      dispatch(setLoadingTestCase(true));
       dispatch(setRunningTestCase(searchParams.get("id")! || ""));
 
-
-      if (!code[`${exercise.title}`].includes("public class") || !code[`${exercise.title}`].includes("public static void main")) {
+      if (
+        !code[`${exercise.title}`].includes("public class") ||
+        !code[`${exercise.title}`].includes("public static void main")
+      ) {
         throw new Error("Code need to have public class and main function");
       }
-
 
       // Flatten the grouped te st cases into a single array of inputs
       const convertedTestCases = Object.values(testCases[exercise.title])
         .flat() // Flatten all groups into a single array
         .map((testCase) =>
-          testCase.input.map((item) =>
-            Object.values(item).map(String) // Convert all input values to strings
-          ).flat()
+          testCase.input
+            .map(
+              (item) => Object.values(item).map(String) // Convert all input values to strings
+            )
+            .flat()
         );
 
-      await compileCode(code[`${exercise.title}`], convertedTestCases, searchParams.get("id")! || "",language.toLowerCase())
+      await compileCode(
+        code[`${exercise.title}`],
+        convertedTestCases,
+        searchParams.get("id")! || "",
+        language.toLowerCase(),
+        session?.user.id || ""
+      );
     } catch (error: any) {
       toast({
         title: "Lỗi",
         description: error.message || "Đã có lỗi xảy ra",
         variant: "error",
-      })
+      });
       dispatch(setLoadingTestCase(false));
     }
-  }
+  };
   const handleSubmit = async () => {
-    if (searchParams.get("status") == EStatus.InProgress) {
-    }
-    await submitCode(code[`${exercise.title}`], searchParams.get("id")! || "", session?.user.id || "",language.toLowerCase())
-  }
+    dispatch(setSubmission({}));
+
+    await submitCode(
+      code[`${exercise.title}`],
+      searchParams.get("id")! || "",
+      session?.user.id || "",
+      language.toLowerCase()
+    );
+  };
   const toggleTheme = () => {
     setTheme((prev) => {
       const newTheme = prev === "vs-dark" ? "light" : "vs-dark";
       return newTheme;
     });
   };
-
 
   return (
     <>
@@ -227,8 +289,10 @@ export default function ExercisePage() {
             height={"calc(100svh - 7rem)"}
             defaultLanguage={segments[1]}
             theme={theme}
-            value={code[`${exercise.title}`] ?? ''}
-            onChange={(value) => dispatch(setCode({ key: exercise.title, code: value }))}
+            value={code[`${exercise.title}`] ?? ""}
+            onChange={(value) =>
+              dispatch(setCode({ key: exercise.title, code: value }))
+            }
             onMount={handleEditorDidMount}
           />
           <div className="absolute bottom-8 right-8">
@@ -239,17 +303,24 @@ export default function ExercisePage() {
                 onClick={handleRun}
                 disabled={loadingTestCase}
               >
-                {loadingTestCase ? <LoadingSpinner /> : <>
-                  <FaPlay />
-                  Run</>}
-
+                {loadingTestCase ? (
+                  <LoadingSpinner />
+                ) : (
+                  <>
+                    <FaPlay />
+                    Run
+                  </>
+                )}
               </Button>
-              <Button variant="submit" size="editor"
-                onClick={handleSubmit}
-              >
-                {loadingSubList ? <LoadingSpinner /> : <><TbCloudShare />
-                  Submit</>}
-
+              <Button variant="submit" size="editor" onClick={handleSubmit}>
+                {loadingSubList ? (
+                  <LoadingSpinner />
+                ) : (
+                  <>
+                    <TbCloudShare />
+                    Submit
+                  </>
+                )}
               </Button>
             </div>
           </div>
