@@ -1,12 +1,13 @@
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { ICompileRes } from "@/types/ICompileRes";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { io } from "socket.io-client";
 import { setCompile, setLoading, setLoadingSubList, setLoadingTestCase, setResultSubmit, setSubList } from "@/redux/slices/admin/exerciseStudySlice"
 import { usePrivate } from "@/hooks/usePrivateAxios";
 import { useSearchParams } from "next/navigation";
 import { IResultSubmit } from "@/types/IResultSubmit";
 import { now } from "next-auth/client/_utils";
+import { setTestCases } from "@/redux/slices/ExerciseStatusSlice";
 // Cấu hình socket với các options cần thiết
 const socket = io("http://localhost:3001", {
   transports: ["websocket", "polling"],
@@ -18,6 +19,8 @@ const socket = io("http://localhost:3001", {
 
 export const useSocket = ({
   uniqueId,
+  exerciseId,
+
   onCompiling,
   onOutput,
   onError,
@@ -25,8 +28,11 @@ export const useSocket = ({
   onCompleted,
   onReconnect,
   onOutputSubmit,
+  onOutputCompile,
+
 }: {
   uniqueId: string;
+  exerciseId: string
   onCompiling?: (message: string) => void;
   onOutput?: (output: ICompileRes) => void;
   onOutputSubmit?: (output: ICompileRes) => void;
@@ -34,26 +40,37 @@ export const useSocket = ({
   onError?: (error: string) => void;
   onWaitingInput?: (message: string) => void;
   onCompleted?: () => void;
-  onReconnect?: (data: any) => void;
+  onReconnect?: (data: TestcaseRestore[]) => void;
+  onOutputCompile?: (data: any) => void;
+
 }) => {
   const [connected, setConnected] = useState(socket.connected);
   const dispatch = useAppDispatch()
-  const axiosPrivate = usePrivate()
-  const searchParams = useSearchParams();
+  const isRegistered = useRef(false);
+
+  // Effect riêng để handle registration
+  useEffect(() => {
+    if (!isRegistered.current) {
+      socket.emit("register", { uniqueId, exerciseId });
+      isRegistered.current = true;
+    }
+
+    return () => {
+      isRegistered.current = false;
+    };
+  }, [uniqueId, exerciseId]);
 
   useEffect(() => {
     // Gửi uniqueId lên server khi kết nối
-    socket.emit("register", { uniqueId });
 
-    // Lắng nghe các sự kiện từ server
-    socket.on("connect", () => {
-      setConnected(true);
-      console.log("Connected to WebSocket server");
+    socket.on("restoreExecution", (data: TestcaseRestore[]) => {
+      onReconnect?.(data);
+      console.log("restore", data)
+
     });
-
     socket.on("re-connect-response", (data) => {
       console.log(data);
-      onReconnect?.(data);
+      // onReconnect?.(data);
     });
 
     socket.on("connect_error", (error) => {
@@ -68,6 +85,7 @@ export const useSocket = ({
     socket.on("compiling", (message: string) => {
       console.log("Compiling:", message);
       onCompiling?.(message);
+
       dispatch(setLoadingTestCase(true))
       dispatch(setLoadingSubList(true))
 
@@ -118,6 +136,13 @@ export const useSocket = ({
       onCompleted?.();
 
     });
+
+    socket.on("output_compile", (result: any) => {
+
+      console.log("output_comile: ", result);
+      onOutputCompile?.(result)
+
+    });
     socket.on("complete_submit", (result: IResultSubmit) => {
       console.log("Completed submit:", result);
       const date = new Date();
@@ -148,6 +173,7 @@ export const useSocket = ({
       socket.off("compiling");
       socket.off("output");
       socket.off("output_submit");
+      socket.off("output_compile");
 
       socket.off("error");
       socket.off("waitingInput");
@@ -157,6 +183,8 @@ export const useSocket = ({
       socket.off("disconnect");
       socket.off("re-connect-response");
       socket.off("complete_submit");
+      socket.off("restoreExecution");
+
 
     };
   }, [uniqueId, onCompiling, onOutput, onError, onWaitingInput, onCompleted, onReconnect]);

@@ -1,10 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import contestSlice from "./slices/contestSlice";
+// import contestSlice from "./slices/contestSlice";
 import filterSlice from "./slices/filterSlice";
 import exercisesSlice from "./slices/admin/exerciseStudySlice";
 import studyFormSlice from "./slices/admin/StudyFormSlice";
 import ExerciseStatusSlice from "./slices/ExerciseStatusSlice";
 import courseSlice from "./slices/courseSlice";
+import ContestClientSlice from "./slices/contestClientSlice";
 import { persistStore, persistReducer } from "redux-persist";
 import { combineReducers } from "redux";
 
@@ -18,13 +19,14 @@ const exercisesPersistConfig = {
 
 
 const rootReducer = combineReducers({
-    contest: contestSlice,
+    // contest: contestSlice,
     filter: filterSlice,
     studyForm: studyFormSlice,
     exerciseStatus: ExerciseStatusSlice,
     exercises: persistReducer(exercisesPersistConfig, exercisesSlice),
     achievement: achievementSlice,
     course: courseSlice,
+    contestClient: ContestClientSlice,
 });
 
 export const store = configureStore({

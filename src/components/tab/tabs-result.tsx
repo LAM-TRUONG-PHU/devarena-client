@@ -11,8 +11,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { LoadingSpinner } from "../loading";
 
 export default function TabsResult() {
-    const [activeTab, setActiveTab] = useState("1");
-    const { testCasesResult, loading, loadingTestCase } = useAppSelector((state) => state.exercises);
+    const { testCasesResult, loading, loadingTestCase, } = useAppSelector(
+        (state) => state.exercises
+    );
+    const [activeTab, setActiveTab] = useState(
+        Object.entries(testCasesResult)[0]?.[1][0]._id
+    );
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
 
@@ -36,6 +40,7 @@ export default function TabsResult() {
                 onValueChange={setActiveTab}
                 className="w-full flex flex-col h-full pt-2 "
             >
+
                 <header className="flex items-center px-4 bg-transparent ">
                     <TabsList className="bg-transparent">
                         {testCasesResult && Object.entries(testCasesResult).length > 0 ? (
@@ -47,21 +52,20 @@ export default function TabsResult() {
                                 >
                                     {createSlug(key) === segments[segments.length - 1] && (
                                         <>
-                                            {" "}
                                             {testCaseGroup.map((tab, i) => (
                                                 <div key={tab._id} className="relative group">
                                                     <TabsTrigger
                                                         value={tab._id}
                                                         className={`relative ${tab.statusCompile ===
-                                                                StatusCompile.COMPILE_SUCCESS
-                                                                ? "bg-green_secondary text-green_primary"
+                                                            StatusCompile.COMPILE_SUCCESS
+                                                            ? "bg-green_secondary text-green_primary"
+                                                            : tab.statusCompile ===
+                                                                StatusCompile.COMPILE_FAILED
+                                                                ? "bg-red_secondary text-red_primary"
                                                                 : tab.statusCompile ===
-                                                                    StatusCompile.COMPILE_FAILED
-                                                                    ? "bg-red_secondary text-red_primary"
-                                                                    : tab.statusCompile ===
-                                                                        StatusCompile.COMPILE_RUNNING
-                                                                        ? "bg-yellow_secondary text-yellow_primary"
-                                                                        : ""
+                                                                    StatusCompile.COMPILE_RUNNING
+                                                                    ? "bg-yellow_secondary text-yellow_primary"
+                                                                    : ""
                                                             }`}
                                                     >
                                                         {renderStatusIcon(tab.statusCompile!)}
@@ -80,21 +84,62 @@ export default function TabsResult() {
                     </TabsList>
                 </header>
 
-                {loadingTestCase ? (
-                    <></>
-                ) : (
-                    <>
-                        {testCasesResult && Object.entries(testCasesResult).length > 0 ? (
-                            Object.entries(testCasesResult).map(([groupKey, testCaseGroup]) => (
-                                <div key={groupKey}>
-                                    {createSlug(groupKey) === segments[segments.length - 1] && (
-                                        <>
-                                            {testCaseGroup.map((tab, index) => (
-                                                <TabsContent key={tab._id} value={tab._id} className="flex-1">
+                <>
+                    {testCasesResult && Object.entries(testCasesResult).length > 0 ? (
+                        Object.entries(testCasesResult).map(([groupKey, testCaseGroup]) => (
+                            <div key={groupKey}>
+                                {createSlug(groupKey) === segments[segments.length - 1] && (
+                                    <>
+                                        {testCaseGroup.map((tab, index) => (
+                                            <TabsContent
+                                                key={tab._id}
+                                                value={tab._id}
+                                                className="flex-1"
+                                            >
+                                                {tab.statusCompile === StatusCompile.COMPILE_RUNNING ? (
+                                                    <div className="relative">
+                                                        {/* <div className="absolute inset-0 flex justify-center items-center bg-white/50 z-10">
+                              <LoadingSpinner />
+                            </div> */}
+                                                        <div className="bg-white w-full text-gray-800 p-4 flex flex-col gap-4">
+                                                            {tab.input.map((obj, index) => {
+                                                                const key = Object.keys(obj)[0];
+                                                                const value = obj[key];
+                                                                return (
+                                                                    <div key={index}>
+                                                                        <div>{key} =</div>
+                                                                        <input
+                                                                            disabled
+                                                                            type="text"
+                                                                            value={value}
+                                                                            className="w-full p-3 rounded-xl bg-[#000a200d] outline-none"
+                                                                        />
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                            <div>
+                                                                <div>Output = </div>
+                                                                <Textarea
+                                                                    className="w-full p-3 rounded-xl outline-none"
+                                                                    value={tab.output}
+                                                                    disabled
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <div>Expected Output = </div>
+                                                                <Textarea
+                                                                    className="w-full p-3 rounded-xl outline-none"
+                                                                    value={tab.outputExpected}
+                                                                    disabled
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ) : (
                                                     <div className="bg-white w-full text-gray-800 p-4 flex flex-col gap-4">
                                                         {tab.input.map((obj, index) => {
-                                                            const key = Object.keys(obj)[0]; // Extract key from object
-                                                            const value = obj[key]; // Extract value
+                                                            const key = Object.keys(obj)[0];
+                                                            const value = obj[key];
                                                             return (
                                                                 <div key={index}>
                                                                     <div>{key} =</div>
@@ -132,28 +177,28 @@ export default function TabsResult() {
                                                                 </>
                                                             )}
                                                     </div>
-                                                </TabsContent>
-                                            ))}
-                                        </>
-                                    )}
-                                </div>
-                            ))
-                        ) : (
-                            <TabsContent value="result" className="mt-4">
-                                <div className="flex justify-center my-4">
-                                    <ClipboardPen size={60} />
-                                </div>
-                                <div className="font-semibold text-lg text-center">
-                                    Run tests to check your code
-                                </div>
-                                <div className="text-center">
-                                    Run your code against tests to check whether <br />
-                                    it works, then give you the results here.
-                                </div>
-                            </TabsContent>
-                        )}
-                    </>
-                )}
+                                                )}
+                                            </TabsContent>
+                                        ))}
+                                    </>
+                                )}
+                            </div>
+                        ))
+                    ) : (
+                        <TabsContent value="result" className="mt-4">
+                            <div className="flex justify-center my-4">
+                                <ClipboardPen size={60} />
+                            </div>
+                            <div className="font-semibold text-lg text-center">
+                                Run tests to check your code
+                            </div>
+                            <div className="text-center">
+                                Run your code against tests to check whether <br />
+                                it works, then give you the results here.
+                            </div>
+                        </TabsContent>
+                    )}
+                </>
             </Tabs>
         </div>
     );

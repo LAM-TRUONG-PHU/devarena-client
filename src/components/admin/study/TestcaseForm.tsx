@@ -14,7 +14,11 @@ import { useAppSelector } from "@/redux/hooks";
 import { Textarea } from "@/components/ui/textarea"
 
 type TestCaseFormProps = {
-    form: UseFormReturn<TExerciseStudy, any, undefined>;
+    form: UseFormReturn<
+        TExerciseStudy,
+        any,
+        undefined
+    >;
 };
 
 const TestcaseForm = ({ form }: TestCaseFormProps) => {

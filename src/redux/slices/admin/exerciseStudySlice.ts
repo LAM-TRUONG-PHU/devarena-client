@@ -23,8 +23,8 @@ interface ISubmission {
 interface ExerciseState {
     exercises: IExercise[];
     exercise: IExercise;
-    testCases: { [key: string]: ITestCase[] };
     persistTestCases: { [key: string]: IPersistTestCase[] };
+    testCases: { [key: string]: ITestCase[] };
     testCasesResult: { [key: string]: ITestCase[] };
     currentExercise: IExercise | null;
     exerciseStatus: IExerciseStatus;
@@ -112,6 +112,35 @@ const exercisesSlice = createSlice({
     name: "exercise",
     initialState,
     reducers: {
+        setAllTestCasesResultRunning: (state, action: PayloadAction<string>) => {
+            const key = action.payload;
+            console.log(key)
+            if (state.testCasesResult[key]) {
+                state.testCasesResult[key] = state.testCasesResult[key].map(testCase => ({
+                    ...testCase,
+                    statusCompile: StatusCompile.COMPILE_RUNNING,
+                }));
+            }
+        },
+
+        updateStatusTestCaseResult: (
+            state,
+            action: PayloadAction<{
+                key: string;
+                testCaseId: string;
+                status: StatusCompile;
+            }>
+        ) => {
+            const { key, testCaseId, status } = action.payload;
+            if (state.testCasesResult[key]) {
+                state.testCasesResult[key] = state.testCasesResult[key].map(testCase =>
+                    testCase._id === testCaseId
+                        ? { ...testCase, statusCompile: status }
+                        : testCase
+                );
+            }
+        },
+
         setLoading(state, action: PayloadAction<boolean>) {
             state.loading = action.payload;
         },
@@ -166,8 +195,8 @@ const exercisesSlice = createSlice({
         },
         setRunningTestCase: (state, action: PayloadAction<string>) => {
             const key = action.payload;
-            if (state.testCases[key]) {
-                state.testCases[key] = state.testCases[key].map((testCase) => ({
+            if (state.testCasesResult[key]) {
+                state.testCasesResult[key] = state.testCasesResult[key].map((testCase) => ({
                     ...testCase,
                     statusCompile: StatusCompile.COMPILE_RUNNING,
                 }));
@@ -178,16 +207,37 @@ const exercisesSlice = createSlice({
             action: PayloadAction<{ key: string; index: number; res: ICompileRes }>
         ) => {
             const { key, index, res } = action.payload;
-
-            if (state.testCases[key] && state.testCases[key][index]) {
-                const testCase = state.testCases[key][index];
-
+            if (state.testCasesResult[key] && state.testCasesResult[key][index]) {
+                const testCase = state.testCasesResult[key][index];
                 // Update the test case fields
+                console.log("Update status test case:", res);
                 testCase.statusCompile = res.isCorrect
                     ? StatusCompile.COMPILE_SUCCESS
                     : StatusCompile.COMPILE_FAILED;
                 testCase.output = res.output;
                 testCase.outputExpected = res.outputExpect;
+            }
+        },
+        updateOutputCompiling: (
+            state,
+            action: PayloadAction<{
+                key: string;
+                output: string;
+                index: number;
+            }>
+        ) => {
+            const { key, output, index } = action.payload;
+            if (state.testCasesResult[key] && state.testCasesResult[key][index]) {
+                let result = ''
+                if (state.testCasesResult[key][index].output) {
+                    result = state.testCasesResult[key][index].output + output
+                } else {
+                    result = output
+                }
+                state.testCasesResult[key][index] = {
+                    ...state.testCasesResult[key][index],
+                    output: result
+                };
             }
         },
         updateOutputTestCaseResultSubmit: (
@@ -350,7 +400,10 @@ export const {
     updateOutputTestCaseResultSubmit,
     setSubmission,
     setSubmissionId,
-    setClickTracker
+    setClickTracker,
+    setAllTestCasesResultRunning,
+    updateStatusTestCaseResult,
+    updateOutputCompiling
 } = exercisesSlice.actions;
 
 export default exercisesSlice.reducer;
