@@ -45,7 +45,7 @@ export function TabsExercise({ study }: TabsExerciseProps) {
     subList,
     clickTracker,
     submissionId,
-    submission
+    submission, testCasesResult
   } = useAppSelector((state) => state.exercises);
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
@@ -130,7 +130,7 @@ export function TabsExercise({ study }: TabsExerciseProps) {
       className="w-full flex flex-col h-full relative"
     >
       <header className="flex sticky top-0  items-center border-foreground border-b-[0.5px] bg-white z-20">
-        <TabsList className="w-full max-w-sm lg:max-w-lg mx-auto h-12 flex items-center ">
+        <TabsList className="w-full max-w-sm  3xl:max-w-lg  mx-auto h-12 flex items-center ">
           <Carousel
             opts={{ align: "center" }}
             className="w-full"
@@ -181,35 +181,46 @@ export function TabsExercise({ study }: TabsExerciseProps) {
         </TabsContent>
       }
 
+
       <TabsContent value="result" className="mt-4">
-        {testCases &&
-          testCases[exercise.title!] &&
-          testCases[exercise.title!].length > 0 &&
-          (testCases[exercise.title!][0].hasOwnProperty("output") ? (
+        {testCasesResult?.[exercise.title!]?.length ? (
+          testCasesResult[exercise.title!][0].hasOwnProperty("output") ? (
             <div>
-              <TabsResult />{" "}
+              <TabsResult />
+            </div>
+          ) : loadingTestCase ? (
+            <div className="flex flex-col space-y-3">
+              <Skeleton className="h-8 w-full rounded-xl mx-2" />
+              <div className="space-y-2">
+                <Skeleton className="h-44 w-full rounded-xl" />
+              </div>
             </div>
           ) : (
-            <>
-              {loadingTestCase ? (
-                <LoadingSpinner />
-              ) : (
-                <>
-                  <div className="flex justify-center my-4">
-                    <ClipboardPen size={60} />
-                  </div>
-                  <div className="font-semibold text-lg text-center">
-                    Run tests to check your code
-                  </div>
-                  <div className="text-center">
-                    Run your code against tests to check whether <br />
-                    it works, then give you the results here.
-                  </div>
-                </>
-              )}
-            </>
-          ))}
+            <div className="text-center">
+              <div className="flex justify-center my-4">
+                <ClipboardPen size={60} />
+              </div>
+              <div className="font-semibold text-lg">Run tests to check your code</div>
+              <p>
+                Run your code against tests to verify its correctness, <br />
+                and view the results here.
+              </p>
+            </div>
+          )
+        ) : (
+          <div className="text-center">
+            <div className="flex justify-center my-4">
+              <ClipboardPen size={60} />
+            </div>
+            <div className="font-semibold text-lg">Run tests to check your code</div>
+            <p>
+              Run your code against tests to verify its correctness, <br />
+              and view the results here.
+            </p>
+          </div>
+        )}
       </TabsContent>
+
       <TabsContent value="submission" className="flex-1">
         <TabSubmission />
       </TabsContent>

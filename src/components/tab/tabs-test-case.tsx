@@ -26,9 +26,8 @@ export function TabsTestCase() {
     const key = exercise.title; // Replace with a dynamic key if needed
     const currentTestCases = testCases[key] || []; // Get existing test cases for the key
 
-    const newId = (currentTestCases.length + 1).toString();
     const newTestCase: ITestCase = {
-      _id: newId,
+      _id: crypto.randomUUID(),
       input: exercise.testcases ? exercise.testcases[0].input : [], // Provide default or fallback values
 
     };
@@ -62,18 +61,7 @@ export function TabsTestCase() {
   const handleChangeInput = (key: string, id: string, inputKey: string, value: string) => {
     dispatch(handleChangeInputTestCase({ key, id, inputKey, value }));
   };
-  const renderStatusIcon = (status: StatusCompile) => {
-    switch (status) {
-      case StatusCompile.COMPILE_SUCCESS:
-        return <CheckCircle />;
-      case StatusCompile.COMPILE_FAILED:
-        return <XCircle />;
-      case StatusCompile.COMPILE_RUNNING:
-        return <Spinner size="small" />;
-      default:
-        return "";
-    }
-  };
+
   return (
     <Tabs
       defaultValue={activeTab}
@@ -86,6 +74,7 @@ export function TabsTestCase() {
           {testCases && Object.entries(testCases).length > 0 ? (
             Object.entries(testCases).map(([key, testCaseGroup]) => (
               // Replace the key with a dynamic key if needed 
+
               <div key={key} className="flex flex-wrap gap-4 bg-transparent justify-start pb-4">
                 {createSlug(key) === segments[segments.length - 1] && (
                   <> {testCaseGroup.map((tab, i) => (

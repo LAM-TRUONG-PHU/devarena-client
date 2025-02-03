@@ -7,6 +7,7 @@ import { usePrivate } from "@/hooks/usePrivateAxios";
 import { useSearchParams } from "next/navigation";
 import { IResultSubmit } from "@/types/IResultSubmit";
 import { now } from "next-auth/client/_utils";
+import { setTestCases } from "@/redux/slices/ExerciseStatusSlice";
 // Cấu hình socket với các options cần thiết
 const socket = io("http://localhost:3001", {
   transports: ["websocket", "polling"],
@@ -28,6 +29,7 @@ export const useSocket = ({
   onReconnect,
   onOutputSubmit,
   onOutputCompile,
+
 }: {
   uniqueId: string;
   exerciseId: string
@@ -38,7 +40,7 @@ export const useSocket = ({
   onError?: (error: string) => void;
   onWaitingInput?: (message: string) => void;
   onCompleted?: () => void;
-  onReconnect?: (data: any) => void;
+  onReconnect?: (data: TestcaseRestore[]) => void;
   onOutputCompile?: (data: any) => void;
 
 }) => {
@@ -60,14 +62,15 @@ export const useSocket = ({
 
   useEffect(() => {
     // Gửi uniqueId lên server khi kết nối
- 
-    socket.on("restoreExecution", (data) => {
-      console.log("restore")
-      console.log(data);
+
+    socket.on("restoreExecution", (data: TestcaseRestore[]) => {
+      onReconnect?.(data);
+      console.log("restore", data)
+
     });
     socket.on("re-connect-response", (data) => {
       console.log(data);
-      onReconnect?.(data);
+      // onReconnect?.(data);
     });
 
     socket.on("connect_error", (error) => {
@@ -82,6 +85,7 @@ export const useSocket = ({
     socket.on("compiling", (message: string) => {
       console.log("Compiling:", message);
       onCompiling?.(message);
+
       dispatch(setLoadingTestCase(true))
       dispatch(setLoadingSubList(true))
 
@@ -134,7 +138,7 @@ export const useSocket = ({
     });
 
     socket.on("output_compile", (result: any) => {
-     
+
       console.log("output_comile: ", result);
       onOutputCompile?.(result)
 
@@ -181,7 +185,7 @@ export const useSocket = ({
       socket.off("complete_submit");
       socket.off("restoreExecution");
 
-      
+
     };
   }, [uniqueId, onCompiling, onOutput, onError, onWaitingInput, onCompleted, onReconnect]);
 

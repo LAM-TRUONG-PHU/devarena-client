@@ -17,7 +17,7 @@ interface ISubmission {
     code: string;
     _id?: string;
     testcase?: ITestCase;
-    errorCode: string;
+    errorCode?: string;
 }
 
 interface ExerciseState {
@@ -119,8 +119,8 @@ const exercisesSlice = createSlice({
         setAllTestCasesResultRunning: (state, action: PayloadAction<string>) => {
             const key = action.payload;
             console.log(key)
-            if (state.testCases[key]) {
-                state.testCases[key] = state.testCases[key].map(testCase => ({
+            if (state.testCasesResult[key]) {
+                state.testCasesResult[key] = state.testCasesResult[key].map(testCase => ({
                     ...testCase,
                     statusCompile: StatusCompile.COMPILE_RUNNING,
                 }));
@@ -136,8 +136,8 @@ const exercisesSlice = createSlice({
             }>
         ) => {
             const { key, testCaseId, status } = action.payload;
-            if (state.testCases[key]) {
-                state.testCases[key] = state.testCases[key].map(testCase =>
+            if (state.testCasesResult[key]) {
+                state.testCasesResult[key] = state.testCasesResult[key].map(testCase =>
                     testCase._id === testCaseId
                         ? { ...testCase, statusCompile: status }
                         : testCase
@@ -199,8 +199,8 @@ const exercisesSlice = createSlice({
         },
         setRunningTestCase: (state, action: PayloadAction<string>) => {
             const key = action.payload;
-            if (state.testCases[key]) {
-                state.testCases[key] = state.testCases[key].map((testCase) => ({
+            if (state.testCasesResult[key]) {
+                state.testCasesResult[key] = state.testCasesResult[key].map((testCase) => ({
                     ...testCase,
                     statusCompile: StatusCompile.COMPILE_RUNNING,
                 }));
@@ -211,9 +211,10 @@ const exercisesSlice = createSlice({
             action: PayloadAction<{ key: string; index: number; res: ICompileRes }>
         ) => {
             const { key, index, res } = action.payload;
-            if (state.testCases[key] && state.testCases[key][index]) {
-                const testCase = state.testCases[key][index];
+            if (state.testCasesResult[key] && state.testCasesResult[key][index]) {
+                const testCase = state.testCasesResult[key][index];
                 // Update the test case fields
+                console.log("Update status test case:", res);
                 testCase.statusCompile = res.isCorrect
                     ? StatusCompile.COMPILE_SUCCESS
                     : StatusCompile.COMPILE_FAILED;
@@ -230,15 +231,15 @@ const exercisesSlice = createSlice({
             }>
         ) => {
             const { key, output, index } = action.payload;
-            if (state.testCases[key] && state.testCases[key][index]) {
+            if (state.testCasesResult[key] && state.testCasesResult[key][index]) {
                 let result = ''
-                if (state.testCases[key][index].output) {
-                    result = state.testCases[key][index].output + output
+                if (state.testCasesResult[key][index].output) {
+                    result = state.testCasesResult[key][index].output + output
                 } else {
                     result = output
                 }
-                state.testCases[key][index] = {
-                    ...state.testCases[key][index],
+                state.testCasesResult[key][index] = {
+                    ...state.testCasesResult[key][index],
                     output: result
                 };
             }
