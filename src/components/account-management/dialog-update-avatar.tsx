@@ -13,10 +13,11 @@ import {
 import { IoCameraSharp } from "react-icons/io5";
 import Avatar from "react-avatar-edit";
 import { ChangeEvent, useEffect, useState } from "react";
-import { toast } from "@/hooks/use-toast";
 import { useToast } from "@/hooks/use-toast";
-
-export function DialogUpdateAvatar() {
+interface Pros{
+    setFile:React.Dispatch<React.SetStateAction<File | null>>
+}
+export function DialogUpdateAvatar({setFile}:Pros) {
     const [preview, setPreview] = useState<string>("/avatar.jpg");
     const [currentAvatar, setCurrentAvatar] = useState<string>("/avatar.jpg");
     const { toast } = useToast();
@@ -30,17 +31,25 @@ export function DialogUpdateAvatar() {
     }
 
     function onBeforeFileLoad(elem: ChangeEvent<HTMLInputElement>) {
-        if (elem.target.files![0].size > 701680) {
+        const fileSelected = elem.target.files![0]
+        if (fileSelected.size > 701680) {
             alert("File is too big!");
             elem.target.value = "";
+        }else{
+
+        
+            setFile(fileSelected)
+            console.log(fileSelected)
         }
+        
     }
 
     function handleSave() {
         if (preview) {
             setCurrentAvatar(preview);
-            toast({ title: "Avatar updated", description: "Your avatar has been updated successfully" });
-            console.log("Saved avatar:", preview);
+
+            // toast({ title: "Avatar updated", description: "Your avatar has been updated successfully" });
+            // console.log("Saved avatar:", preview);
         }
     }
 

@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "../ui/form";
@@ -7,6 +7,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import { DialogUpdateAvatar } from "./dialog-update-avatar";
+import { usePrivate } from "@/hooks/usePrivateAxios";
+import { File } from "lucide-react";
 
 const personalInfoFormSchema = z.object({
     email: z.string().email({ message: "Invalid email" }),
@@ -15,10 +17,13 @@ const personalInfoFormSchema = z.object({
 
 export default function PersonalInfoForm() {
     const { toast } = useToast();
+    const [file, setFile] = useState<File|null>(null)
+    const axios = usePrivate()
     const defaultValuesPersonalInfo = {
         email: "m@gmail.com",
         name: "devarena192302",
     };
+
     const personalInfoForm = useForm<z.infer<typeof personalInfoFormSchema>>({
         resolver: zodResolver(personalInfoFormSchema),
         defaultValues: defaultValuesPersonalInfo,
@@ -31,14 +36,29 @@ export default function PersonalInfoForm() {
             defaultValuesPersonalInfo[key as keyof typeof defaultValuesPersonalInfo]
     );
 
-    function personalInfoOnSubmit(data: z.infer<typeof personalInfoFormSchema>) {
+    async function personalInfoOnSubmit(data: z.infer<typeof personalInfoFormSchema>) {
+        const formData =new FormData()
+        console.log(file)
+        if (file) {  // Kiểm tra chắc chắn là File object
+            formData.append("avatar", file)  // Thêm filename
+        }
+        formData.append("username",data.name)
+
+        await axios.post("/auth/update-profile",formData,{
+            headers: { "Content-Type": "multipart/form-data" },
+          }).then((res)=>{
+            console.log(res.data)
+        }).catch((e)=>{
+
+        })
+
         toast({
             title: "You submitted the following values:",
             description: (
                 <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
                     <code className="text-white">{JSON.stringify(data, null, 2)}</code>
                 </pre>
-            ),
+            ), 
         });
     }
 
@@ -58,7 +78,7 @@ export default function PersonalInfoForm() {
                         onSubmit={personalInfoForm.handleSubmit(personalInfoOnSubmit)}
                         className="space-y-4 m-8"
                     >
-                        {/* <DialogUpdateAvatar /> */}
+                        <DialogUpdateAvatar setFile={setFile}/>
 
                         <div className="flex-1 space-y-4">
                             <FormField
@@ -68,7 +88,11 @@ export default function PersonalInfoForm() {
                                     <FormItem>
                                         <FormLabel>Email</FormLabel>
                                         <FormControl>
-                                            <Input {...field} placeholder="Enter your email" />
+                                            <Input 
+                                                {...field} 
+                                                disabled 
+                                                className="bg-gray-100 cursor-not-allowed"
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
