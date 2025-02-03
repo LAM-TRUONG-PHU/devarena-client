@@ -17,6 +17,7 @@ interface ISubmission {
     code: string;
     _id?: string;
     testcase?: ITestCase;
+    errorCode: string;
 }
 
 interface ExerciseState {
@@ -128,16 +129,16 @@ const exercisesSlice = createSlice({
 
         updateStatusTestCaseResult: (
             state,
-            action: PayloadAction<{ 
-                key: string; 
-                testCaseId: string; 
+            action: PayloadAction<{
+                key: string;
+                testCaseId: string;
                 status: StatusCompile;
             }>
         ) => {
             const { key, testCaseId, status } = action.payload;
             if (state.testCases[key]) {
-                state.testCases[key] = state.testCases[key].map(testCase => 
-                    testCase._id === testCaseId 
+                state.testCases[key] = state.testCases[key].map(testCase =>
+                    testCase._id === testCaseId
                         ? { ...testCase, statusCompile: status }
                         : testCase
                 );
@@ -222,7 +223,7 @@ const exercisesSlice = createSlice({
         },
         updateOutputCompiling: (
             state,
-            action: PayloadAction<{ 
+            action: PayloadAction<{
                 key: string;
                 output: string;
                 index: number;
@@ -230,11 +231,11 @@ const exercisesSlice = createSlice({
         ) => {
             const { key, output, index } = action.payload;
             if (state.testCases[key] && state.testCases[key][index]) {
-                let result =''
-                if( state.testCases[key][index].output){
-                    result=state.testCases[key][index].output+ output
-                }else{
-                    result =output
+                let result = ''
+                if (state.testCases[key][index].output) {
+                    result = state.testCases[key][index].output + output
+                } else {
+                    result = output
                 }
                 state.testCases[key][index] = {
                     ...state.testCases[key][index],

@@ -6,11 +6,11 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/comp
 import { useAppSelector } from '@/redux/hooks';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { TExerciseStudy } from '@/app/admin/arena/exercises/form/page';
+import { TExerciseArena } from '@/app/admin/arena/exercises/form/page';
 
 type solutionCodeFormProps = {
     form: UseFormReturn<
-        TExerciseStudy,
+        TExerciseArena,
         any,
         undefined
     >;
@@ -74,7 +74,7 @@ export default function SolutionCodeForm(props: solutionCodeFormProps) {
             language: selectedLanguage,
             code: solution_CODE_TEMPLATES[selectedLanguage as keyof typeof solution_CODE_TEMPLATES] || ''
         };
-        
+
         const updatedEntries = [...codeEntries, newEntry];
         setCodeEntries(updatedEntries);
         props.form.setValue('solutions', updatedEntries);

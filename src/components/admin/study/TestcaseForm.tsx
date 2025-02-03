@@ -9,9 +9,9 @@ import {
     FormControl,
     FormMessage,
 } from "@/components/ui/form";
+import { TExerciseStudy } from "@/app/admin/study/[slug]/[exercise]/page";
 import { useAppSelector } from "@/redux/hooks";
 import { Textarea } from "@/components/ui/textarea"
-import { TExerciseStudy } from "@/app/admin/arena/exercises/form/page";
 
 type TestCaseFormProps = {
     form: UseFormReturn<TExerciseStudy, any, undefined>;
@@ -31,7 +31,7 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
     const handleAddTestcase = () => {
         append({
             input: Array(exercise.variableName!.length).fill(""),
-            outputExpected: "",
+            output: "",
             hidden: false,
         });
     };
@@ -82,7 +82,7 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
                     <div className="mt-4">
                         <FormField
                             control={control}
-                            name={`testcases.${testcaseIndex}.outputExpected`}
+                            name={`testcases.${testcaseIndex}.output`}
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Output</FormLabel>
@@ -90,7 +90,7 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
                                         <Textarea
                                             {...field}
                                             placeholder="Enter output value"
-                                            value={field.value || exercise?.testcases?.[testcaseIndex]?.outputExpected || ""}
+                                            value={field.value || exercise?.testcases?.[testcaseIndex]?.output || ""}
                                         />
                                     </FormControl>
                                     <FormMessage />
