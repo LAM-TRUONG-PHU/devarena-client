@@ -202,12 +202,12 @@ export default function ExercisePage() {
       dispatch(setLoadingTestCase(true));
       dispatch(setRunningTestCase(searchParams.get("id")! || ""));
 
-      if (
-        !code[`${exercise.title}`].includes("public class") ||
-        !code[`${exercise.title}`].includes("public static void main")
-      ) {
-        throw new Error("Code need to have public class and main function");
-      }
+      // if (
+      //   !code[`${exercise.title}`].includes("public class") ||
+      //   !code[`${exercise.title}`].includes("public static void main")
+      // ) {
+      //   throw new Error("Code need to have public class and main function");
+      // }
 
       // Flatten the grouped te st cases into a single array of inputs
       const convertedTestCases = Object.values(testCases[exercise.title])

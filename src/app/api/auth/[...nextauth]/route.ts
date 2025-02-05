@@ -119,10 +119,19 @@ export const authOptions: AuthOptions = {
                     });
             }
             if (trigger === "update") {
-                console.log("session")
 
-                if(session.access_token && session.refresh_token  ){
-                    console.log(session)
+                console.log(session)
+                if(session.username || session.avatar){
+                    if (session.username) {
+                        token.user.username = session.username;
+                      }
+                      
+                      if (session.avatar) {
+                        token.user.avatar = session.avatar;
+                      }
+
+                }
+                else if(session.access_token && session.refresh_token  ){
 
                     token.access_token=session.access_token
                     token.refresh_token=session.refresh_token 
@@ -144,7 +153,7 @@ export const authOptions: AuthOptions = {
                 session.error = token.error.toString();
             }
             if (token.user) {
-                // console.log(token);
+                console.log(token);
                 session.user = token.user;
                 session.access_token = token.access_token;
                 session.refresh_token = token.refresh_token;

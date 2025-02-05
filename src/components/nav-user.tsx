@@ -12,17 +12,12 @@ import { ChevronsUpDown, Sparkles, BadgeCheck, CreditCard, Bell, LogOut } from "
 import React from "react";
 import { SidebarMenuButton, useSidebar } from "./ui/sidebar";
 import { useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import { IUser } from "@/types/IUser";
 
-export default function NavUser({
-    user,
-}: {
-    user: {
-        name: string;
-        email: string;
-        avatar: string;
-    };
-}) {
+export default function NavUser(
+  ) {
+    const {data:session} =useSession()
     const { isMobile } = useSidebar();
     const router = useRouter();
     const handleLogout = async () => {
@@ -42,13 +37,13 @@ export default function NavUser({
                         className=" data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground p-0"
                     >
                         <Avatar className="h-8 w-8">
-                            <AvatarImage src={user.avatar} alt={user.name} className="rounded-full" />
-                            <AvatarFallback> {user.name[0]}</AvatarFallback>
+                            <AvatarImage src={session?.user.avatar} alt={session?.user.username} className="rounded-full" />
+                            <AvatarFallback> {session?.user.username}</AvatarFallback>
                         </Avatar>
                         <>
                             <div className="grid flex-1 text-left text-sm leading-tight">
-                                <span className="truncate font-semibold">{user.name}</span>
-                                <span className=" text-xs">{user.email}</span>
+                                <span className="truncate font-semibold">{session?.user.username}</span>
+                                <span className=" text-xs">{session?.user.email}</span>
                             </div>
                             <ChevronsUpDown className="ml-auto size-4" />
                         </>

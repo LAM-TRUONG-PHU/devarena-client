@@ -17,14 +17,15 @@ import { isValidLanguage } from "@/utils/is-valid-language";
 import { getLanguageTitle } from "@/utils/get-language-title";
 import Image from "next/image";
 import { Url } from "next/dist/shared/lib/router/router";
+import { useSession } from "next-auth/react";
 
-const data = {
-    user: {
-        name: "shadcn",
-        email: "m@example.com",
-        avatar: "/avatar.jpg",
-    },
-};
+// const data = {
+//     user: {
+//         name: "shadcn",
+//         email: "m@example.com",
+//         avatar: "/avatar.jpg",
+//     },
+// };
 type HeaderProps = {
     showSidebar?: boolean;
     isSpecialPage?: boolean;
@@ -34,6 +35,7 @@ export default function Header(props: HeaderProps) {
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
     const [isMobile, setIsMobile] = useState(false);
+    const {data:session}= useSession()
     useEffect(() => {
         const handleResize = () => {
             setIsMobile(window.innerWidth <= 768); // Mobile width threshold
@@ -147,7 +149,7 @@ export default function Header(props: HeaderProps) {
                     className={`${props.showSidebar || props.isSpecialPage ? "lg:w-1/3 w-2/5" : "w-1/4"
                         } flex items-center gap-4 absolute right-0`}
                 >
-                    <NavUser user={data.user} />
+                    <NavUser />
                 </div>
             </header>
         </>

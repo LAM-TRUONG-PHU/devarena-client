@@ -1,103 +1,103 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { IoCameraSharp } from "react-icons/io5";
-import Avatar from "react-avatar-edit";
 import { ChangeEvent, useEffect, useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-interface Pros{
-    setFile:React.Dispatch<React.SetStateAction<File | null>>
+import { useSession } from "next-auth/react";
+
+interface Props {
+  file: File | null;
+  setFile: React.Dispatch<React.SetStateAction<File | null>>;
 }
-export function DialogUpdateAvatar({setFile}:Pros) {
-    const [preview, setPreview] = useState<string>("/avatar.jpg");
-    const [currentAvatar, setCurrentAvatar] = useState<string>("/avatar.jpg");
-    const { toast } = useToast();
 
-    function onCrop(preview: string) {
-        setPreview(preview);
+export function DialogUpdateAvatar({ setFile, file }: Props) {
+  const { data: session } = useSession();
+  const [preview, setPreview] = useState<string | null>(null);
+
+  // Cập nhật ảnh preview khi `file` thay đổi
+  useEffect(() => {
+    if (file) {
+      const objectUrl = URL.createObjectURL(file);
+      setPreview(objectUrl);
+      return () => URL.revokeObjectURL(objectUrl); // Cleanup URL khi component unmount
+    } else {
+      setPreview(null);
+    }
+  }, [file]);
+
+  function onFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return;
+
+    if (selectedFile.size > 701680) {
+      alert("File is too big!");
+      return;
     }
 
-    function onClose() {
-        setPreview("");
-    }
+    setFile(selectedFile);
+  }
 
-    function onBeforeFileLoad(elem: ChangeEvent<HTMLInputElement>) {
-        const fileSelected = elem.target.files![0]
-        if (fileSelected.size > 701680) {
-            alert("File is too big!");
-            elem.target.value = "";
-        }else{
+  function handleSave() {
+    console.log("Saved avatar:", preview);
+  }
 
-        
-            setFile(fileSelected)
-            console.log(fileSelected)
-        }
-        
-    }
+  return (
+    <div className="relative h-20 w-20 mx-auto">
+      <img
+        src={preview || session?.user.avatar}
+        alt="Avatar"
+        className="rounded-full h-full w-full object-cover"
+      />
+      <Dialog>
+        <DialogTrigger asChild>
+          <IoCameraSharp
+            className="absolute bottom-0 right-0 text-white bg-black rounded-full p-1 cursor-pointer z-10 hover:bg-gray-700 hover:scale-110 transition-all duration-200 ease-in-out"
+            style={{ fontSize: "1.5rem" }}
+          />
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Avatar</DialogTitle>
+            <DialogDescription>
+              Choose a new image for your avatar.
+            </DialogDescription>
+          </DialogHeader>
 
-    function handleSave() {
-        if (preview) {
-            setCurrentAvatar(preview);
+          {/* Input chọn ảnh */}
+          <div className="flex flex-col items-center gap-4">
+            {preview && (
+              <img
+                src={preview}
+                alt="Preview"
+                className="w-40 h-40 rounded-full object-cover border"
+              />
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={onFileChange}
+              className="border p-2 rounded"
+            />
+          </div>
 
-            // toast({ title: "Avatar updated", description: "Your avatar has been updated successfully" });
-            // console.log("Saved avatar:", preview);
-        }
-    }
-
-    return (
-        <>
-            <div className="relative h-20 w-20 mx-auto">
-                <img src={currentAvatar} alt="Avatar" className="rounded-full h-full w-full object-cover" />
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <IoCameraSharp
-                            className="absolute bottom-0 right-0 text-white bg-black rounded-full p-1 cursor-pointer z-10 hover:bg-gray-700 hover:scale-110 transition-all duration-200 ease-in-out"
-                            style={{ fontSize: "1.5rem" }}
-                        />
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                            <DialogTitle>Edit Avatar</DialogTitle>
-                            <DialogDescription>
-                                Make changes to your avatar here. Click save when you're done.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div>
-                            <Avatar
-                                width={390}
-                                height={200}
-                                imageWidth={390}
-                                onCrop={onCrop}
-                                onClose={onClose}
-                                onBeforeFileLoad={onBeforeFileLoad}
-                                src="/avatar.jpg"
-                                label="Choose an image"
-                                backgroundColor="#f5f5f5"
-                                shadingOpacity={0.3}
-                                cropColor="#000"
-                                closeIconColor="#fff"
-                                labelStyle={{ color: "#000" }}
-                            />
-                        </div>
-                        <DialogFooter>
-                            <DialogClose asChild>
-                                <Button type="button" onClick={handleSave}>
-                                    Save changes
-                                </Button>
-                            </DialogClose>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-            </div>
-        </>
-    );
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" onClick={handleSave}>
+                Save changes
+              </Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }

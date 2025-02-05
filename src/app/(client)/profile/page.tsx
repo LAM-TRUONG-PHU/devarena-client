@@ -3,11 +3,14 @@ import Difficulty from "@/components/difficulty";
 import { _PieChart } from "@/components/profile/pie-chart";
 import { EDifficulty } from "@/components/sort";
 import { Button } from "@/components/ui/button";
+import { User } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 export default function ProfilePage() {
-    const [currentAvatar, setCurrentAvatar] = useState<string>("/avatar.jpg");
+    // const [currentAvatar, setCurrentAvatar] = useState<string>("/avatar.jpg");
+    const { data:session}=useSession()
     const router = useRouter();
     return (
         <div className="w-full max-w-4xl xl:max-w-7xl mx-auto py-10 ">
@@ -18,7 +21,7 @@ export default function ProfilePage() {
                             <div className="flex gap-4">
                                 <div className="h-20 w-20">
                                     <img
-                                        src={currentAvatar}
+                                        src={session?.user.avatar}
                                         alt="Avatar"
                                         className="rounded-full h-full w-full object-cover"
                                     />
@@ -26,9 +29,12 @@ export default function ProfilePage() {
                                 <div className="flex-1 space-y-4">
                                     <div>
                                         <div className="text-xl font-semibold whitespace-nowrap">
-                                            Lam Truong Phu
+                                        {session?.user.username}
+
                                         </div>
-                                        <div className="text-sm">lamtruongphu@gmail.com</div>
+                                        <div className="text-sm">
+                                                                                        {session?.user.email}
+                                        </div>
                                     </div>
 
                                     <Button
