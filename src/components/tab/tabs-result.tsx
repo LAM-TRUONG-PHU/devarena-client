@@ -1,24 +1,24 @@
 import { StatusCompile } from "@/types/Exercise";
 import { Tabs, TabsContent } from "../ui/tabs";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { TabsList, TabsTrigger } from "../ui/tabs";
-import { useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { usePathname } from "next/navigation";
 import { createSlug } from "@/lib/helper";
 import { CheckCircle, ClipboardPen, XCircle } from "lucide-react";
 import { Spinner } from "../ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { LoadingSpinner } from "../loading";
+import { setActiveResultTab, setActiveTab, setCompile } from "@/redux/slices/admin/exerciseStudySlice";
 
 export default function TabsResult() {
-    const { testCasesResult, loading, loadingTestCase, } = useAppSelector(
+    const { testCasesResult, activeResultTab } = useAppSelector(
         (state) => state.exercises
     );
-    const [activeTab, setActiveTab] = useState(
-        Object.entries(testCasesResult)[0]?.[1][0]._id
-    );
+    const dispatch = useAppDispatch();
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
+    const lastRunningTestId = useRef<string | null>(null);
 
     const renderStatusIcon = (status: StatusCompile) => {
         switch (status) {
@@ -32,12 +32,35 @@ export default function TabsResult() {
                 return "";
         }
     };
+
+    useEffect(() => {
+        console.log("testCasesResult tab result", testCasesResult);
+        if (testCasesResult && Object.entries(testCasesResult).length > 0) {
+            console.log("testCasesResult in condition", testCasesResult);
+            for (const [, testCaseGroup] of Object.entries(testCasesResult)) {
+                const runningTest = testCaseGroup.find(
+                    (testCase) => testCase.statusCompile === StatusCompile.COMPILE_RUNNING
+                );
+
+                if (runningTest && lastRunningTestId.current !== runningTest._id) {
+                    dispatch(setActiveResultTab(runningTest._id));
+                    lastRunningTestId.current = runningTest._id; // Update last recorded running test ID
+                    break; // Stop after finding the first running test case
+                }
+            }
+        }
+    }, [testCasesResult, dispatch]);
+
     return (
         <div>
             <Tabs
-                defaultValue={activeTab}
-                value={activeTab}
-                onValueChange={setActiveTab}
+                defaultValue={activeResultTab != "" ? Object.entries(testCasesResult)[0][1][0]._id : activeResultTab}
+                value={activeResultTab}
+                onValueChange={
+                    (value) => {
+                        dispatch(setActiveResultTab(value))
+                    }
+                }
                 className="w-full flex flex-col h-full pt-2 "
             >
 
@@ -108,11 +131,10 @@ export default function TabsResult() {
                                                                 return (
                                                                     <div key={index}>
                                                                         <div>{key} =</div>
-                                                                        <input
+                                                                        <Textarea
                                                                             disabled
-                                                                            type="text"
                                                                             value={value}
-                                                                            className="w-full p-3 rounded-xl bg-[#000a200d] outline-none"
+                                                                            className="w-full p-3 rounded-xl bg-[#000a200d] outline-none !min-h-[80px]"
                                                                         />
                                                                     </div>
                                                                 );
@@ -120,7 +142,7 @@ export default function TabsResult() {
                                                             <div>
                                                                 <div>Output = </div>
                                                                 <Textarea
-                                                                    className="w-full p-3 rounded-xl outline-none"
+                                                                    className="w-full p-3 rounded-xl outline-none "
                                                                     value={tab.output}
                                                                     disabled
                                                                 />

@@ -20,7 +20,6 @@ const AllCourseSection = (props: AllCourseSectionProps) => {
     const dispatch = useAppDispatch();
     return (
         <div>
-            <span>All Study Courses</span>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {(
                     props.courses.filter((course) => course.status === EStatus.Unsolved).map((course) => (

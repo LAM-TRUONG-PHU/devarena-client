@@ -24,7 +24,7 @@ import { capitalize } from "@/utils/capitalize";
 import { Textarea } from "../ui/textarea";
 import { StatusCompile } from "@/types/Exercise";
 import { usePrivate } from "@/hooks/usePrivateAxios";
-import { setLoading, setSubList, setSubmission } from "@/redux/slices/admin/exerciseStudySlice";
+import { setCompile, setLoading, setSubList, setSubmission } from "@/redux/slices/admin/exerciseStudySlice";
 import { Skeleton } from "../ui/skeleton";
 import { Label } from "../ui/label";
 
@@ -50,11 +50,11 @@ export function TabsExercise({ study }: TabsExerciseProps) {
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
   const isExerciseLoaded = exercise && exercise.testcases && exercise.testcases[0]?.input.length > 0;
-  const [activeTab, setActiveTab] = useState("task");
   const carouselRefs = useRef<{ [key: string]: HTMLElement | null }>({});
   const dispatch = useAppDispatch();
   const axiosPrivate = usePrivate();
   const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState("task");
 
   const formatDate = (isoString: string) => {
     const date = new Date(isoString);
@@ -126,7 +126,10 @@ export function TabsExercise({ study }: TabsExerciseProps) {
     <Tabs
       defaultValue="task"
       value={activeTab}
-      onValueChange={setActiveTab}
+      onValueChange={(value) => {
+        setActiveTab(value);
+        dispatch(setCompile(null));
+      }}
       className="w-full flex flex-col h-full relative"
     >
       <header className="flex sticky top-0  items-center border-foreground border-b-[0.5px] bg-white z-20">
@@ -183,15 +186,32 @@ export function TabsExercise({ study }: TabsExerciseProps) {
 
 
       <TabsContent value="result" className="mt-4">
+
+
         {testCasesResult?.[exercise.title!]?.length ? (
           testCasesResult[exercise.title!][0].hasOwnProperty("output") ? (
             <div>
               <TabsResult />
             </div>
           ) : loadingTestCase ? (
-            <div className="flex flex-col space-y-3">
-              <Skeleton className="h-8 w-full rounded-xl mx-2" />
-              <div className="space-y-2">
+            <div className="flex flex-col space-y-3  px-4 ">
+              <header className="flex items-center bg-transparent ">
+                <div
+                  className="flex flex-wrap gap-4 bg-transparent justify-start pb-4"
+
+                >
+                  <Skeleton className="flex items-center w-32 h-8 justify-center whitespace-nowrap rounded-xl px-3 py-1  font-medium ring-offset-background" />
+                  <Skeleton className="flex items-center w-32 h-8 justify-center whitespace-nowrap rounded-xl px-3 py-1  font-medium ring-offset-background" />
+                  <Skeleton className="flex items-center w-32 h-8 justify-center whitespace-nowrap rounded-xl px-3 py-1  font-medium ring-offset-background" />
+
+
+                </div>
+
+              </header>
+              <div className="space-y-2 ">
+                <Skeleton className="h-44 w-full rounded-xl" />
+              </div>
+              <div className="space-y-2 ">
                 <Skeleton className="h-44 w-full rounded-xl" />
               </div>
             </div>

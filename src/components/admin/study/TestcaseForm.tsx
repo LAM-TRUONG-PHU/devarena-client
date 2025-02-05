@@ -12,17 +12,23 @@ import {
 import { TExerciseStudy } from "@/app/admin/study/[slug]/[exercise]/page";
 import { useAppSelector } from "@/redux/hooks";
 import { Textarea } from "@/components/ui/textarea"
+import { TExerciseAlgo } from "@/app/admin/algorithm/[exercise]/page";
 
 type TestCaseFormProps = {
-    form: UseFormReturn<
+    form?: UseFormReturn<
         TExerciseStudy,
+        any,
+        undefined
+    >;
+
+    formAlgo?: UseFormReturn<TExerciseAlgo,
         any,
         undefined
     >;
 };
 
-const TestcaseForm = ({ form }: TestCaseFormProps) => {
-    const { control } = form;
+const TestcaseForm = (props: TestCaseFormProps) => {
+    const control = (props.form?.control || props.formAlgo?.control) as any
     // const { exercise } = useAppSelector((state) => state.studyForm);
     const { exercise } = useAppSelector((state) => state.exercises);
 

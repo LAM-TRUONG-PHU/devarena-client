@@ -12,6 +12,7 @@ import {
     setAllTestCasesResultRunning,
     setCode,
     setCompile,
+    setEachTestCaseResultRunning,
     setLoadingSubList,
     setLoadingTestCase,
     setRunningTestCase,
@@ -88,7 +89,11 @@ export default function ExercisePage() {
                 }))
             },
             onCompleted() {
-
+                testCasesResult[exercise.title].forEach((testCase) => {
+                    if (testCase.statusCompile === StatusCompile.COMPILE_SUCCESS) {
+                        dispatch(updateStatusTestCaseResult({ key: exercise.title, testCaseId: testCase._id, status: StatusCompile.COMPILE_SUCCESS }));
+                    }
+                });
                 toast({
                     title: "Result",
                     description: "Completed",
@@ -119,25 +124,56 @@ export default function ExercisePage() {
             onReconnect: (data: TestcaseRestore[]) => {
                 console.log("testcases reconnect", testCases[exercise.title]);
                 if (testCases[exercise.title]) {
+                    // dispatch(setAllTestCasesResultRunning(exercise.title));
                     dispatch(setTestCasesResult({
                         key: exercise.title,
                         testCases: testCases[exercise.title].map((testCase, index) => {
                             const found = data.find((item) => item.testcaseIndex == index);
+                            console.log('found', found);
                             if (found) {
+                                if (found.hasOwnProperty('isCorrect')) {
+                                    console.log('found property', found);
+                                    dispatch(updateStatusTestCaseResult({ key: exercise.title, testCaseId: testCase._id, status: found.isCorrect ? StatusCompile.COMPILE_SUCCESS : StatusCompile.COMPILE_FAILED }));
+                                    return {
+                                        ...testCase,
+                                        output: found.value,
+                                        statusCompile: found.isCorrect ? StatusCompile.COMPILE_SUCCESS : StatusCompile.COMPILE_FAILED,
+                                        outputExpected: found.outputExpected
+                                    }
+                                } else {
+                                    console.log("loading test case", exercise.title, index);
+                                    dispatch(setEachTestCaseResultRunning({
+                                        key: exercise.title,
+                                        index: index
+                                    }))
+                                    return {
+                                        ...testCase,
+                                        output: found.value,
+                                        statusCompile: StatusCompile.COMPILE_RUNNING
+                                    }
+                                }
+
+
+                            } else {
                                 return {
                                     ...testCase,
-                                    output: found.value,
+                                    statusCompile: StatusCompile.COMPILE_RUNNING
                                 }
                             }
+
+
+
                             return testCase;
                         })
                     }));
-                    dispatch(setAllTestCasesResultRunning(exercise.title));
+
+
                 }
 
             }
 
         });
+
 
     useEffect(() => {
         // Only run if testCases is empty and we have either persistTestCases or exercise.testcases
@@ -242,7 +278,7 @@ export default function ExercisePage() {
             );
 
             dispatch(setAllTestCasesResultRunning(exercise.title)); // Only set running here, not in useEffect
-            dispatch(setCompile(null));
+            dispatch(setCompile("Test Result"));
             dispatch(setLoadingTestCase(true)); // Start loading
 
             if (

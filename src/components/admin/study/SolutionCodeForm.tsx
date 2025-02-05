@@ -5,10 +5,16 @@ import { UseFormReturn } from 'react-hook-form';
 import React from 'react'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { useAppSelector } from '@/redux/hooks';
+import { TExerciseAlgo } from '@/app/admin/algorithm/[exercise]/page';
 
 type defaultSolutionFormProps = {
-    form: UseFormReturn<
+    form?: UseFormReturn<
         TExerciseStudy,
+        any,
+        undefined
+    >;
+
+    formAlgo?: UseFormReturn<TExerciseAlgo,
         any,
         undefined
     >;
@@ -35,7 +41,7 @@ export default function SolutionCodeForm(props: defaultSolutionFormProps) {
     }
     return (
         <FormField
-            control={props.form.control}
+            control={(props.form?.control || props.formAlgo?.control) as any}
             name="solution"
             render={({ field }) => (
                 <FormItem>

@@ -27,14 +27,12 @@ const page = ({ params }: { params: Promise<{ slug: string }> }) => {
     useEffect(() => {
         if (status === "authenticated" && courseId) {
             // Check if data for the specific courseId is already available
-            const isDataAlreadyFetched = exercises.some((exercise) => exercise.courseId === courseId);
 
-            if (!isDataAlreadyFetched) {
-                dispatch(fetchExercisesByCourse({ axiosInstance: axiosPrivate, courseId }));
-                dispatch(fetchAchievementsByRefId({ axiosInstance: axiosPrivate, refId: courseId }));
-            }
+            dispatch(fetchExercisesByCourse({ axiosInstance: axiosPrivate, courseId }));
+            dispatch(fetchAchievementsByRefId({ axiosInstance: axiosPrivate, refId: courseId }));
+
         }
-    }, [status, courseId, dispatch, axiosPrivate]);
+    }, [status,]);
 
     return (
         <div>

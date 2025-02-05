@@ -8,6 +8,7 @@ import {
   addTestCase,
   handleChangeInputTestCase,
   removeTestCase,
+  setActiveTestcaseTab,
   setTestCases,
 } from "@/redux/slices/admin/exerciseStudySlice";
 import { Spinner } from "../ui/spinner";
@@ -20,11 +21,24 @@ export function TabsTestCase() {
   const dispatch = useAppDispatch();
   const path = usePathname();
   const segments = path.split("/").filter(Boolean);
-  const [activeTab, setActiveTab] = useState("1");
-  const { exercise, testCases, persistTestCases } = useAppSelector(state => state.exercises)
+  // Default to "result" tab
+  const { exercise, testCases, persistTestCases, activeTestcaseTab } = useAppSelector(state => state.exercises);
+  // const [activeTab, setActiveTab] = useState(Object.entries(testCases)[0][1][0] != undefined ? Object.entries(testCases)[0][1][0]._id  "");
+
+
+  // useEffect(() => {
+  //   dispatch(setActiveTestcaseTab(Object.entries(testCases)[0][1][0] != undefined ? Object.entries(testCases)[0][1][0]._id : ""));
+
+  // }, [testCases]);
+
+  useEffect(() => {
+    dispatch(setActiveTestcaseTab(Object.entries(testCases)[0][1][0] != undefined ? Object.entries(testCases)[0][1][0]._id : ""));
+  }, [Object.entries(testCases)[0][1][0] == undefined]);
+
+
 
   const handleAddTab = () => {
-    const key = exercise.title; // Replace with a dynamic key if needed
+    const key = exercise?.title || createSlug(segments[segments.length - 1]); // Use exercise title or fallback to URL slug
     const currentTestCases = testCases[key] || []; // Get existing test cases for the key
 
     const newTestCase: ITestCase = {
@@ -42,19 +56,20 @@ export function TabsTestCase() {
   };
 
 
+
   const handleCloseTab = (key: string, id: string) => {
     const currentTestCases = testCases[key] || [];
 
     dispatch(removeTestCase({ key, testCaseId: id }));
 
     // Check if the active tab is being closed
-    if (activeTab === id) {
+    if (activeTestcaseTab === id) {
       // Set a new active tab if there are remaining test cases
       const remainingTestCases = currentTestCases.filter(testCase => testCase._id !== id);
       if (remainingTestCases.length > 0) {
-        setActiveTab(remainingTestCases[0]._id); // Switch to the first remaining tab
+        dispatch(setActiveTestcaseTab(remainingTestCases[0]._id)); // Switch to the first remaining tab
       } else {
-        setActiveTab("result"); // Switch to the result tab if there are no remaining tabs
+        dispatch(setActiveTestcaseTab("result")); // Switch to the result tab if there are no remaining tabs
       }
     }
   };
@@ -65,9 +80,11 @@ export function TabsTestCase() {
 
   return (
     <Tabs
-      defaultValue={activeTab}
-      value={activeTab}
-      onValueChange={setActiveTab}
+      defaultValue={activeTestcaseTab != "" ? Object.entries(testCases)[0][1][0] != undefined ? Object.entries(testCases)[0][1][0]._id : activeTestcaseTab : activeTestcaseTab}
+      value={activeTestcaseTab}
+      onValueChange={(value) => {
+        dispatch(setActiveTestcaseTab(value));
+      }}
       className="w-full flex flex-col h-full pt-2"
     >
       <header className="flex items-center px-4 bg-transparent ">
@@ -132,7 +149,7 @@ export function TabsTestCase() {
                           <div>{key} =</div>
                           <Textarea
                             value={value}
-                            className="w-full p-3 rounded-xl bg-[#000a200d] outline-none"
+                            className="w-full p-3 rounded-xl bg-[#000a200d] outline-none !min-h-[80px]"
                             onChange={(e) => handleChangeInput(groupKey, tab._id, key, e.target.value)}
                           />
                         </div>

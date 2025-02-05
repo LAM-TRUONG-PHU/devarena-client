@@ -41,11 +41,12 @@ import { usePrivate } from "@/hooks/usePrivateAxios";
 import { toast, useToast } from "@/hooks/use-toast";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { createSlug } from "@/lib/helper";
+import { CategoryType } from "@/types/CategoryType";
 
 type TableExerciseProps = {
     exercises: IExercise[];
     loading: boolean;
-
+    categoryType?: CategoryType;
 };
 
 export function TableExercise(props: TableExerciseProps) {
@@ -209,7 +210,8 @@ export function TableExercise(props: TableExerciseProps) {
                         variant="default"
                         size="default"
                         onClick={() => {
-                            router.push(`${pathname}/exercise?id=${courseId}`);
+
+                            router.push(`${pathname}/exercise${props.categoryType === CategoryType.Algorithm ? "" : `?id=${courseId}`}`);
                             dispatch(setExercise({} as IExercise));
                             dispatch(setCurrentStep(0));
                         }}

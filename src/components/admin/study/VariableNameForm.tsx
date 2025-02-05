@@ -11,6 +11,7 @@ const VariableNameForm = () => {
   const dispatch = useAppDispatch();
   const { exercise } = useAppSelector((state) => state.exercises);
 
+  console.log("exercise", exercise);
 
   const handleVariableCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

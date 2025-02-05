@@ -17,6 +17,7 @@ import { ICourse, ICourseStatus } from "@/types/ICourse";
 import { EStatus } from "@/components/sort";
 import { useAppDispatch } from "@/redux/hooks";
 import { fetchAchievementsByRefIdAndRequiredScore } from "@/redux/slices/achievementSlice";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function StudyPage() {
     const router = useRouter();
@@ -27,37 +28,33 @@ export default function StudyPage() {
 
     const [courses, setCourses] = useState<(ICourse & { status: EStatus })[]>([]);
     useEffect(() => {
+        if (status !== "authenticated" || courses.length > 0) return;
+
         const fetchCourses = async () => {
             try {
-                if (status === "authenticated") {
-                    setLoading(true);
-                    await axiosPrivate.get(`/course/user/${session?.user.id}`).then((res) => {
-                        const { coursesStatus }: { coursesStatus: ICourseStatus[] } = res.data.data;
+                setLoading(true);
+                const res = await axiosPrivate.get(`/course/user/${session?.user.id}`);
+                const { coursesStatus }: { coursesStatus: ICourseStatus[] } = res.data.data;
 
-                        setCourses(res.data.data.courses.map((course: ICourse) => {
-                            const courseStatus = coursesStatus.find((courseStatus) => courseStatus.courseId === course._id);
-                            if (courseStatus == undefined) {
-                                return { ...course, status: EStatus.Unsolved };
-                            } else {
-                                return { ...course, status: courseStatus.status == "completed" ? EStatus.Solved : EStatus.InProgress };
-                            }
-                        }));
-                        setLoading(false);
-                    });
-                } else {
-                    setLoading(false);
-                }
-
+                setCourses(
+                    res.data.data.courses.map((course: ICourse) => {
+                        const courseStatus = coursesStatus.find((courseStatus) => courseStatus.courseId === course._id);
+                        return {
+                            ...course,
+                            status: courseStatus?.status === "completed" ? EStatus.Solved : EStatus.InProgress,
+                        };
+                    })
+                );
             } catch (error) {
-                setLoading(false);
                 console.error("Error fetching courses:", error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchCourses();
 
-    }, [status]);
+        fetchCourses();
+    }, [status]); // No dependency on `courses`
+
 
     return (
         <div>
@@ -80,7 +77,21 @@ export default function StudyPage() {
                 </div>
             </div>
             <div className="pr-14 pl-10 pb-8 pt-6 space-y-20">
-                {loading ? <LoadingSpinner /> : (<>
+
+                {loading ? (<>
+                    <div
+                        className="grid grid-cols-1 md:grid-cols-2 gap-8"
+
+                    >
+                        <Skeleton className="flex items-center w-full h-52 justify-center whitespace-nowrap rounded-xl px-3 py-1  font-medium ring-offset-background" />
+                        <Skeleton className="flex items-center w-full h-52 justify-center whitespace-nowrap rounded-xl px-3 py-1  font-medium ring-offset-background" />
+                        <Skeleton className="flex items-center w-full h-52 justify-center whitespace-nowrap rounded-xl px-3 py-1  font-medium ring-offset-background" />
+                        <Skeleton className="flex items-center w-full h-52 justify-center whitespace-nowrap rounded-xl px-3 py-1  font-medium ring-offset-background" />
+
+
+
+                    </div>
+                </>) : (<>
                     <GetInProgresCourse courses={courses} />
                     <AllCourseSection courses={courses} /></>)}
 

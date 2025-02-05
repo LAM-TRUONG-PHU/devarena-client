@@ -13,6 +13,11 @@ export interface ITestCase {
     outputExpected?: string
 }
 
+export interface IDefaultSolutionCode {
+    code: string
+    language: string
+}
+
 
 export interface IPersistTestCase {
     _id: string
@@ -34,21 +39,34 @@ export interface IExercise {
     courseId?: string;
 
 }
+export interface IAlgoExercise {
+    _id?: string;
+    language?: string;
+    difficulty: string;
+    title: string;
+    content: string;
+    tags: string[];
+    variableName?: string[];
+    testcases?: ITestCase[];
+    score?: number;
+    defaultCode?: IDefaultSolutionCode[]
+    solution?: IDefaultSolutionCode[]
+    courseId?: string;
+}
 export interface IContestExercise {
     _id: string;
     contestId: string;
     difficulty: string;
     title: string;
     content: string;
-    score:number;
-    defaultCode:ICode;
-    solutions:ICode;
+    score: number;
+    defaultCode: ICode;
+    solutions: ICode;
     testcases?: ITestCase[];
 
-   
-  }
-  interface ICode {
-    language:string;
-    code:string;
-  }
-  
+
+}
+interface ICode {
+    language: string;
+    code: string;
+}

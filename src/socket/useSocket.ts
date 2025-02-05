@@ -64,6 +64,9 @@ export const useSocket = ({
     // Gửi uniqueId lên server khi kết nối
 
     socket.on("restoreExecution", (data: TestcaseRestore[]) => {
+      if (data.length > 0) {
+        dispatch(setCompile("Test Result"));
+      }
       onReconnect?.(data);
       console.log("restore", data)
 

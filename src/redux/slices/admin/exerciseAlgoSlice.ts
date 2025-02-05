@@ -75,25 +75,11 @@ const initialState: ExerciseState = {
     activeTab: "",
 };
 
-export const fetchExercisesByCourse = createAsyncThunk<
-    IExercisePayload,
-    { axiosInstance: AxiosInstance; courseId: string },
-    { rejectValue: string }
->("course/fetchExercisesByCourse", async ({ axiosInstance, courseId }, { rejectWithValue }) => {
-    try {
-        const response = await axiosInstance.get(`/study/course/${courseId}`);
-        return response.data;
-    } catch (error: any) {
-        return rejectWithValue(error.message);
-    }
-});
-
-export const fetchAlgoExercises = createAsyncThunk<
+export const fetchExercises = createAsyncThunk<
     IExercisePayload,
     { axiosInstance: AxiosInstance; },
     { rejectValue: string }
->("course/fetchAlgoExercises", async ({ axiosInstance }, {
-    rejectWithValue }) => {
+>("course/fetchCoursesByCourse", async ({ axiosInstance, }, { rejectWithValue }) => {
     try {
         const response = await axiosInstance.get(`/algorithm`);
         return response.data;
@@ -128,7 +114,7 @@ export const fetchExerciseStatus = createAsyncThunk<
     }
 });
 
-const exercisesStudySlice = createSlice({
+const exercisesAlgoSlice = createSlice({
     name: "exercise",
     initialState,
     reducers: {
@@ -372,33 +358,18 @@ const exercisesStudySlice = createSlice({
 
     },
     extraReducers: (builder) => {
-        builder.addCase(fetchAlgoExercises.pending, (state) => {
+        builder.addCase(fetchExercises.pending, (state) => {
             state.loading = true;
             state.error = null;
         });
         builder.addCase(
-            fetchAlgoExercises.fulfilled,
+            fetchExercises.fulfilled,
             (state, action: PayloadAction<IExercisePayload>) => {
                 state.loading = false;
                 state.exercises = action.payload.data;
             }
         );
-        builder.addCase(fetchAlgoExercises.rejected, (state, action) => {
-            state.loading = false;
-            state.error = action.payload!;
-        });
-        builder.addCase(fetchExercisesByCourse.pending, (state) => {
-            state.loading = true;
-            state.error = null;
-        });
-        builder.addCase(
-            fetchExercisesByCourse.fulfilled,
-            (state, action: PayloadAction<IExercisePayload>) => {
-                state.loading = false;
-                state.exercises = action.payload.data;
-            }
-        );
-        builder.addCase(fetchExercisesByCourse.rejected, (state, action) => {
+        builder.addCase(fetchExercises.rejected, (state, action) => {
             state.loading = false;
             state.error = action.payload!;
         });
@@ -460,8 +431,7 @@ export const {
     setActiveResultTab,
     setActiveTestcaseTab,
     setActiveTab,
-    setEachTestCaseResultRunning,
+    setEachTestCaseResultRunning
+} = exercisesAlgoSlice.actions;
 
-} = exercisesStudySlice.actions;
-
-export default exercisesStudySlice.reducer;
+export default exercisesAlgoSlice.reducer;

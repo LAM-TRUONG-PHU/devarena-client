@@ -31,6 +31,7 @@ import { capitalize } from "@/utils/capitalize";
 import DialogLoading from "@/components/dialog-loading";
 import { fetchAchievementsByRefIdAndRequiredScore } from "@/redux/slices/achievementSlice";
 import { AlertAchievementDialog } from "@/components/alert-achievement-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export type SortOptionTitle = "Filter" | "Status" | "Skills" | "Difficulty";
 
@@ -66,7 +67,6 @@ export default function LanguagePage() {
 
   const [open, setOpen] = useState(false);
 
-  console.log("achievement", achievement);
   useEffect(() => {
     const getExercisesByUserAndCourse = async () => {
       try {
@@ -251,9 +251,23 @@ export default function LanguagePage() {
             selected={skillsFilter.selected}
           />
         </div>
+
         {loading ? (
-          <div className="flex justify-center items-center">
-            <Loader2 className="size-6 animate-spin" />
+          <div className="pr-14 pl-10 pb-8 space-y-20">
+            <div
+              className="grid grid-cols-1 md:grid-cols-2 gap-8"
+
+            >
+              <Skeleton className="flex items-center w-full h-40 justify-center whitespace-nowrap rounded-xl px-3 py-1  font-medium ring-offset-background" />
+              <Skeleton className="flex items-center w-full h-40 justify-center whitespace-nowrap rounded-xl px-3 py-1  font-medium ring-offset-background" />
+              <Skeleton className="flex items-center w-full h-40 justify-center whitespace-nowrap rounded-xl px-3 py-1  font-medium ring-offset-background" />
+              <Skeleton className="flex items-center w-full h-40 justify-center whitespace-nowrap rounded-xl px-3 py-1  font-medium ring-offset-background" />
+              <Skeleton className="flex items-center w-full h-40 justify-center whitespace-nowrap rounded-xl px-3 py-1  font-medium ring-offset-background" />
+              <Skeleton className="flex items-center w-full h-40 justify-center whitespace-nowrap rounded-xl px-3 py-1  font-medium ring-offset-background" />
+
+
+
+            </div>
           </div>
         ) : (<>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-5">
