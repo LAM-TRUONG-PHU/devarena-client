@@ -24,6 +24,7 @@ import { z } from "zod";
 import { formSchema, TExerciseStudy } from "@/app/admin/study/[slug]/[exercise]/page";
 import { ESkills } from "@/components/sort";
 import { IExercise } from "@/types/Exercise";
+import { TExerciseAlgo } from "@/app/admin/algorithm/[exercise]/page";
 
 const difficultyOptions = [
     { value: "easy", label: "Easy" },
@@ -97,14 +98,23 @@ const tagOptions = [
 ];
 
 type CodingExerciseFormProps = {
-    form: UseFormReturn<TExerciseStudy, any, undefined>;
+    form?: UseFormReturn<
+        TExerciseStudy,
+        any,
+        undefined
+    >;
+
+    formAlgo?: UseFormReturn<TExerciseAlgo,
+        any,
+        undefined
+    >;
 };
 export function CodingExerciseForm(props: CodingExerciseFormProps) {
 
     return (
         <div className="mb-4">
             <FormField
-                control={props.form.control}
+                control={(props.form?.control || props.formAlgo?.control) as any}
                 name="title"
                 render={({ field }) => (
                     <FormItem>
@@ -119,7 +129,7 @@ export function CodingExerciseForm(props: CodingExerciseFormProps) {
                 )}
             />
             <FormField
-                control={props.form.control}
+                control={(props.form?.control || props.formAlgo?.control) as any}
                 name="score"
                 render={({ field }) => (
                     <FormItem>
@@ -142,7 +152,7 @@ export function CodingExerciseForm(props: CodingExerciseFormProps) {
             />
 
             <FormField
-                control={props.form.control}
+                control={(props.form?.control || props.formAlgo?.control) as any}
                 name="difficulty"
                 render={({ field }) => (
                     <FormItem>
@@ -167,7 +177,7 @@ export function CodingExerciseForm(props: CodingExerciseFormProps) {
             />
 
             <FormField
-                control={props.form.control}
+                control={(props.form?.control || props.formAlgo?.control) as any}
                 name="tags"
                 render={({ field }) => (
                     <FormItem>
@@ -192,7 +202,7 @@ export function CodingExerciseForm(props: CodingExerciseFormProps) {
             />
             {/* <CustomEditor content={exercise.content} /> */}
             <FormField
-                control={props.form.control}
+                control={(props.form?.control || props.formAlgo?.control) as any}
                 name="content"
                 render={({ field }) => {
                     return (

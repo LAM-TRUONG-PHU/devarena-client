@@ -1,6 +1,6 @@
 import { TExerciseStudy } from "@/app/admin/study/[slug]/[exercise]/page";
 import { C } from "@/components/mastery";
-import { IExercise, IPersistTestCase, ITestCase, StatusCompile } from "@/types/Exercise";
+import { IAlgoExercise, IExercise, IPersistTestCase, ITestCase, StatusCompile } from "@/types/Exercise";
 import { ICompileRes } from "@/types/ICompileRes";
 import { IExerciseStatus } from "@/types/IExerciseStatus";
 import { IResultSubmit } from "@/types/IResultSubmit";
@@ -23,6 +23,7 @@ interface ISubmission {
 interface ExerciseState {
     exercises: IExercise[];
     exercise: IExercise;
+    algoExercise: IAlgoExercise;
     persistTestCases: { [key: string]: IPersistTestCase[] };
     testCases: { [key: string]: ITestCase[] };
     testCasesResult: { [key: string]: ITestCase[] };
@@ -54,6 +55,7 @@ interface IExercisePayload {
 const initialState: ExerciseState = {
     exercises: [],
     exercise: {} as IExercise,
+    algoExercise: {} as IAlgoExercise,
     testCases: {},
     persistTestCases: {},
     testCasesResult: {},

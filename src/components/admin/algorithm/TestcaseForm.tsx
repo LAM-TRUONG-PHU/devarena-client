@@ -12,19 +12,25 @@ import {
 import { TExerciseStudy } from "@/app/admin/study/[slug]/[exercise]/page";
 import { useAppSelector } from "@/redux/hooks";
 import { Textarea } from "@/components/ui/textarea"
+import { TExerciseAlgo } from "@/app/admin/algorithm/[exercise]/page";
 
 type TestCaseFormProps = {
-    form: UseFormReturn<
+    form?: UseFormReturn<
         TExerciseStudy,
+        any,
+        undefined
+    >;
+
+    formAlgo?: UseFormReturn<TExerciseAlgo,
         any,
         undefined
     >;
 };
 
-const TestcaseForm = ({ form }: TestCaseFormProps) => {
-    const { control } = form;
+const TestcaseForm = (props: TestCaseFormProps) => {
+    const control = (props.form?.control || props.formAlgo?.control) as any
     // const { exercise } = useAppSelector((state) => state.studyForm);
-    const { exercise } = useAppSelector((state) => state.exercises);
+    const { algoExercise } = useAppSelector((state) => state.exercises);
 
     // Manage testcases dynamically
     const { fields, append, remove } = useFieldArray({
@@ -34,8 +40,8 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
 
     const handleAddTestcase = () => {
         append({
-            input: Array(exercise.variableName!.length).fill(""),
-            outputExpected: "",
+            input: Array(algoExercise.variableName!.length).fill(""),
+            output: "",
             hidden: false,
         });
     };
@@ -58,9 +64,9 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
                         </button>
                     </div>
 
-                    {exercise.variableName !== undefined && (
+                    {algoExercise.variableName !== undefined && (
                         <div className="flex flex-col space-y-2">
-                            {exercise.variableName.map((variable, variableIndex) => (
+                            {algoExercise.variableName.map((variable, variableIndex) => (
                                 <FormField
                                     key={variableIndex}
                                     control={control}
@@ -72,7 +78,7 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
                                                 <Textarea
                                                     {...field}
                                                     placeholder={`Enter value for ${variable}`}
-                                                    value={field.value || exercise?.testcases?.[testcaseIndex]?.input[variableIndex][variable] || ""}
+                                                    value={field.value || algoExercise?.testcases?.[testcaseIndex]?.input[variableIndex][variable] || ""}
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -86,7 +92,7 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
                     <div className="mt-4">
                         <FormField
                             control={control}
-                            name={`testcases.${testcaseIndex}.outputExpected`}
+                            name={`testcases.${testcaseIndex}.output`}
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Output</FormLabel>
@@ -94,7 +100,7 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
                                         <Textarea
                                             {...field}
                                             placeholder="Enter output value"
-                                            value={field.value || exercise?.testcases?.[testcaseIndex]?.output || ""}
+                                            value={field.value || algoExercise?.testcases?.[testcaseIndex]?.output || ""}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -111,7 +117,7 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
                                     <FormLabel>Hidden?</FormLabel>
                                     <FormControl>
                                         <Switch
-                                            checked={field.value || exercise?.testcases?.[testcaseIndex]?.hidden || false}
+                                            checked={field.value || algoExercise?.testcases?.[testcaseIndex]?.hidden || false}
                                             onCheckedChange={field.onChange}
                                         />
                                     </FormControl>

@@ -29,7 +29,7 @@ export type TExerciseStudy = {
     testcases: {
         input: Record<string, any>[];
         hidden: boolean;
-        output?: any;
+        outputExpected?: any;
     }[];
     defaultCode: string;
     solution: string;
@@ -53,7 +53,7 @@ export const formSchema = z.object({
             input: z.array(
                 z.record(z.any())
             ),
-            output: z.any(),
+            outputExpected: z.any(),
             hidden: z.boolean(),
         })
     ),
@@ -95,7 +95,7 @@ export default function DetailExercisePage() {
             testcases: [
                 {
                     input: [],
-                    output: "",
+                    outputExpected: "",
                     hidden: false,
                 },
             ],
@@ -150,7 +150,7 @@ export default function DetailExercisePage() {
                 testcases: exercise.testcases || [
                     {
                         input: [],
-                        output: "",
+                        outputExpected: "",
                         hidden: false,
                     },
                 ],

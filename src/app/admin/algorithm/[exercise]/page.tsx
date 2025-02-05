@@ -1,10 +1,10 @@
 "use client";
 import { Stepper } from "@/components/admin/Stepper";
-import { CodingExerciseForm } from "@/components/admin/study/CodingExerciseForm";
-import DefaultCodeForm from "@/components/admin/study/DefaultCodeForm";
-import SolutionCodeForm from "@/components/admin/study/SolutionCodeForm";
-import TestcaseForm from "@/components/admin/study/TestcaseForm";
-import VariableNameForm from "@/components/admin/study/VariableNameForm";
+import { CodingExerciseForm } from "@/components/admin/algorithm/CodingExerciseForm";
+import DefaultCodeForm from "@/components/admin/algorithm/DefaultCodeForm";
+import SolutionCodeForm from "@/components/admin/algorithm/SolutionCodeForm";
+import TestcaseForm from "@/components/admin/algorithm/TestcaseForm";
+import VariableNameForm from "@/components/admin/algorithm/VariableNameForm";
 import { LoadingSpinner } from "@/components/loading";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -98,7 +98,7 @@ export default function DetailExercisePage() {
     const { toast } = useToast();
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
-    const { exercise } = useAppSelector((state) => state.exercises);
+    const { algoExercise } = useAppSelector((state) => state.exercises);
 
 
 
@@ -143,39 +143,39 @@ export default function DetailExercisePage() {
 
     }, [searchParams]);
 
-    // useEffect(() => {
-    //     if (exercise?.testcases?.[0]?.input) {
+    useEffect(() => {
+        if (algoExercise?.testcases?.[0]?.input) {
 
-    //         const inputLength = exercise?.testcases?.[0]?.input?.length;
-    //         dispatch(setVariableCount(inputLength));
-    //         console.log("exercise variablename", Array(inputLength).fill(
-    //             exercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0])
-    //         ));
-    //         dispatch(setVariableName(Array(inputLength).fill(
-    //             exercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0])
-    //         )));
-    //     }
+            const inputLength = algoExercise?.testcases?.[0]?.input?.length;
+            dispatch(setVariableCount(inputLength));
+            console.log("exercise variablename", Array(inputLength).fill(
+                algoExercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0])
+            ));
+            dispatch(setVariableName(Array(inputLength).fill(
+                algoExercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0])
+            )));
+        }
 
-    //     if (exercise && Object.keys(exercise).length > 1) {
-    //         form.reset({
+        if (algoExercise && Object.keys(algoExercise).length > 1) {
+            form.reset({
 
-    //             title: exercise.title || "",
-    //             content: exercise.content || "",
-    //             difficulty: exercise.difficulty || "",
-    //             tags: exercise.tags || [],
-    //             testcases: exercise.testcases || [
-    //                 {
-    //                     input: [],
-    //                     output: "",
-    //                     hidden: false,
-    //                 },
-    //             ],
-    //             defaultCode: exercise.defaultCode ,
-    //             solution: exercise.solution || "",
-    //             score: exercise.score || 0,
-    //         });
-    //     }
-    // }, [exercise]);
+                title: algoExercise.title || "",
+                content: algoExercise.content || "",
+                difficulty: algoExercise.difficulty || "",
+                tags: algoExercise.tags || [],
+                testcases: algoExercise.testcases || [
+                    {
+                        input: [],
+                        output: "",
+                        hidden: false,
+                    },
+                ],
+                defaultCode: algoExercise.defaultCode || [],
+                solution: algoExercise.solution || [],
+                score: algoExercise.score || 0,
+            });
+        }
+    }, [algoExercise]);
 
 
     const handleNext = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {

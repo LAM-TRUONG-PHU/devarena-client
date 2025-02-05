@@ -5,10 +5,16 @@ import { UseFormReturn } from 'react-hook-form';
 import React from 'react'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { useAppSelector } from '@/redux/hooks';
+import { TExerciseAlgo } from '@/app/admin/algorithm/[exercise]/page';
 
 type defaultSolutionFormProps = {
-    form: UseFormReturn<
+    form?: UseFormReturn<
         TExerciseStudy,
+        any,
+        undefined
+    >;
+
+    formAlgo?: UseFormReturn<TExerciseAlgo,
         any,
         undefined
     >;
@@ -17,7 +23,7 @@ type defaultSolutionFormProps = {
 export default function SolutionCodeForm(props: defaultSolutionFormProps) {
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
-    const { exercise } = useAppSelector((state) => state.exercises);
+    const { exercise: algoExercise } = useAppSelector((state) => state.exercises);
 
     function handleEditorDidMount(editor: any, monaco: Monaco) {
         // Define a custom theme with background color #1D2432
@@ -35,24 +41,24 @@ export default function SolutionCodeForm(props: defaultSolutionFormProps) {
     }
     return (
         <FormField
-            control={props.form.control}
+            control={(props.form?.control || props.formAlgo?.control) as any}
             name="solution"
             render={({ field }) => (
                 <FormItem>
                     <FormLabel>Solution Code</FormLabel>
                     <FormControl>
-                        <Editor
+                        {/* <Editor
                             height={"calc(100svh - 7rem)"}
                             defaultLanguage={segments[2].toLowerCase()}
                             defaultValue={
-                                exercise.solution ||
+                                algoExercise.solution ||
                                 `// Write your code here\n\n`
                             }
-                            value={exercise.solution || field.value}
+                            value={algoExercise.solution || field.value}
                             onChange={(value) => field.onChange(value)}
                             theme="vs-dark"
                             onMount={handleEditorDidMount}
-                        />
+                        /> */}
                     </FormControl>
                     <FormMessage className="text-right" />
                 </FormItem>

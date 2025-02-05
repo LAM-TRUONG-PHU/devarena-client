@@ -345,22 +345,7 @@ export default function ExercisePage() {
                                 {capitalize(segments[1])}
                             </Button>
                         </div>
-                        <div className="absolute right-8">
-                            <div className="flex gap-6">
-                                <MdFormatAlignLeft
-                                    size={20}
-                                    className="hover:text-pink_primary  transition-all cursor-pointer"
-                                />
-                                <VscDebugRestart
-                                    size={20}
-                                    className="hover:text-pink_primary  transition-all cursor-pointer"
-                                />
-                                <SlOptionsVertical
-                                    size={20}
-                                    className="hover:text-pink_primary  transition-all cursor-pointer"
-                                />
-                            </div>
-                        </div>
+
                     </div>
                     <Editor
                         height={"calc(100svh - 7rem)"}
