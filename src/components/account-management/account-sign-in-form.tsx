@@ -8,10 +8,11 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
+import { useSession } from "next-auth/react";
+import { usePrivate } from "@/hooks/usePrivateAxios";
 
 const accountSignInFormSchema = z
     .object({
-        username: z.string().min(1, { message: "Required" }),
         "current-password": z.string().min(1, { message: "Required" }),
         "new-password": z
             .string()
@@ -30,9 +31,9 @@ export default function AccountSignInForm() {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const { toast } = useToast();
-
+    const { data:session,update}=useSession()
+    const axios =usePrivate()
     const defaultValuesAccountSignIn = {
-        username: "",
         "current-password": "",
         "new-password": "",
         "confirm-password": "",
@@ -50,15 +51,34 @@ export default function AccountSignInForm() {
             defaultValuesAccountSignIn[key as keyof typeof defaultValuesAccountSignIn]
     );
 
-    function accountSignInOnSubmit(data: z.infer<typeof accountSignInFormSchema>) {
-        toast({
-            title: "You submitted the following values:",
-            description: (
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-                </pre>
-            ),
-        });
+    async function accountSignInOnSubmit(data: z.infer<typeof accountSignInFormSchema>) {
+        // if(session?.user.isCreatePassword){
+            
+        // }
+        // else{
+
+        // }
+        console.log("djjd")
+        await axios.post("/auth/update-password",{
+            isCreatePassword:session?.user.isCreatePassword,
+            oldPassword:data["current-password"],
+            newPassword:data["new-password"]
+        }).then((res)=>{
+            
+            toast({
+                title: "Change your password successfully!",
+                variant:"success"
+            });
+        }).catch((err)=>{
+            console.log(err)
+            if(err.response.data.message ==="Old password is incorrect."){
+                toast({
+                    title: "Old password is incorrect!",
+                    variant:"error"
+                });
+            }
+        })
+       
     }
     return (
         <div className="grid lg:grid-cols-7 lg:grid-rows-none grid-rows-3 h-fit ">
@@ -80,7 +100,7 @@ export default function AccountSignInForm() {
                         className="space-y-4 m-8"
                     >
                         <div className="flex-1 space-y-4">
-                            <div className="mb-8">
+                            {/* <div className="mb-8">
                                 <FormField
                                     control={accountSignInForm.control}
                                     name="username"
@@ -94,11 +114,13 @@ export default function AccountSignInForm() {
                                         </FormItem>
                                     )}
                                 />
-                            </div>
+                            </div> */}
 
                             <div className="text-xl font-medium">Change Password</div>
+                            {
+                            session?.user.isCreatePassword ===true &&
 
-                            <FormField
+                             <FormField
                                 control={accountSignInForm.control}
                                 name="current-password"
                                 render={({ field }) => (
@@ -131,6 +153,8 @@ export default function AccountSignInForm() {
                                     </FormItem>
                                 )}
                             />
+                            }
+                           
                             <FormField
                                 control={accountSignInForm.control}
                                 name="new-password"
@@ -199,7 +223,8 @@ export default function AccountSignInForm() {
                                     </FormItem>
                                 )}
                             />
-                            <div className="grid grid-cols-2 gap-2 !mt-10">
+                             
+                           <div className="grid grid-cols-2 gap-2 !mt-10">
                                 {hasChangedAccountSignIn && (
                                     <Button
                                         type="button"
@@ -223,7 +248,7 @@ export default function AccountSignInForm() {
                                 >
                                     SAVE CHANGES
                                 </Button>
-                            </div>
+                            </div> 
                         </div>
                     </form>
                 </Form>
