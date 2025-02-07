@@ -129,7 +129,7 @@ export default function ExercisePage() {
                         key: exercise.title,
                         testCases: testCases[exercise.title].map((testCase, index) => {
                             const found = data.find((item) => item.testcaseIndex == index);
-                            console.log('found', found);
+                            // console.log('found', found);
                             if (found) {
                                 if (found.hasOwnProperty('isCorrect')) {
                                     console.log('found property', found);

@@ -7,6 +7,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import NextAuthWrapper from "@/context/SessionWrapper";
 import { store } from "../../redux/store";
 import { usePathname, useRouter } from "next/navigation";
+
 import { Provider } from "react-redux";
 import { Toaster } from "@/components/ui/toaster"
 import { useSession } from "next-auth/react";
@@ -25,9 +26,7 @@ export default function RootLayout({
     const { data: session, status } = useSession()
     const router = useRouter()
     useEffect(() => {
-        if (status === "unauthenticated") {
-            router.push("/login")
-        }
+    
         if (session?.user?.role === "admin") {
             router.push("/admin")
         }

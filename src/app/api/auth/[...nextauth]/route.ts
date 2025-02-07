@@ -8,7 +8,7 @@ import { mainInstance } from "@/axios/MainInstance";
 
 export const authOptions: AuthOptions = {
     // Configure one or more authentication providers
-    secret: process.env.NO_SECRET,
+    secret: process.env.NEXTAUTH_SECRET,
 
     providers: [
         GoogleProvider({
@@ -73,17 +73,26 @@ export const authOptions: AuthOptions = {
                         })
                         .then((response) => {
                             console.log("Login Response:", response.data.data);
-                            token.user = response.data.data;
+                            token = response.data.data;
                         })
                         .catch((error) => {
-                            let e = "";
+                            // let e = "";
+                            // if (error.response?.status === 401) {
+                            //     // throw new Error("Invalid provider or credentials");
+                            //     e = "Invalid provider or credentials";
+                            // } else if (error.response?.status === 404) {
+                            //     e = "Providers not found";
+                            // }
+                            // token.error = e;
+                           
                             if (error.response?.status === 401) {
-                                // throw new Error("Invalid provider or credentials");
-                                e = "Invalid provider or credentials";
+                                throw new Error("Invalid provider or credentials");
                             } else if (error.response?.status === 404) {
-                                e = "Providers not found";
+                                throw new Error("Providers not found");
+                            } else {
+                                throw new Error("Something went wrong with authentication");
                             }
-                            token.error = e;
+        
                         });
                 } else {
                     // @ts-ignore
@@ -119,10 +128,19 @@ export const authOptions: AuthOptions = {
                     });
             }
             if (trigger === "update") {
-                console.log("session")
 
-                if(session.access_token && session.refresh_token  ){
-                    console.log(session)
+                console.log(session)
+                if(session.username || session.avatar){
+                    if (session.username) {
+                        token.user.username = session.username;
+                      }
+                      
+                      if (session.avatar) {
+                        token.user.avatar = session.avatar;
+                      }
+
+                }
+                else if(session.access_token && session.refresh_token  ){
 
                     token.access_token=session.access_token
                     token.refresh_token=session.refresh_token 
@@ -142,9 +160,12 @@ export const authOptions: AuthOptions = {
 
                 console.log(token.error);
                 session.error = token.error.toString();
+                return session;
+
             }
             if (token.user) {
-                // console.log(token);
+                console.log("after login")
+                console.log(token);
                 session.user = token.user;
                 session.access_token = token.access_token;
                 session.refresh_token = token.refresh_token;

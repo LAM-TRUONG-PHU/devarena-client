@@ -9,9 +9,9 @@ import {
     FormControl,
     FormMessage,
 } from "@/components/ui/form";
-import { TExerciseStudy } from "@/app/admin/study/[slug]/[exercise]/page";
 import { useAppSelector } from "@/redux/hooks";
 import { Textarea } from "@/components/ui/textarea"
+import { TExerciseStudy } from "@/app/admin/arena/exercises/form/page";
 
 type TestCaseFormProps = {
     form: UseFormReturn<
@@ -94,7 +94,7 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
                                         <Textarea
                                             {...field}
                                             placeholder="Enter output value"
-                                            value={field.value || exercise?.testcases?.[testcaseIndex]?.output || ""}
+                                            value={field.value || exercise?.testcases?.[testcaseIndex]?.outputExpected || ""}
                                         />
                                     </FormControl>
                                     <FormMessage />

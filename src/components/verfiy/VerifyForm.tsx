@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React, { useEffect, useState } from "react";
 import {
   InputOTP,
@@ -9,7 +9,7 @@ import {
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import useAxios from "@/hooks/useAxios";
 import { useToast } from "@/hooks/use-toast";
 
@@ -19,27 +19,28 @@ const VerifyForm = () => {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
-const axiosInstance = useAxios()
-const { toast}=useToast()
-
+  const axiosInstance = useAxios();
+  const { toast } = useToast();
+  const router = useRouter()
   useEffect(() => {
     if (emailParam !== "") {
       setEmail(emailParam!);
     }
   }, [emailParam]);
-  
+
   const handleVerify = async () => {
     setLoading(true); // Bắt đầu loading
     try {
       const res = await axiosInstance.post("/auth/verify", {
         email,
-        otpCode:otp,
+        otpCode: otp,
       });
       toast({
         variant: "success",
         title: "Xác thực thành công",
         description: "Tài khoản của bạn đã được xác thực!",
       });
+      router.push("/auth/login")
     } catch (error) {
       toast({
         variant: "error",
@@ -79,7 +80,7 @@ const { toast}=useToast()
 
   return (
     <div>
-      <div className="flex flex-col space-y-1.5">
+      <div className="flex flex-col space-y-1.5 gap-4">
         <Label htmlFor="email">Email</Label>
         <div className="flex space-x-2">
           <Input
@@ -93,7 +94,7 @@ const { toast}=useToast()
           />
           <Button
             type="button"
-            variant="outline"
+            variant="default"
             onClick={handleResend}
             disabled={loading} // Vô hiệu hóa khi loading
           >

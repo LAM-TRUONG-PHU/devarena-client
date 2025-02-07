@@ -8,12 +8,23 @@ import { store } from "@/redux/store";
 import Script from "next/script";
 import Header from "@/components/header";
 import DialogLoading from "@/components/dialog-loading";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+     const { data: session, status } = useSession()
+      const router = useRouter()
+      useEffect(() => {
+         
+          if (session?.user?.role === "client") {
+              router.push("/study")
+          }
+      }, [session])
   return (
     <SidebarProvider>
       <AppSidebar />

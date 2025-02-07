@@ -74,7 +74,11 @@ export default function SolutionCodeForm(props: solutionCodeFormProps) {
             language: selectedLanguage,
             code: solution_CODE_TEMPLATES[selectedLanguage as keyof typeof solution_CODE_TEMPLATES] || ''
         };
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> feat/profile
         const updatedEntries = [...codeEntries, newEntry];
         setCodeEntries(updatedEntries);
         props.form.setValue('solutions', updatedEntries);

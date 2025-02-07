@@ -96,7 +96,7 @@ export default function LoginPage() {
         const res = await signIn(provider, {
             redirect: false,
         });
-
+        console.log(res)
         if (res?.error) {
             console.log(res.error);
             toast({

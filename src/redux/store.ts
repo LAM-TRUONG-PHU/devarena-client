@@ -11,6 +11,7 @@ import { combineReducers } from "redux";
 
 import storage from "redux-persist/lib/storage";
 import achievementSlice from "./slices/achievementSlice";
+import ContestSlice from "./slices/admin/ContestSlice";
 const exercisesPersistConfig = {
     key: "persistExercises",
     storage: storage,

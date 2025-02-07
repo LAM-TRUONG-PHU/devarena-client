@@ -29,7 +29,6 @@ export const useSocket = ({
   onReconnect,
   onOutputSubmit,
   onOutputCompile,
-
 }: {
   uniqueId: string;
   exerciseId: string
@@ -141,7 +140,6 @@ export const useSocket = ({
     });
 
     socket.on("output_compile", (result: any) => {
-
       console.log("output_comile: ", result);
       onOutputCompile?.(result)
 
@@ -188,7 +186,7 @@ export const useSocket = ({
       socket.off("complete_submit");
       socket.off("restoreExecution");
 
-
+      
     };
   }, [uniqueId, onCompiling, onOutput, onError, onWaitingInput, onCompleted, onReconnect]);
 

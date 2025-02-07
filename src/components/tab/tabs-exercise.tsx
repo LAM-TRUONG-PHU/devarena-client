@@ -27,6 +27,8 @@ import { usePrivate } from "@/hooks/usePrivateAxios";
 import { setCompile, setLoading, setSubList, setSubmission } from "@/redux/slices/admin/exerciseStudySlice";
 import { Skeleton } from "../ui/skeleton";
 import { Label } from "../ui/label";
+import { useSession } from "next-auth/react";
+import { avatarDefault } from "@/types/constants";
 
 type TabsExerciseProps = {
   study?: boolean;
@@ -55,10 +57,10 @@ export function TabsExercise({ study }: TabsExerciseProps) {
   const axiosPrivate = usePrivate();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("task");
+  const {data: session} =useSession()
 
   const formatDate = (isoString: string) => {
     const date = new Date(isoString);
-
     // Use Intl.DateTimeFormat to format the date
     const formattedDate = new Intl.DateTimeFormat("en-US", {
       month: "short",  // Abbreviated month (e.g., "Jan")
@@ -260,8 +262,8 @@ export function TabsExercise({ study }: TabsExerciseProps) {
             </div>
             <div className="flex items-center gap-1">
               <Avatar className="h-6 w-6">
-                <AvatarImage src={"/avatar.jpg"} alt={""} className="rounded-full object-cover" />
-                <AvatarFallback> {"Phu"}</AvatarFallback>
+                <AvatarImage src={session?.user.avatar??avatarDefault} alt={""} className="rounded-full object-cover" />
+                <AvatarFallback> {"Avatar"}</AvatarFallback>
               </Avatar>
 
               <div className="text-left text-sm leading-tight">
