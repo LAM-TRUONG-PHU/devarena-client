@@ -281,12 +281,12 @@ export default function ExercisePage() {
             dispatch(setCompile("Test Result"));
             dispatch(setLoadingTestCase(true)); // Start loading
 
-            if (
-                !code[`${exercise.title}`].includes("public class") ||
-                !code[`${exercise.title}`].includes("public static void main")
-            ) {
-                throw new Error("Code needs to have a public class and main function");
-            }
+            // if (
+            //     !code[`${exercise.title}`].includes("public class") ||
+            //     !code[`${exercise.title}`].includes("public static void main")
+            // ) {
+            //     throw new Error("Code needs to have a public class and main function");
+            // }
 
             const convertedTestCases = Object.values(testCases[exercise.title])
                 .flat()

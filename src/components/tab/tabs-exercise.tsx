@@ -282,7 +282,7 @@ export function TabsExercise() {
               </Avatar>
 
               <div className="text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{"Phu"} </span>
+                <span className="truncate font-semibold">{session?.user.username} </span>
                 submitted at {'createdAt' in submission ? formatDate(submission.createdAt) : resultSubmit?.submittedAt}
               </div>
             </div>
