@@ -3,6 +3,11 @@ import Prism from "prismjs";
 
 // Import the required language grammar
 import "prismjs/components/prism-java";
+import "prismjs/components/prism-c";
+import "prismjs/components/prism-cpp";
+
+
+
 
 import "../app/prism.css";
 
