@@ -67,7 +67,6 @@ export default function ExerciseCard(props: CardProps) {
                         </div>
                     )}
 
-                    <CiHeart size={32} className="inline-block" />
                     {props.status === "completed" ? (
                         <Button
                             onClick={() => { }}

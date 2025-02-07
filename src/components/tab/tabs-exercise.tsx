@@ -22,19 +22,18 @@ import { Separator } from "../ui/separator";
 import { ChartRuntime } from "../study/chart-runtime";
 import { capitalize } from "@/utils/capitalize";
 import { Textarea } from "../ui/textarea";
-import { StatusCompile } from "@/types/Exercise";
+import { IExercise, StatusCompile } from "@/types/Exercise";
 import { usePrivate } from "@/hooks/usePrivateAxios";
 import { setCompile, setLoading, setSubList, setSubmission } from "@/redux/slices/admin/exerciseStudySlice";
 import { Skeleton } from "../ui/skeleton";
 import { Label } from "../ui/label";
 
-type TabsExerciseProps = {
-  study?: boolean;
-};
 
-export function TabsExercise({ study }: TabsExerciseProps) {
+
+export function TabsExercise() {
   const {
     exercise,
+    algoExercise,
     loading,
     testCases,
     loadingTestCase,
@@ -47,14 +46,22 @@ export function TabsExercise({ study }: TabsExerciseProps) {
     submissionId,
     submission, testCasesResult
   } = useAppSelector((state) => state.exercises);
+  // Function to check if an object is empty
+  const isObjectEmpty = (obj: object) => Object.keys(obj).length === 0;
+
+  // Use `algoExercise` if `exercise` is empty
+  const currentExercise = isObjectEmpty(exercise) ? algoExercise : exercise;
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
-  const isExerciseLoaded = exercise && exercise.testcases && exercise.testcases[0]?.input.length > 0;
+  const isExerciseLoaded = currentExercise && currentExercise.testcases && currentExercise.testcases[0]?.input.length > 0;
   const carouselRefs = useRef<{ [key: string]: HTMLElement | null }>({});
   const dispatch = useAppDispatch();
   const axiosPrivate = usePrivate();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("task");
+
+
+  useEffect(() => { console.log("currentExercise", currentExercise) }, [currentExercise]);
 
   const formatDate = (isoString: string) => {
     const date = new Date(isoString);
@@ -149,7 +156,7 @@ export function TabsExercise({ study }: TabsExerciseProps) {
               {isExerciseLoaded &&
                 renderTabsTrigger("test-case", <MdOutlineTask size={20} />, "Test Case")}
               {renderTabsTrigger("result", <GoTerminal size={20} />, "Results")}
-              {study &&
+              {
                 renderTabsTrigger(
                   "instruction",
                   <MdOutlineIntegrationInstructions size={20} />,
@@ -170,12 +177,20 @@ export function TabsExercise({ study }: TabsExerciseProps) {
       <TabsContent value="task" className="flex-1 p-4">
         <div
           dangerouslySetInnerHTML={{
-            __html: exercise.content,
-          }}
+            __html: currentExercise.content!,
+          }} className="max-h-[80vh] overflow-auto"
         ></div>
       </TabsContent>
-      <TabsContent value="instruction" className="flex-1">
-        <PrismCode code={exercise.solution!} language={segments[1]} />
+      <TabsContent value="instruction" className="flex-1 overflow-auto">
+        <div className="max-h-[80vh] overflow-auto">
+          {"solution" in currentExercise ? (
+            <PrismCode code={currentExercise?.solution ?? ""} language={segments[1]} />
+          ) : "solutions" in currentExercise ? (
+            currentExercise.solutions?.map((solution, index) => (
+              <PrismCode key={index} code={solution.code} language={solution.language} />
+            ))
+          ) : null}
+        </div>
       </TabsContent>
 
       {
@@ -188,8 +203,8 @@ export function TabsExercise({ study }: TabsExerciseProps) {
       <TabsContent value="result" className="mt-4">
 
 
-        {testCasesResult?.[exercise.title!]?.length ? (
-          testCasesResult[exercise.title!][0].hasOwnProperty("output") ? (
+        {testCasesResult?.[currentExercise.title!]?.length ? (
+          testCasesResult[currentExercise.title!][0].hasOwnProperty("output") ? (
             <div>
               <TabsResult />
             </div>
@@ -360,7 +375,7 @@ export function TabsExercise({ study }: TabsExerciseProps) {
                 </>
               ) : (
                 <div>
-                  <PrismCode code={"errorCode" in submission ? submission.errorCode! : resultSubmit.codeFailed || ""} language={segments[1]} />
+                  <PrismCode code={"errorCode" in submission ? submission.errorCode! : resultSubmit.codeFailed || ""} language={"java"} />
                 </div>
               )}
             </div></>)}
@@ -370,7 +385,7 @@ export function TabsExercise({ study }: TabsExerciseProps) {
         <div>
           <div className="font-medium">Code | {capitalize(segments[1])}</div>
           {loading ? <Skeleton className="h-40 w-full rounded-xl" />
-            : (<PrismCode code={"code" in submission ? submission.code : code[`${exercise.title}`]} language={segments[1]} />
+            : (<PrismCode code={"code" in submission ? submission.code : code[`${currentExercise.title}`]} language={"java"} />
             )}
         </div>
       </TabsContent>

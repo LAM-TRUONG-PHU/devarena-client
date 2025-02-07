@@ -5,13 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { setVariableCount } from "@/redux/slices/admin/StudyFormSlice";
-import { setVariableName as setVariableNameAlgorithm } from "@/redux/slices/admin/exerciseStudySlice";
+import { setVariableNameAlgorithm } from "@/redux/slices/admin/exerciseStudySlice";
 const VariableNameForm = () => {
   const { variableCount } = useAppSelector((state) => state.studyForm);
   const dispatch = useAppDispatch();
-  const { exercise } = useAppSelector((state) => state.exercises);
+  const { algoExercise } = useAppSelector((state) => state.exercises);
 
-  console.log("exercise", exercise);
+
 
   const handleVariableCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -26,12 +26,19 @@ const VariableNameForm = () => {
     }
   };
 
+
+
   const handleVariableNameChange = (index: number, value: string) => {
-    const updatedVariableNames = [...(exercise.variableName || [])];
+    // 1. Create a *copy* of the existing array
+    console.log("value",)
+    const updatedVariableNames = [...(algoExercise.variableName || [])]; // Use spread operator to create a new array
+
+    // 2. Update the *copy*
     updatedVariableNames[index] = value;
+
+    // 3. Dispatch the *new* array
     dispatch(setVariableNameAlgorithm(updatedVariableNames));
   };
-
   return (
     <div>
       <div className="mb-6">
@@ -52,7 +59,7 @@ const VariableNameForm = () => {
             <div key={index} className="flex gap-4 mt-4">
               <Input
                 placeholder={`Enter variable ${index + 1} name`}
-                value={exercise.variableName?.[index] || ""}
+                value={algoExercise.variableName?.[index] || ""}
                 onChange={(e) => handleVariableNameChange(index, e.target.value)}
               />
             </div>

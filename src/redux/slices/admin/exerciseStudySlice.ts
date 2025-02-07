@@ -1,6 +1,6 @@
 import { TExerciseStudy } from "@/app/admin/study/[slug]/[exercise]/page";
 import { C } from "@/components/mastery";
-import { IAlgoExercise, IExercise, IPersistTestCase, ITestCase, StatusCompile } from "@/types/Exercise";
+import { IAlgoExercise, IDefaultSolutionCode, IExercise, IPersistTestCase, ITestCase, StatusCompile } from "@/types/Exercise";
 import { ICompileRes } from "@/types/ICompileRes";
 import { IExerciseStatus } from "@/types/IExerciseStatus";
 import { IResultSubmit } from "@/types/IResultSubmit";
@@ -23,7 +23,8 @@ interface ISubmission {
 interface ExerciseState {
     exercises: IExercise[];
     exercise: IExercise;
-    algoExercise: IAlgoExercise;
+    algoExercise: Partial<IAlgoExercise>;
+    codeEntries: IDefaultSolutionCode[];
     persistTestCases: { [key: string]: IPersistTestCase[] };
     testCases: { [key: string]: ITestCase[] };
     testCasesResult: { [key: string]: ITestCase[] };
@@ -46,6 +47,7 @@ interface ExerciseState {
     activeResultTab: string;
     activeTestcaseTab: string;
     activeTab: string;
+
 }
 
 interface IExercisePayload {
@@ -56,6 +58,7 @@ const initialState: ExerciseState = {
     exercises: [],
     exercise: {} as IExercise,
     algoExercise: {} as IAlgoExercise,
+    codeEntries: [] as IDefaultSolutionCode[],
     testCases: {},
     persistTestCases: {},
     testCasesResult: {},
@@ -104,6 +107,7 @@ export const fetchAlgoExercises = createAsyncThunk<
     }
 });
 
+
 export const fetchExercise = createAsyncThunk<
     IExercise,
     { axiosInstance: AxiosInstance; id: string },
@@ -111,6 +115,19 @@ export const fetchExercise = createAsyncThunk<
 >("course/fetchCourse", async ({ axiosInstance, id }, { rejectWithValue }) => {
     try {
         const response = await axiosInstance.get(`/study/${id}`);
+        return response.data.data;
+    } catch (error: any) {
+        return rejectWithValue(error.message);
+    }
+});
+
+export const fetchAlgoExercise = createAsyncThunk<
+    IAlgoExercise,
+    { axiosInstance: AxiosInstance; id: string },
+    { rejectValue: string }
+>("course/fetchAlgoExercise", async ({ axiosInstance, id }, { rejectWithValue }) => {
+    try {
+        const response = await axiosInstance.get(`/algorithm/${id}`);
         return response.data.data;
     } catch (error: any) {
         return rejectWithValue(error.message);
@@ -318,6 +335,9 @@ const exercisesStudySlice = createSlice({
         setVariableName(state, action: PayloadAction<string[]>) {
             state.exercise.variableName = action.payload;
         },
+        setVariableNameAlgorithm(state, action: PayloadAction<string[]>) {
+            state.algoExercise.variableName = action.payload;
+        },
         setLoadingTestCase(state, action: PayloadAction<boolean>) {
             state.loadingTestCase = action.payload;
         },
@@ -371,6 +391,14 @@ const exercisesStudySlice = createSlice({
         setActiveTab(state, action: PayloadAction<string>) {
             state.activeTab = action.payload;
         },
+        setCodeEntries(state, action: PayloadAction<IDefaultSolutionCode[]>) {
+            state.codeEntries = action.payload;
+        },
+        //set algo exercise empty
+
+        setAlgoExercise(state, action: PayloadAction<Partial<IAlgoExercise>>) {
+            state.algoExercise = action.payload;
+        }
 
     },
     extraReducers: (builder) => {
@@ -416,6 +444,19 @@ const exercisesStudySlice = createSlice({
             state.loading = false;
             state.error = action.payload!;
         });
+
+        builder.addCase(fetchAlgoExercise.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        });
+        builder.addCase(fetchAlgoExercise.fulfilled, (state, action: PayloadAction<IAlgoExercise>) => {
+            state.loading = false;
+            state.algoExercise = action.payload;
+        });
+        builder.addCase(fetchAlgoExercise.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload!;
+        });
         builder.addCase(fetchExerciseStatus.pending, (state) => {
             state.loading = true;
             state.error = null;
@@ -446,6 +487,7 @@ export const {
     setLoadingSubList,
     handleChangeInputTestCase,
     setVariableName,
+    setVariableNameAlgorithm,
     setTestCasesResult,
     setLoading,
     setExercise,
@@ -463,6 +505,8 @@ export const {
     setActiveTestcaseTab,
     setActiveTab,
     setEachTestCaseResultRunning,
+    setCodeEntries,
+    setAlgoExercise
 
 } = exercisesStudySlice.actions;
 

@@ -159,7 +159,7 @@ export function TableExercise(props: TableExerciseProps) {
                                 router.push(`${pathname}/${createSlug(exercise.title)}?id=${exercise._id}`);
                             }}>Edit</DropdownMenuItem>
                             <DropdownMenuItem onClick={async () => {
-                                await axiosPrivate.delete(`/study/${exercise._id}`).then(() => {
+                                await axiosPrivate.delete(`/algorithm/${exercise._id}`).then(() => {
                                     dispatch(deleteExercise(exercise._id));
                                     toast({
                                         title: "Success",

@@ -34,22 +34,31 @@ export default function TabsResult() {
     };
 
     useEffect(() => {
-        console.log("testCasesResult tab result", testCasesResult);
-        if (testCasesResult && Object.entries(testCasesResult).length > 0) {
-            console.log("testCasesResult in condition", testCasesResult);
-            for (const [, testCaseGroup] of Object.entries(testCasesResult)) {
-                const runningTest = testCaseGroup.find(
-                    (testCase) => testCase.statusCompile === StatusCompile.COMPILE_RUNNING
-                );
+        if (!testCasesResult || Object.keys(testCasesResult).length === 0) return;
 
-                if (runningTest && lastRunningTestId.current !== runningTest._id) {
-                    dispatch(setActiveResultTab(runningTest._id));
+        let foundRunningTest = false;
+
+        for (const [, testCaseGroup] of Object.entries(testCasesResult)) {
+            const runningTest = testCaseGroup.find(
+                (testCase) => testCase.statusCompile === StatusCompile.COMPILE_RUNNING
+            );
+
+            if (runningTest) {
+                if (lastRunningTestId.current !== runningTest._id) {
                     lastRunningTestId.current = runningTest._id; // Update last recorded running test ID
-                    break; // Stop after finding the first running test case
+                    dispatch(setActiveResultTab(runningTest._id));
                 }
+                foundRunningTest = true;
+                break; // Stop after finding the first running test case
             }
         }
+
+        // Reset lastRunningTestId if no running test is found (prevents flickering)
+        if (!foundRunningTest) {
+            lastRunningTestId.current = null;
+        }
     }, [testCasesResult, dispatch]);
+
 
     return (
         <div>
