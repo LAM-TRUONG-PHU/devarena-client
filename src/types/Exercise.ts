@@ -50,7 +50,7 @@ export interface IAlgoExercise {
     testcases?: ITestCase[];
     score?: number;
     defaultCode?: IDefaultSolutionCode[]
-    solution?: IDefaultSolutionCode[]
+    solutions?: IDefaultSolutionCode[]
     courseId?: string;
 }
 export interface IContestExercise {

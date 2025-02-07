@@ -55,7 +55,7 @@ export default function DialogAchievement(props: TProps) {
     });
     const [preview, setPreview] = React.useState<string | ArrayBuffer | null>("");
     const searchParams = useSearchParams();
-    const courseId = searchParams.get("id");
+    const courseId = searchParams.get("id") || "algorithm";
     const axiosPrivate = usePrivate();
     const dispatch = useAppDispatch();
     const { toast } = useToast();

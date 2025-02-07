@@ -19,7 +19,7 @@ type ChangeLanguageProps = {
 };
 
 export default function ChangeLanguage(props: ChangeLanguageProps) {
-    const [language, setLanguage] = useState("C");
+    const [language, setLanguage] = useState("Java");
 
     useEffect(() => {
         props.setLanguage(language as ELanguages);

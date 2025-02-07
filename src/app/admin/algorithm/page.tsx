@@ -30,11 +30,10 @@ const page = ({ params }: { params: Promise<{ slug: string }> }) => {
             // Check if data for the specific courseId is already available
 
             dispatch(fetchAlgoExercises({ axiosInstance: axiosPrivate }));
-            // dispatch(fetchAchievementsByRefId({ axiosInstance: axiosPrivate, refId: courseId }));
+            dispatch(fetchAchievementsByRefId({ axiosInstance: axiosPrivate, refId: "algorithm" }));
 
         }
     }, [status]);
-    console.log("exercises algo ", exercises)
     return (
         <div>
             {/* <CodingExerciseForm language={slug}/> */}

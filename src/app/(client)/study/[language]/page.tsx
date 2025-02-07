@@ -270,24 +270,27 @@ export default function LanguagePage() {
             </div>
           </div>
         ) : (<>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-5">
+          {filteredExercises.some((exercise) => exercise.status === EStatus.InProgress) && (
 
-            {filteredExercises.filter((exercise) => exercise.status == EStatus.InProgress).map((exercise) => (
-              <ExerciseCard
-                key={exercise._id}
-                language={language}
-                title={exercise.title}
-                tags={exercise.tags}
-                onClick={() => {
-                  router.push(`/study/${segments[1]}/${createSlug(exercise.title)}?id=${exercise._id}`);
-                }} status={exercise.status}
-                score={exercise.score}
-                difficulty={exercise.difficulty as EDifficulty}
-              />
-            ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-5">
+
+              {filteredExercises.filter((exercise) => exercise.status == EStatus.InProgress).map((exercise) => (
+                <ExerciseCard
+                  key={exercise._id}
+                  language={language}
+                  title={exercise.title}
+                  tags={exercise.tags}
+                  onClick={() => {
+                    router.push(`/study/${segments[1]}/${createSlug(exercise.title)}?id=${exercise._id}`);
+                  }} status={exercise.status}
+                  score={exercise.score}
+                  difficulty={exercise.difficulty as EDifficulty}
+                />
+              ))}
 
 
-          </div>
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredExercises.filter((exercise) => { return exercise.status == EStatus.Unsolved || exercise.status == EStatus.Solved })
               .sort((a, b) => {

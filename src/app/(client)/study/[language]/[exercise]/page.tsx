@@ -388,7 +388,7 @@ export default function ExercisePage() {
                     </div>
                 </div>
                 <div className="col-span-1 overflow-auto h-[calc(100vh-4rem)]">
-                    <TabsExercise study />
+                    <TabsExercise />
                 </div>
             </div>
         </>

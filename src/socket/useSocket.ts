@@ -191,7 +191,7 @@ export const useSocket = ({
   }, [uniqueId, onCompiling, onOutput, onError, onWaitingInput, onCompleted, onReconnect]);
 
   const compileCode = useCallback(
-    (code: string, testCases: string[][], exerciseId: string, language: string, userId: string): Promise<void> => {
+    (code: string, testCases: string[][], exerciseId: string, language: string, userId: string, isAlgorithm?: boolean): Promise<void> => {
       return new Promise((resolve, reject) => {
         if (!socket.connected) {
           reject(new Error("Socket is not connected"));
@@ -206,7 +206,7 @@ export const useSocket = ({
         socket.on("error", errorHandler);
         socket.emit(
           "compile",
-          { uniqueId, code, testCases, exerciseId, language, userId },
+          { uniqueId, code, testCases, exerciseId, language, userId, isAlgorithm },
           (response: any) => {
             socket.off("error", errorHandler);
             if (response?.error) {

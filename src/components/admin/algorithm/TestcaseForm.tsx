@@ -41,7 +41,7 @@ const TestcaseForm = (props: TestCaseFormProps) => {
     const handleAddTestcase = () => {
         append({
             input: Array(algoExercise.variableName!.length).fill(""),
-            output: "",
+            outputExpected: "",
             hidden: false,
         });
     };
@@ -92,7 +92,7 @@ const TestcaseForm = (props: TestCaseFormProps) => {
                     <div className="mt-4">
                         <FormField
                             control={control}
-                            name={`testcases.${testcaseIndex}.output`}
+                            name={`testcases.${testcaseIndex}.outputExpected`}
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Output</FormLabel>
@@ -100,7 +100,7 @@ const TestcaseForm = (props: TestCaseFormProps) => {
                                         <Textarea
                                             {...field}
                                             placeholder="Enter output value"
-                                            value={field.value || algoExercise?.testcases?.[testcaseIndex]?.output || ""}
+                                            value={field.value || algoExercise?.testcases?.[testcaseIndex]?.outputExpected || ""}
                                         />
                                     </FormControl>
                                     <FormMessage />

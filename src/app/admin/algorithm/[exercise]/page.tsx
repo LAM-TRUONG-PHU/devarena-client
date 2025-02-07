@@ -11,7 +11,7 @@ import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { usePrivate } from "@/hooks/usePrivateAxios";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { addExercise, fetchExercise, updateExercise } from "@/redux/slices/admin/exerciseStudySlice";
+import { addExercise, fetchAlgoExercise, fetchExercise, setAlgoExercise, setCodeEntries, setVariableNameAlgorithm, updateExercise } from "@/redux/slices/admin/exerciseStudySlice";
 import { setCurrentStep, setVariableCount, setVariableName } from "@/redux/slices/admin/StudyFormSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -30,13 +30,13 @@ export type TExerciseAlgo = {
     testcases: {
         input: Record<string, any>[];
         hidden: boolean;
-        output?: any;
+        outputExpected?: any;
     }[];
     defaultCode: {
         code: string;
         language: string;
     }[];
-    solution: {
+    solutions: {
         code: string;
         language: string;
     }[];
@@ -59,7 +59,7 @@ export const formSchema = z.object({
             input: z.array(
                 z.record(z.any())
             ),
-            output: z.any(),
+            outputExpected: z.any(),
             hidden: z.boolean(),
         })
     ),
@@ -73,7 +73,7 @@ export const formSchema = z.object({
             }),
         })
     ),
-    solution: z.array(
+    solutions: z.array(
         z.object({
             code: z.string().min(1, {
                 message: "required",
@@ -112,7 +112,7 @@ export default function DetailExercisePage() {
             testcases: [
                 {
                     input: [],
-                    output: "",
+                    outputExpected: "",
                     hidden: false,
                 },
             ],
@@ -122,7 +122,7 @@ export default function DetailExercisePage() {
                     language: "",
                 },
             ],
-            solution: [
+            solutions: [
                 {
                     code: "",
                     language: "",
@@ -132,33 +132,33 @@ export default function DetailExercisePage() {
         },
     });
 
+
     useEffect(() => {
         if (segments[segments.length - 1] !== "exercise") {
-            dispatch(fetchExercise({ axiosInstance: axiosPrivate, id: searchParams.get("id")! }))
-
-
-
+            dispatch(fetchAlgoExercise({ axiosInstance: axiosPrivate, id: searchParams.get("id")! }))
             dispatch(setCurrentStep(0));
+        } else {
+            dispatch(setCodeEntries([]));
+            dispatch(setAlgoExercise({}));
+
         }
 
-    }, [searchParams]);
+    }, [searchParams, pathname]);
+
 
     useEffect(() => {
-        if (algoExercise?.testcases?.[0]?.input) {
+        console.log("algoExercise", algoExercise);
 
+        if (!algoExercise.variableName) {
             const inputLength = algoExercise?.testcases?.[0]?.input?.length;
-            dispatch(setVariableCount(inputLength));
-            console.log("exercise variablename", Array(inputLength).fill(
-                algoExercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0])
-            ));
-            dispatch(setVariableName(Array(inputLength).fill(
-                algoExercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0])
-            )));
+            dispatch(setVariableCount(inputLength || 0));
+
+            const variableNames = algoExercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0] || "") || [];
+            dispatch(setVariableNameAlgorithm(variableNames));
         }
+        if (algoExercise && Object.keys(algoExercise).length > 1 && segments[segments.length - 1] !== "exercise") {
 
-        if (algoExercise && Object.keys(algoExercise).length > 1) {
             form.reset({
-
                 title: algoExercise.title || "",
                 content: algoExercise.content || "",
                 difficulty: algoExercise.difficulty || "",
@@ -166,12 +166,12 @@ export default function DetailExercisePage() {
                 testcases: algoExercise.testcases || [
                     {
                         input: [],
-                        output: "",
+                        outputExpected: "",
                         hidden: false,
                     },
                 ],
                 defaultCode: algoExercise.defaultCode || [],
-                solution: algoExercise.solution || [],
+                solutions: algoExercise.solutions || [],
                 score: algoExercise.score || 0,
             });
         }
@@ -191,56 +191,57 @@ export default function DetailExercisePage() {
         setIsSubmitting(true);
 
         console.log("data algio", data)
-        // if (exercise.variableName?.length == 0) {
-        //     data.testcases.forEach((testcase, index) => {
-        //         data.testcases[index].input = [];
-        //     });
-        // }
-        // if (segments[segments.length - 1] !== "exercise") {
-        //     try {
+        if (algoExercise.variableName?.length == 0) {
+            data.testcases.forEach((testcase, index) => {
+                data.testcases[index].input = [];
+            });
+        }
+        console.log("segments[segments.length] ", segments[segments.length])
+        if (segments[segments.length - 1] !== "exercise") {
+            try {
 
-        //         await axiosPrivate.put(`/study/${exercise._id}`, data).then((res) => {
-        //             toast({
-        //                 title: "Success",
-        //                 description: "Exercise updated successfully",
-        //                 variant: "success",
-        //             });
-        //             dispatch(updateExercise(res.data.data));
-        //             router.back();
-        //         });
-        //     }
-        //     catch (e: any) {
-        //         toast({
-        //             title: "Error",
-        //             description: e.response?.data?.message || "Something went wrong",
-        //             variant: "error",
-        //         });
-        //     }
-        //     finally {
-        //         setIsSubmitting(false);
-        //     }
-        // }
-        // else {
-        //     try {
-        //         await axiosPrivate.post("/algorithm", data).then((res) => {
-        //             toast({
-        //                 title: "Success",
-        //                 description: "Exercise created successfully",
-        //                 variant: "success",
-        //             });
-        //             dispatch(addExercise(res.data.data));
-        //             router.back();
-        //         });
-        //     } catch (e: any) {
-        //         toast({
-        //             title: "Error",
-        //             description: e.response?.data?.message || "Something went wrong",
-        //             variant: "error",
-        //         });
-        //     } finally {
-        //         setIsSubmitting(false);
-        //     }
-        // }
+                await axiosPrivate.put(`/algorithm/${algoExercise._id}`, data).then((res) => {
+                    toast({
+                        title: "Success",
+                        description: "Exercise updated successfully",
+                        variant: "success",
+                    });
+                    dispatch(updateExercise(res.data.data));
+                    router.back();
+                });
+            }
+            catch (e: any) {
+                toast({
+                    title: "Error",
+                    description: e.response?.data?.message || "Something went wrong",
+                    variant: "error",
+                });
+            }
+            finally {
+                setIsSubmitting(false);
+            }
+        }
+        else {
+            try {
+                await axiosPrivate.post("/algorithm", data).then((res) => {
+                    toast({
+                        title: "Success",
+                        description: "Exercise created successfully",
+                        variant: "success",
+                    });
+                    dispatch(addExercise(res.data.data));
+                    router.back();
+                });
+            } catch (e: any) {
+                toast({
+                    title: "Error",
+                    description: e.response?.data?.message || "Something went wrong",
+                    variant: "error",
+                });
+            } finally {
+                setIsSubmitting(false);
+            }
+        }
 
     }
 
@@ -253,9 +254,9 @@ export default function DetailExercisePage() {
             case 2:
                 return <TestcaseForm formAlgo={form} />;
             case 3:
-                return <DefaultCodeForm formAlgo={form} />;
+                return <DefaultCodeForm form={form} />;
             case 4:
-                return <SolutionCodeForm formAlgo={form} />;
+                return <SolutionCodeForm form={form} />;
             default:
                 return null;
         }

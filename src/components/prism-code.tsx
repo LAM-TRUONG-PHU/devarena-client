@@ -3,6 +3,11 @@ import Prism from "prismjs";
 
 // Import the required language grammar
 import "prismjs/components/prism-java";
+import "prismjs/components/prism-c";
+import "prismjs/components/prism-cpp";
+
+
+
 
 import "../app/prism.css";
 
@@ -30,7 +35,7 @@ function PrismCode({ code, plugins, language }: TProps) {
         .join("\n");
 
     return (
-        <pre className={!plugins ? "!bg-gray-100 !rounded-xl" : plugins.join(" ")} data-start="0">
+        <pre className={!plugins ? "!bg-gray-100 !rounded-xl overflow-auto" : plugins.join(" ")} data-start="0">
             <code
                 ref={codeRef}
                 className={`language-${language}`}
