@@ -7,7 +7,7 @@ import { BsHexagonFill, BsPersonVcardFill } from "react-icons/bs";
 import { MdVpnKey } from "react-icons/md";
 
 export default function AccountManagementPage() {
- 
+
     return (
         <div className="w-full max-w-sm xl:max-w-7xl mx-auto py-10 ">
             <div className="grid lg:grid-cols-4 grid-cols-1 gap-4 ">
@@ -25,13 +25,6 @@ export default function AccountManagementPage() {
                                 PERSONAL INFORMATION
                             </div>
                             <div className="flex items-center gap-4 group cursor-pointer">
-                                <BsHexagonFill
-                                    size={20}
-                                    className="group-hover:text-pink_primary transition-colors"
-                                />
-                                MASTERY
-                            </div>
-                            <div className="flex items-center gap-4 group cursor-pointer">
                                 <MdVpnKey
                                     size={20}
                                     className="group-hover:text-pink_primary transition-colors"
@@ -44,32 +37,10 @@ export default function AccountManagementPage() {
                 <div className="lg:col-span-3  space-y-8">
                     <PersonalInfoForm />
 
-                    <div className="grid lg:grid-cols-7 lg:grid-rows-none grid-rows-3 h-fit ">
-                        <div className="lg:col-span-3 row-span-1 bg-[#EBEBF3] rounded-s-sm">
-                            <div className="mx-10 my-8 space-y-4">
-                                <div className="text-2xl font-semibold whitespace-nowrap">Mastery</div>
-                                <div className="text-sm">
-                                    You earn Mastery Points for whatever part you did every time you complete
-                                    exercise
-                                </div>
-                            </div>
-                        </div>
-                        <div className="lg:col-span-4  row-span-2 lg:row-span-1 bg-white relative rounded-e-sm">
-                            <div className="flex gap-4 mx-10 my-8  items-center">
-                                <div className="size-20">
-                                    <C.TierFive />
-                                </div>
-
-                                <div className="size-20">
-                                    <Algorithm.TierOne />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <AccountSignInForm />
                     {/* <ConnectedProvider/> */}
                 </div>
             </div>
-        </div> 
+        </div>
     );
 }

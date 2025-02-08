@@ -95,13 +95,18 @@ export default function ProfilePage() {
             <div className="card-bg hover:scale-100 space-y-4">
               <div className="font-medium">Skills</div>
               <div className="text-sm flex flex-wrap gap-4">
-                {Object.keys(tags).map((tag, index) => (
-                  <div key={index} className="flex gap-1 items-center">
-                    <div className="tag px-4">{tag}</div>
-                    <div>x{tags[tag]}</div> {/* Access the value of the tag */}
-                  </div>
-                ))}
+                {Object.keys(tags).length > 0 ? (
+                  Object.keys(tags).map((tag) => (
+                    <div key={tag} className="flex items-center gap-2 bg-gray-100 text-gray-800 px-3 py-1 rounded-lg shadow-sm">
+                      <span className="font-semibold text-blue-600">#{tag}</span>
+                      <span className="text-gray-600">×{tags[tag]}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-gray-500 italic">No tags available.</div>
+                )}
               </div>
+
             </div>
           </div>
         </div>
@@ -123,7 +128,13 @@ export default function ProfilePage() {
 
                   ))}
                 </div>
-                <ChartDifficulty difficulties={difficulties} />
+                {difficulties.easy == 0 && difficulties.medium == 0 && difficulties.hard == 0 ? (
+                  <div className="text-gray-600 text-lg font-semibold p-4 rounded-lg shadow-md">
+                    ⚡ No difficulties recorded yet. Keep pushing your limits! 💪
+                  </div>
+                ) :
+                  <ChartDifficulty difficulties={difficulties} />
+                }
               </div>
             </div>
             <div className="flex-1">

@@ -124,9 +124,9 @@ export default function LoginPage() {
                             name="username"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Username</FormLabel>
+                                    <FormLabel>Email</FormLabel>
                                     <FormControl>
-                                        <Input {...field} placeholder="Enter your username" />
+                                        <Input {...field} placeholder="Enter your email" />
                                     </FormControl>
                                     <FormMessage className="text-right" />
                                 </FormItem>

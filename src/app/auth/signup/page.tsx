@@ -1,4 +1,5 @@
 "use client";
+import { LoadingSpinner } from "@/components/loading";
 import { Button } from "@/components/ui/button";
 import {
     Form,
@@ -47,7 +48,9 @@ export default function SignUpPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const axiosIntance = useAxios()
-    const { toast}=useToast()
+    const { toast } = useToast()
+    const [loading, setLoading] = useState(false);
+
     const router = useRouter()
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -59,25 +62,25 @@ export default function SignUpPage() {
         },
     });
     function onSubmit(data: z.infer<typeof formSchema>) {
-        console.log(data);
-        axiosIntance.post("/auth/signup",{
-            email:data.email,
-            password:data.password,
-            username:data.username,
-            provider:"credentials"
-        }).then((res)=>{
+        setLoading(true)
+        axiosIntance.post("/auth/signup", {
+            email: data.email,
+            password: data.password,
+            username: data.username,
+            provider: "credentials"
+        }).then((res) => {
             console.log(res)
             toast({
-                variant:"success",
-                title:"Đăng ký thành công",
-                description:"Hãy vào gmail để lấy mã OTP"
+                variant: "success",
+                title: "Đăng ký thành công",
+                description: "Hãy vào gmail để lấy mã OTP"
             })
             router.push(`/auth/verify?email=${data.email}`)
-        }).catch((e)=>{
+        }).catch((e) => {
             console.log(e)
             toast({
-                variant:"error",
-                title:"Đăng ký thất bại",
+                variant: "error",
+                title: "Đăng ký thất bại",
                 // description:"Hãy vào gmail để lấy mã OTP"
             })
         })
@@ -212,35 +215,12 @@ export default function SignUpPage() {
                                     </FormItem>
                                 )}
                             />
-                            <div className="flex flex-col space-y-3 ">
-                                <div className="text-xs mx-auto">You can also create an account with</div>
-                                <div className="flex space-x-4">
-                                    <button
-                                        type="button"
-                                        className="flex-1 bg-blue_discord text-white  px-4 py-2 rounded-xl shadow hover:brightness-110"
-                                    >
-                                        <FaDiscord className="w-6 h-6 mx-auto" />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="flex-1 bg-white border-2 border-black  px-4 py-1 rounded-xl  hover:bg-gray-100"
-                                    >
-                                        <FcGoogle className="w-6 h-6 mx-auto" />
-                                    </button>
-                                </div>
-                                <button
-                                    type="button"
-                                    className="flex-1 bg-gray-800 text-white px-4 py-2 rounded-xl shadow hover:bg-gray-900"
-                                >
-                                    <FaGithub className="w-6 h-6 mx-auto" />
-                                </button>
-                            </div>
 
                             <Button
                                 type="submit"
                                 className="w-full text-white px-4 py-2 rounded-lg shadow mt-10"
                             >
-                                Create Account
+                                {loading ? (<LoadingSpinner />) : "Create Account"}
                             </Button>
                         </form>
                     </Form>
