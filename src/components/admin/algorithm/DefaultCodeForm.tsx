@@ -69,12 +69,13 @@ export default function DefaultCodeForm(props: defaultCodeFormProps) {
     const dispatch = useAppDispatch();
 
 
-    useEffect(() => {
-        if (algoExercise.defaultCode) {
-            dispatch(setCodeEntries(algoExercise.defaultCode!));
-        }
-    }, []);
+    // useEffect(() => {
+    //     if (algoExercise.defaultCode) {
+    //         dispatch(setCodeEntries(algoExercise.defaultCode!));
+    //     } 
+    // }, [algoExercise]);
 
+    console.log("Code Entries", codeEntries);
     function handleEditorDidMount(editor: any, monaco: Monaco) {
         // Define a custom theme with background color #1D2432
         monaco.editor.defineTheme("customTheme", {

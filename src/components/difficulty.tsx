@@ -1,7 +1,7 @@
 import React from "react";
 import { EDifficulty } from "./sort";
 
-export default function Difficulty({ variant, isProfile }: { variant: EDifficulty; isProfile?: boolean }) {
+export default function Difficulty({ variant, isProfile, value }: { variant: EDifficulty; isProfile?: boolean; value?: number }) {
     return (
         <>
             <div
@@ -23,7 +23,7 @@ export default function Difficulty({ variant, isProfile }: { variant: EDifficult
                     }  h-fit   items-center justify-between flex text-xs py-1 px-4`}
             >
                 {variant[0].toUpperCase() + variant.slice(1)}{" "}
-                {isProfile && <div className="font-semibold">2/10</div>}
+                {isProfile && <div className="font-semibold">{value}</div>}
             </div>
         </>
     );

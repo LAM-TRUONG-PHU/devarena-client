@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/form";
 import { useAppSelector } from "@/redux/hooks";
 import { Textarea } from "@/components/ui/textarea"
-import { TExerciseStudy } from "@/app/admin/arena/exercises/form/page";
+import { TExerciseStudy } from "@/app/admin/study/[slug]/[exercise]/page";
 
 type TestCaseFormProps = {
     form: UseFormReturn<
@@ -39,6 +39,8 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
             hidden: false,
         });
     };
+
+    console.log("exercise", exercise);
 
     return (
         <div className="flex flex-col space-y-4">
@@ -72,11 +74,15 @@ const TestcaseForm = ({ form }: TestCaseFormProps) => {
                                                 <Textarea
                                                     {...field}
                                                     placeholder={`Enter value for ${variable}`}
-                                                    value={field.value || exercise?.testcases?.[testcaseIndex]?.input[variableIndex][variable] || ""}
+                                                    value={
+                                                        field.value ||
+                                                        (exercise?.testcases?.[testcaseIndex]?.input[variableIndex]?.[variable] ?? "")
+                                                    }
                                                 />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
+
                                     )}
                                 />
                             ))}

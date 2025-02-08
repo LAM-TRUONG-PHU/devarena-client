@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { TExerciseAlgo } from '@/app/admin/algorithm/[exercise]/page';
 import { Trash } from 'lucide-react';
 import { IDefaultSolutionCode } from '@/types/Exercise';
+import { setSolutionCodeEntries } from '@/redux/slices/admin/exerciseStudySlice';
+import { useDispatch } from 'react-redux';
 
 type defaultCodeFormProps = {
     form: UseFormReturn<
@@ -63,22 +65,41 @@ const DEFAULT_CODE_TEMPLATES = {
 
 export default function SolutionCodeForm(props: defaultCodeFormProps) {
     const [selectedLanguage, setSelectedLanguage] = useState('java');
-    const { codeEntries, algoExercise } = useAppSelector((state) => state.exercises);
-    const [solutionCodeEntries, setSolutionCodeEntries] = useState<IDefaultSolutionCode[]>([]);
+    const { solutionCodeEntries, codeEntries, algoExercise } = useAppSelector((state) => state.exercises);
+    const dispatch = useDispatch();
+    // const [solutionCodeEntries, setSolutionCodeEntries] = useState<IDefaultSolutionCode[]>([]);
+
+    // useEffect(() => {
+    //     if (algoExercise.solutions) {
+    //         setSolutionCodeEntries(algoExercise.solutions);
+    //     } else {
+    //         setSolutionCodeEntries(
+    //             codeEntries.map((entry) => ({
+    //                 code: codeEntries.find((e) => e.language === entry.language)?.code || "",
+    //                 language: entry.language
+    //             }))
+    //         );
+    //     }
+
+    // }, []);
+
+
 
     useEffect(() => {
-        if (algoExercise.solutions) {
-            setSolutionCodeEntries(algoExercise.solutions);
-        } else {
-            setSolutionCodeEntries(
-                codeEntries.map((entry) => ({
-                    code: codeEntries.find((e) => e.language === entry.language)?.code || "",
-                    language: entry.language
-                }))
-            );
-        }
+        console.log('codeEntries from solution', codeEntries);
+        console.log('solutionCodeEntries from solution', solutionCodeEntries);
 
-    }, []);
+        // Ensure solutionCodeEntries contains all codeEntries while keeping existing solutions
+        if (codeEntries.length !== solutionCodeEntries.length) {
+            const updatedSolutionEntries = codeEntries.map((entry) => {
+                // Check if there's already a solution for this language
+                const existingSolution = solutionCodeEntries.find((sol) => sol.language === entry.language);
+                return existingSolution || { code: entry.code || "", language: entry.language };
+            });
+
+            dispatch(setSolutionCodeEntries(updatedSolutionEntries));
+        }
+    }, [codeEntries, dispatch]);
     function handleEditorDidMount(editor: any, monaco: Monaco) {
         // Define a custom theme with background color #1D2432
         monaco.editor.defineTheme("customTheme", {
@@ -95,16 +116,15 @@ export default function SolutionCodeForm(props: defaultCodeFormProps) {
     }
 
 
+
     const handleCodeChange = (index: number, value: string | undefined) => {
-        const newEntries = codeEntries.map((entry, i) => {
-            if (i === index) {
-                return { ...entry, code: value || '' };
-            }
-            return entry;
-        });
-        setSolutionCodeEntries((newEntries));
-        props.form.setValue('solutions', newEntries); // Update the form value as well
+        const updatedEntries = [...solutionCodeEntries]; // Create a new copy of the array
+        updatedEntries[index] = { ...updatedEntries[index], code: value || '' }; // Update the specific entry
+
+        dispatch(setSolutionCodeEntries(updatedEntries)); // Dispatch updated state
+        props.form.setValue('solutions', updatedEntries); // Update form value
     };
+
     return (
         <div className="mt-4 space-y-4">
             <div className="flex gap-4 items-end justify-center">

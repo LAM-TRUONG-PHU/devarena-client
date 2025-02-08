@@ -11,8 +11,8 @@ import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { usePrivate } from "@/hooks/usePrivateAxios";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { addExercise, fetchExercise, updateExercise } from "@/redux/slices/admin/exerciseStudySlice";
-import { setCurrentStep, setVariableCount, setVariableName } from "@/redux/slices/admin/StudyFormSlice";
+import { addExercise, fetchExercise, updateExercise, setVariableName } from "@/redux/slices/admin/exerciseStudySlice";
+import { setCurrentStep, setVariableCount, } from "@/redux/slices/admin/StudyFormSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -81,7 +81,7 @@ export default function DetailExercisePage() {
     const { toast } = useToast();
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
-    const { exercise } = useAppSelector((state) => state.exercises);
+    const { exercise, variableName } = useAppSelector((state) => state.exercises);
 
 
 
@@ -128,17 +128,17 @@ export default function DetailExercisePage() {
     }, [searchParams]);
 
     useEffect(() => {
-        if (exercise?.testcases?.[0]?.input) {
+        // if (exercise?.testcases?.[0]?.input) {
 
-            const inputLength = exercise?.testcases?.[0]?.input?.length;
-            dispatch(setVariableCount(inputLength));
-            console.log("exercise variablename", Array(inputLength).fill(
-                exercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0])
-            ));
-            dispatch(setVariableName(Array(inputLength).fill(
-                exercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0])
-            )));
-        }
+        //     const inputLength = exercise?.testcases?.[0]?.input?.length;
+        //     dispatch(setVariableCount(inputLength));
+        //     // console.log("exercise variablename", Array(inputLength).fill(
+        //     //     exercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0])
+        //     // ));
+        //     dispatch(setVariableName(Array(inputLength).fill(
+        //         exercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0])
+        //     )));
+        // }
 
         if (exercise && Object.keys(exercise).length > 1) {
             form.reset({
@@ -171,6 +171,21 @@ export default function DetailExercisePage() {
     const handlePrevious = () => {
         dispatch(setCurrentStep(currentStep - 1));
     };
+
+
+    useEffect(() => {
+        if (exercise?.testcases?.[0]?.input) {
+            const inputLength = exercise.testcases[0].input.length;
+            dispatch(setVariableCount(inputLength));
+            const variableNames = exercise.testcases[0].input.map((input: any) => Object.keys(input)[0] || "");
+
+            dispatch(setVariableName(variableNames));
+            console.log("Dispatched variable names:", variableNames);
+        }
+    }, [exercise?.testcases?.[0]?.input]);
+    useEffect(() => {
+        console.log("variableName", exercise.variableName);
+    }, [exercise.variableName]);
 
     async function onSubmit(data: z.infer<typeof formSchema>) {
         setIsSubmitting(true);

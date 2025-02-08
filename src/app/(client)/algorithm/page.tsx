@@ -1,4 +1,5 @@
 "use client";
+import { AlertAchievementDialog } from "@/components/alert-achievement-dialog";
 import { MainFilter } from "@/components/filter";
 import { C, Cpp, Java, Algorithm } from "@/components/mastery";
 import { Sort, EStatus, EDifficulty, ESkills } from "@/components/sort";
@@ -11,7 +12,7 @@ import useSkillsFilter from "@/hooks/filter/use-skills-filter";
 import useStatusFilter from "@/hooks/filter/use-status-filter";
 import { usePrivate } from "@/hooks/usePrivateAxios";
 import { createSlug } from "@/lib/helper";
-import { useAppDispatch } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchAchievementsByRefId, fetchAchievementsByRefIdAndRequiredScore } from "@/redux/slices/achievementSlice";
 import { fetchAlgoExercises } from "@/redux/slices/admin/exerciseStudySlice";
 import { IExercise } from "@/types/Exercise";
@@ -42,6 +43,19 @@ export default function AlgorithmPage() {
     const [filteredExercises, setFilteredExercises] = useState<(IExercise & {
         status: EStatus
     })[]>([]);
+    const { achievement, yourPreAchievement } = useAppSelector((state) => state.achievement)
+    const baseImageURL = `${process.env.NEXT_PUBLIC_BACKEND_UPLOAD_URL}/achievements`;
+    const totalSolvedScore = exercises.reduce((total, exercise) => {
+        return exercise.status === EStatus.Solved ? total + exercise.score! : total;
+    }, 0);
+    const [open, setOpen] = useState(false);
+
+
+    useEffect(() => {
+        if (yourPreAchievement) {
+            setOpen(true);
+        }
+    }, [yourPreAchievement])
     useEffect(() => {
         const getExercisesByUserAndCourse = async () => {
             try {
@@ -148,6 +162,8 @@ export default function AlgorithmPage() {
     }, [statusFilter.selected, difficultyFilter.selected, skillsFilter.selected, exercises]);
     return (
         <>
+            <AlertAchievementDialog open={open} onOpenChange={setOpen} yourPreAchievement={yourPreAchievement} />
+
             <div className="flex shrink-0 items-center justify-between lg:px-14  py-6 bg-white shadow-sm">
                 <div className="">
                     <div className="text-center text-xl text-black font-semibold">
@@ -162,20 +178,25 @@ export default function AlgorithmPage() {
 
                 <div className="space-y-1 scale-90 lg:scale-100">
                     <div className="text-sm">
-                        <span className="text-pink_primary">17 more points</span> to get your this mastery!
+                        <span className="text-pink_primary">{
+                            achievement?.requiredScore! - totalSolvedScore
+                        } more points</span> to get
+                        your this mastery!
                     </div>
                     <div className="flex justify-between items-center">
-                        <Progress value={50} />
-                        <div className="text-xs ml-2">50%</div>
+                        <Progress value={totalSolvedScore * 100 / achievement?.requiredScore!} />
+                        <div className="text-xs ml-2">
+                            {totalSolvedScore * 100 / achievement?.requiredScore!}%
+                        </div>
                     </div>
                     <div className="flex justify-between items-center">
                         <div className="flex gap-2">
                             <div className="aspect-square rounded-full border border-foreground w-fit items-center flex text-xs p-1  font-semibold   ">
-                                0/25
+                                {totalSolvedScore}/{achievement?.requiredScore}
                             </div>
                         </div>
                         <div className="size-10">
-                            <Algorithm.TierOne />
+                            <img src={`${baseImageURL}/${achievement?.image}`} alt="achievement" />
                         </div>
                     </div>
                 </div>

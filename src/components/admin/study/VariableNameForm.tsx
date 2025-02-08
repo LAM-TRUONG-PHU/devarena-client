@@ -7,20 +7,12 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { setVariableCount } from "@/redux/slices/admin/StudyFormSlice";
 import { setVariableName } from "@/redux/slices/admin/exerciseStudySlice";
 const VariableNameForm = () => {
-  const { variableCount } = useAppSelector((state) => state.studyForm);
+  const { variableCount, } = useAppSelector((state) => state.studyForm);
   const dispatch = useAppDispatch();
-  const { exercise } = useAppSelector((state) => state.exercises);
+  const { exercise, variableName } = useAppSelector((state) => state.exercises);
 
 
-  useEffect(() => {
-    console.log('algoExercise', exercise);
-    const inputLength = exercise?.testcases?.[0]?.input?.length;
-    dispatch(setVariableCount(inputLength || 0));
-    console.log("exercise variablename", exercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0] || ""));
 
-    const variableNames = exercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0] || "") || [];
-    dispatch(setVariableName(variableNames));
-  }, []);
 
   const handleVariableCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -40,6 +32,8 @@ const VariableNameForm = () => {
     updatedVariableNames[index] = value;
     dispatch(setVariableName(updatedVariableNames));
   };
+
+  console.log("exercise.variableName", exercise.variableName);
 
   return (
     <div>

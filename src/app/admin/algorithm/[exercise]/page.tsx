@@ -11,7 +11,7 @@ import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { usePrivate } from "@/hooks/usePrivateAxios";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { addExercise, fetchAlgoExercise, fetchExercise, setAlgoExercise, setCodeEntries, setVariableNameAlgorithm, updateExercise } from "@/redux/slices/admin/exerciseStudySlice";
+import { addExercise, fetchAlgoExercise, fetchExercise, setAlgoExercise, setCodeEntries, setSolutionCodeEntries, setVariableNameAlgorithm, updateExercise } from "@/redux/slices/admin/exerciseStudySlice";
 import { setCurrentStep, setVariableCount, setVariableName } from "@/redux/slices/admin/StudyFormSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -98,7 +98,7 @@ export default function DetailExercisePage() {
     const { toast } = useToast();
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
-    const { algoExercise } = useAppSelector((state) => state.exercises);
+    const { algoExercise, codeEntries } = useAppSelector((state) => state.exercises);
 
 
 
@@ -144,6 +144,23 @@ export default function DetailExercisePage() {
         }
 
     }, [searchParams, pathname]);
+
+    useEffect(() => {
+        if (algoExercise.defaultCode) {
+            dispatch(setCodeEntries(algoExercise.defaultCode!));
+        }
+        if (algoExercise.solutions) {
+            dispatch(setSolutionCodeEntries(algoExercise.solutions));
+        } else {
+            dispatch(setSolutionCodeEntries(
+                codeEntries.map((entry) => ({
+                    code: codeEntries.find((e) => e.language === entry.language)?.code || "",
+                    language: entry.language
+                })))
+            );
+        }
+    }, [algoExercise]);
+
 
 
     useEffect(() => {

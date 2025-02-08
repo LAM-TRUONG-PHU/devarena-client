@@ -16,7 +16,7 @@ import { ELanguages } from "@/types/language";
 import { getLanguageValue } from "@/utils/get-language-value";
 import { TabsExercise } from "@/components/tab/tabs-exercise";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { setCode, setSubmission, setSubmissionId, setCompile, setLoadingSubList, setLoadingTestCase, fetchAlgoExercise, setSubList, setTestCases, setTestCasesResult, updateOutputTestCaseResultSubmit, updateOutputCompiling, updateStatusTestCase, updateStatusTestCaseResult, setEachTestCaseResultRunning, setAllTestCasesResultRunning } from "@/redux/slices/admin/exerciseStudySlice";
+import { setCode, setSubmission, setSubmissionId, setCompile, setLoadingSubList, setLoadingTestCase, fetchAlgoExercise, setSubList, setTestCases, setTestCasesResult, updateOutputTestCaseResultSubmit, updateOutputCompiling, updateStatusTestCase, updateStatusTestCaseResult, setEachTestCaseResultRunning, setAllTestCasesResultRunning, setCodeAlgo, setLanguage } from "@/redux/slices/admin/exerciseStudySlice";
 import { usePrivate } from "@/hooks/usePrivateAxios";
 import { StatusCompile } from "@/types/Exercise";
 import useSocket from "@/socket/useSocket";
@@ -41,12 +41,13 @@ export default function ExercisePage() {
     persistTestCases,
     loadingSubList,
     compile,
-    code,
+    codeAlgo,
     resultSubmit,
     submission,
-    testCasesResult
+    testCasesResult,
+    language,
   } = useAppSelector((state) => state.exercises);
-  const [language, setLanguage] = useState<ELanguages>(ELanguages.C);
+  // const [language, setLanguage] = useState<ELanguages>(ELanguages.Java);
   const axiosPrivate = usePrivate();
   const searchParams = useSearchParams();
 
@@ -178,29 +179,64 @@ export default function ExercisePage() {
         id: searchParams.get("id")!,
       })
     );
+
   }, []);
   useEffect(() => {
-    if (!code[`${algoExercise.title}`]) {
-      dispatch(setCode({
+    const key = algoExercise.title || "";
+    const algoCode = codeAlgo[key] || []; // Ensure it's an array
+
+    // console.log("codeAlgo", algoCode.length > 0
+    //   ? algoCode.some(item => item.language === getLanguageValue(language))
+    //   : "no code"
+    // );
+
+    // console.log("codeAlgo", algoCode);
+    console.log("title", algoCode)
+    if (!algoCode || algoCode.length === 0) {
+      dispatch(setCodeAlgo({
         key: algoExercise.title!, code: algoExercise.defaultCode?.find
-          (item => item.language === getLanguageValue(language))?.code
+          (item => item.language === getLanguageValue(language))?.code, language: getLanguageValue(language)
       }));
-    }
-    console.log("code", algoExercise.defaultCode?.find
-      (item => item.language === getLanguageValue(language))?.code);
+    } else
+      if (algoCode.length > 0 && !algoCode.some(item => item.language === getLanguageValue(language))) {
+        dispatch(setCodeAlgo({
+          key: algoExercise.title!, code: algoExercise.defaultCode?.find
+            (item => item.language === getLanguageValue(language))?.code, language: getLanguageValue(language)
+        }));
+      }
+
+    // console.log("code", algoExercise.defaultCode?.find
+    //   (item => item.language === getLanguageValue(language))?.code);
   }, [
     algoExercise.title,
     algoExercise.defaultCode,
-    code[`${algoExercise.title}`],
+    language,
     dispatch,
   ]);
 
+  // useEffect(() => {
+  //   // dispatch(setCode({
+  //   //   key: algoExercise.title!, code: algoExercise.defaultCode?.find
+  //   //     (item => item.language === getLanguageValue(language))?.code
+  //   // }));
+  //   dispatch(setCodeAlgo({
+  //     key: algoExercise.title!, code: algoExercise.defaultCode?.find
+  //       (item => item.language === getLanguageValue(language))?.code, language: getLanguageValue(language)
+  //   }));
+  // }, [language]);
+
   useEffect(() => {
-    dispatch(setCode({
-      key: algoExercise.title!, code: algoExercise.defaultCode?.find
-        (item => item.language === getLanguageValue(language))?.code
-    }));
-  }, [language]);
+    const key = algoExercise.title || "";
+
+    // if (codeAlgo[key] && Array.isArray(codeAlgo[key]) && codeAlgo[key].length > 0) {
+    //   console.log(
+    //     "codeAlgo",
+    //     codeAlgo[key].find(item => item.language === getLanguageValue(language))?.code
+    //   );
+    //   console.log("title ", codeAlgo[key]);
+    // }
+  }, [codeAlgo, language, algoExercise.title]);
+
 
   useEffect(() => {
     // Only run if testCases is empty and we have either persistTestCases or exercise.testcases
@@ -239,7 +275,6 @@ export default function ExercisePage() {
 
   useEffect(() => {
     const testCases = testCasesResult[algoExercise.title!];
-    console.log("testCases Result", testCases);
     // Check if all test cases have finished running
     if (
       testCases &&
@@ -290,13 +325,24 @@ export default function ExercisePage() {
       dispatch(setCompile("Test Result"));
       dispatch(setLoadingTestCase(true)); // Start loading
 
-      if (
-        !code[`${algoExercise.title!}`].includes("public class") ||
-        !code[`${algoExercise.title!}`].includes("public static void main")
-      ) {
-        throw new Error("Code needs to have a public class and main function");
-      }
+      // if (
+      //   language === ELanguages.Java &&
+      //   !codeAlgo[`${algoExercise.title!}`].includes("public class") ||
+      //   language === ELanguages.Java &&
+      //   !codeAlgo[`${algoExercise.title!}`].includes("public static void main")
+      // ) {
+      //   throw new Error("Code needs to have a public class and main function");
+      // }
 
+
+      // Find the correct code for the current language
+      const currentCodeEntry = codeAlgo[algoExercise.title!]?.find(
+        (entry) => entry.language === getLanguageValue(language)
+      );
+
+      if (!currentCodeEntry) {
+        throw new Error("No code found for the selected language");
+      }
       const convertedTestCases = Object.values(testCases[algoExercise.title!])
         .flat()
         .map((testCase) =>
@@ -305,11 +351,10 @@ export default function ExercisePage() {
             .flat()
         );
 
-      // console.log("convertedTestCases", convertedTestCases);
-
+      console.log("currentCodeEntry", currentCodeEntry);
 
       await compileCode(
-        code[`${algoExercise.title!}`],
+        currentCodeEntry.code,
         convertedTestCases,
         searchParams.get("id")! || "",
         getLanguageValue(language),
@@ -327,11 +372,20 @@ export default function ExercisePage() {
     }
   };
 
+  // console.log("codeAlgo", codeAlgo[`${algoExercise.title}`].code);
+
   const handleSubmit = async () => {
+    const currentCodeEntry = codeAlgo[algoExercise.title!]?.find(
+      (entry) => entry.language === getLanguageValue(language)
+    );
+
+    if (!currentCodeEntry) {
+      throw new Error("No code found for the selected language");
+    }
     dispatch(setSubmission({}));
 
     await submitCode(
-      code[`${algoExercise.title}`],
+      currentCodeEntry.code,
       searchParams.get("id")! || "",
       session?.user.id || "",
       language.toLowerCase(),
@@ -342,8 +396,8 @@ export default function ExercisePage() {
 
   return (
     <>
-      <div className="grid h-full grid-cols-3">
-        <div className="col-span-2 relative h-full">
+      <div className="grid h-full grid-cols-5">
+        <div className="col-span-3 relative h-full">
           <div className="h-12 bg-[#EBEBF3] flex items-center px-8 relative">
             <div className="absolute">
               <ThemeSwitch toggleTheme={toggleTheme} />
@@ -351,17 +405,22 @@ export default function ExercisePage() {
             <div className="flex justify-center w-full items-center gap-4">
               <div>Language</div>
 
-              <ChangeLanguage setLanguage={setLanguage} />
+              <ChangeLanguage setLanguage={
+                (value) => {
+                  dispatch(setLanguage(value))
+                }
+              } />
             </div>
 
           </div>
           <Editor
             height={"calc(100svh - 7rem)"}
             defaultLanguage={getLanguageValue(language)}
-            value={code[`${algoExercise.title}`] ?? ""}
+            // value={codeAlgo[`${algoExercise.title}`].code ?? ""}
+            value={codeAlgo[`${algoExercise.title}`] != undefined ? codeAlgo[`${algoExercise.title}`].find(item => item.language === getLanguageValue(language))?.code : ""}
             theme={theme}
             onChange={(value) =>
-              dispatch(setCode({ key: algoExercise.title!, code: value }))
+              dispatch(setCodeAlgo({ key: algoExercise.title!, code: value, language: getLanguageValue(language) }))
             }
             onMount={handleEditorDidMount}
           />
@@ -395,7 +454,7 @@ export default function ExercisePage() {
             </div>
           </div>
         </div>
-        <div className="col-span-1">
+        <div className="col-span-2">
           <TabsExercise />
         </div>
       </div>

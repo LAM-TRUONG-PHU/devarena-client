@@ -19,6 +19,7 @@ export default function TabsResult() {
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
     const lastRunningTestId = useRef<string | null>(null);
+    const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
     const renderStatusIcon = (status: StatusCompile) => {
         switch (status) {
@@ -59,6 +60,11 @@ export default function TabsResult() {
         }
     }, [testCasesResult, dispatch]);
 
+    useEffect(() => {
+        if (textAreaRef.current) {
+            textAreaRef.current.scrollTop = textAreaRef.current.scrollHeight;
+        }
+    }, [testCasesResult]);
 
     return (
         <div>
@@ -90,13 +96,13 @@ export default function TabsResult() {
                                                         value={tab._id}
                                                         className={`relative ${tab.statusCompile ===
                                                             StatusCompile.COMPILE_SUCCESS
-                                                            ? "bg-green_secondary text-green_primary"
+                                                            ? "data-[state=active]:bg-green_secondary data-[state=active]:border data-[state=active]:border-green_primary data-[state=active]:text-green_primary text-green_primary"
                                                             : tab.statusCompile ===
                                                                 StatusCompile.COMPILE_FAILED
-                                                                ? "bg-red_secondary text-red_primary"
+                                                                ? "data-[state=active]:bg-red_secondary data-[state=active]:border data-[state=active]:border-red_primary data-[state=active]:text-red_primary text-red_primary"
                                                                 : tab.statusCompile ===
                                                                     StatusCompile.COMPILE_RUNNING
-                                                                    ? "bg-yellow_secondary text-yellow_primary"
+                                                                    ? "data-[state=active]:bg-yellow_secondary data-[state=active]:border data-[state=active]:border-yellow_primary data-[state=active]:text-yellow_primary text-yellow_primary"
                                                                     : ""
                                                             }`}
                                                     >
@@ -154,6 +160,7 @@ export default function TabsResult() {
                                                                     className="w-full p-3 rounded-xl outline-none "
                                                                     value={tab.output}
                                                                     disabled
+                                                                    ref={textAreaRef}
                                                                 />
                                                             </div>
                                                             <div>

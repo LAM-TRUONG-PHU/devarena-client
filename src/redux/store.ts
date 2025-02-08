@@ -15,7 +15,7 @@ import ContestSlice from "./slices/admin/ContestSlice";
 const exercisesPersistConfig = {
     key: "persistExercises",
     storage: storage,
-    whitelist: ["persistTestCases", "code"], // Include both states to persist
+    whitelist: ["persistTestCases", "code", "codeAlgo"], // Include both states to persist
 };
 
 

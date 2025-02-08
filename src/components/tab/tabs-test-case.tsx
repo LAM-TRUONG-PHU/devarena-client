@@ -22,10 +22,13 @@ export function TabsTestCase() {
   const path = usePathname();
   const segments = path.split("/").filter(Boolean);
   // Default to "result" tab
-  const { exercise, testCases, persistTestCases, activeTestcaseTab } = useAppSelector(state => state.exercises);
+  const { exercise, algoExercise, testCases, persistTestCases, activeTestcaseTab } = useAppSelector(state => state.exercises);
   // const [activeTab, setActiveTab] = useState(Object.entries(testCases)[0][1][0] != undefined ? Object.entries(testCases)[0][1][0]._id  "");
 
+  const isObjectEmpty = (obj: object) => Object.keys(obj).length === 0;
 
+  // Use `algoExercise` if `exercise` is empty
+  const currentExercise = isObjectEmpty(exercise) ? algoExercise : exercise;
   // useEffect(() => {
   //   dispatch(setActiveTestcaseTab(Object.entries(testCases)[0][1][0] != undefined ? Object.entries(testCases)[0][1][0]._id : ""));
 
@@ -38,12 +41,12 @@ export function TabsTestCase() {
 
 
   const handleAddTab = () => {
-    const key = exercise?.title || createSlug(segments[segments.length - 1]); // Use exercise title or fallback to URL slug
+    const key = currentExercise?.title || createSlug(segments[segments.length - 1]); // Use currentExercise title or fallback to URL slug
     const currentTestCases = testCases[key] || []; // Get existing test cases for the key
 
     const newTestCase: ITestCase = {
       _id: crypto.randomUUID(),
-      input: exercise.testcases ? exercise.testcases[0].input : [], // Provide default or fallback values
+      input: currentExercise.testcases ? currentExercise.testcases[0].input : [], // Provide default or fallback values
 
     };
 

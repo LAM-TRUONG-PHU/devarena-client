@@ -4,6 +4,7 @@ import { IAlgoExercise, IDefaultSolutionCode, IExercise, IPersistTestCase, ITest
 import { ICompileRes } from "@/types/ICompileRes";
 import { IExerciseStatus } from "@/types/IExerciseStatus";
 import { IResultSubmit } from "@/types/IResultSubmit";
+import { ELanguages } from "@/types/language";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosInstance } from "axios";
 import { set } from "store";
@@ -25,6 +26,7 @@ interface ExerciseState {
     exercise: IExercise;
     algoExercise: Partial<IAlgoExercise>;
     codeEntries: IDefaultSolutionCode[];
+    solutionCodeEntries: IDefaultSolutionCode[];
     persistTestCases: { [key: string]: IPersistTestCase[] };
     testCases: { [key: string]: ITestCase[] };
     testCasesResult: { [key: string]: ITestCase[] };
@@ -39,6 +41,12 @@ interface ExerciseState {
     loadingSubList: boolean;
     compile: "Accepted" | "Compile Error" | "Test Result" | "Wrong Answer" | null;
     code: { [key: string]: string };
+    codeAlgo: {
+        [key: string]: {
+            code: string;
+            language: string;
+        }[]
+    };
     resultSubmit: IResultSubmit & {
         submittedAt: string;
         codeFailed?: string;
@@ -47,6 +55,8 @@ interface ExerciseState {
     activeResultTab: string;
     activeTestcaseTab: string;
     activeTab: string;
+    language: ELanguages;
+    variableName: string[];
 
 }
 
@@ -59,6 +69,7 @@ const initialState: ExerciseState = {
     exercise: {} as IExercise,
     algoExercise: {} as IAlgoExercise,
     codeEntries: [] as IDefaultSolutionCode[],
+    solutionCodeEntries: [] as IDefaultSolutionCode[],
     testCases: {},
     persistTestCases: {},
     testCasesResult: {},
@@ -73,11 +84,14 @@ const initialState: ExerciseState = {
     submissionId: "",
     compile: null,
     code: {},
+    codeAlgo: {},
     resultSubmit: {} as IResultSubmit & { submittedAt: string },
     clickTracker: 0,
     activeResultTab: "",
     activeTestcaseTab: "",
     activeTab: "",
+    language: ELanguages.Java,
+    variableName: []
 };
 
 export const fetchExercisesByCourse = createAsyncThunk<
@@ -331,6 +345,9 @@ const exercisesStudySlice = createSlice({
                 }
             }
         },
+        // setVariableName(state, action: PayloadAction<string[]>) {
+        //     state.variableName = action.payload;
+        // },
 
         setVariableName(state, action: PayloadAction<string[]>) {
             state.exercise.variableName = action.payload;
@@ -368,6 +385,37 @@ const exercisesStudySlice = createSlice({
         ) {
             state.code[action.payload.key] = action.payload.code || "";
         },
+        setCodeAlgo(
+            state,
+            action: PayloadAction<{
+                key: string;
+                code: string | undefined;
+                language: string;
+            }>
+        ) {
+            const { key, code, language } = action.payload;
+            if (!key || code === undefined) return;
+
+            if (!Array.isArray(state.codeAlgo[key])) {
+                state.codeAlgo[key] = [];
+            }
+
+            // Find existing object index
+            const existingIndex = state.codeAlgo[key].findIndex(item => item.language === language);
+
+            if (existingIndex !== -1) {
+                // Update existing object
+                state.codeAlgo[key][existingIndex].code = code;
+            } else {
+                // Add new object
+                state.codeAlgo[key].push({ code, language });
+            }
+        }
+        ,
+
+
+
+
         setResultSubmit(
             state,
             action: PayloadAction<
@@ -394,12 +442,16 @@ const exercisesStudySlice = createSlice({
         setCodeEntries(state, action: PayloadAction<IDefaultSolutionCode[]>) {
             state.codeEntries = action.payload;
         },
-        //set algo exercise empty
+        setSolutionCodeEntries(state, action: PayloadAction<IDefaultSolutionCode[]>) {
+            state.solutionCodeEntries = action.payload;
+        },
 
         setAlgoExercise(state, action: PayloadAction<Partial<IAlgoExercise>>) {
             state.algoExercise = action.payload;
+        },
+        setLanguage(state, action: PayloadAction<ELanguages>) {
+            state.language = action.payload;
         }
-
     },
     extraReducers: (builder) => {
         builder.addCase(fetchAlgoExercises.pending, (state) => {
@@ -481,6 +533,7 @@ export const {
     removeTestCase,
     addTestCase,
     setCode,
+    setCodeAlgo,
     setRunningTestCase,
     updateStatusTestCase,
     setLoadingTestCase,
@@ -506,8 +559,9 @@ export const {
     setActiveTab,
     setEachTestCaseResultRunning,
     setCodeEntries,
-    setAlgoExercise
-
+    setSolutionCodeEntries,
+    setAlgoExercise,
+    setLanguage,
 } = exercisesStudySlice.actions;
 
 export default exercisesStudySlice.reducer;
