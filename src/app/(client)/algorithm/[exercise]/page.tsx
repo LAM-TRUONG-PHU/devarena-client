@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import Editor, { Monaco } from "@monaco-editor/react";
 import ThemeSwitch from "@/components/theme-switch";
 import { VscDebugRestart } from "react-icons/vsc";
@@ -395,7 +395,7 @@ export default function ExercisePage() {
 
 
   return (
-    <>
+    <Suspense fallback={<div>loading</div>}>
       <div className="grid h-full grid-cols-5">
         <div className="col-span-3 relative h-full">
           <div className="h-12 bg-[#EBEBF3] flex items-center px-8 relative">
@@ -458,6 +458,6 @@ export default function ExercisePage() {
           <TabsExercise />
         </div>
       </div>
-    </>
+    </Suspense>
   );
 }

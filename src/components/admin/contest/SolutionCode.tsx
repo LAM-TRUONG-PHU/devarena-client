@@ -6,7 +6,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/comp
 import { useAppSelector } from '@/redux/hooks';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { TExerciseArena } from '@/app/admin/arena/exercises/form/page';
+import { TExerciseArena } from '@/types/Exercise';
 
 type solutionCodeFormProps = {
     form: UseFormReturn<
@@ -74,11 +74,6 @@ export default function SolutionCodeForm(props: solutionCodeFormProps) {
             language: selectedLanguage,
             code: solution_CODE_TEMPLATES[selectedLanguage as keyof typeof solution_CODE_TEMPLATES] || ''
         };
-<<<<<<< HEAD
-
-=======
-        
->>>>>>> feat/profile
         const updatedEntries = [...codeEntries, newEntry];
         setCodeEntries(updatedEntries);
         props.form.setValue('solutions', updatedEntries);

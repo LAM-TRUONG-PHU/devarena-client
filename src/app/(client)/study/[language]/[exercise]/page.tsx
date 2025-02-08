@@ -34,7 +34,7 @@ import Editor, { Monaco } from "@monaco-editor/react";
 import { useSession } from "next-auth/react";
 import { usePathname, useSearchParams } from "next/navigation";
 import test from "node:test";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { FaPlay } from "react-icons/fa6";
 import { MdFormatAlignLeft } from "react-icons/md";
 import { SlOptionsVertical } from "react-icons/sl";
@@ -335,7 +335,7 @@ export default function ExercisePage() {
     };
 
     return (
-        <>
+        <Suspense>
             <div className="grid h-full grid-cols-3">
                 <div className="col-span-2 relative h-full">
                     <div className="h-12 bg-[#EBEBF3] flex items-center px-8 relative">
@@ -395,6 +395,6 @@ export default function ExercisePage() {
                     <TabsExercise />
                 </div>
             </div>
-        </>
+        </Suspense>
     );
 }

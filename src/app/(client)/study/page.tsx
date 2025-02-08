@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useEffect, useMemo, useState } from "react";
+import React, { Suspense, use, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import StudyCard from "@/components/study/study-card";
 import InProcessingCard from "@/components/study/in-processing-card";
@@ -57,7 +57,7 @@ export default function StudyPage() {
 
 
     return (
-        <div>
+        <Suspense>
             <div className="flex shrink-0 items-center justify-between pr-14 pl-10 py-6 bg-white shadow-sm">
                 <div className="mx-auto">
                     <Image
@@ -95,6 +95,6 @@ export default function StudyPage() {
                     <AllCourseSection courses={courses} /></>)}
 
             </div>
-        </div>
+        </Suspense>
     );
 }

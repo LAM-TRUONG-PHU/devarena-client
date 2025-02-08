@@ -1,10 +1,10 @@
-import { TExerciseStudy } from '@/app/admin/study/[slug]/[exercise]/page';
 import { Editor, Monaco } from '@monaco-editor/react'
 import { usePathname } from 'next/navigation';
 import { UseFormReturn } from 'react-hook-form';
 import React from 'react'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { useAppSelector } from '@/redux/hooks';
+import { TExerciseStudy } from '@/types/Exercise';
 
 type defaultCodeFormProps = {
     form: UseFormReturn<

@@ -15,29 +15,15 @@ import { addExercise, fetchExercise, updateExercise, setVariableName } from "@/r
 import { setCurrentStep, setVariableCount, } from "@/redux/slices/admin/StudyFormSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const steps = ["Basic Info", "Instructions", "Equipment", "Default", "Solution"];
 
-export type TExerciseStudy = {
-    title: string;
-    content: string;
-    difficulty: string;
-    tags: string[];
-    testcases: {
-        input: Record<string, any>[];
-        hidden: boolean;
-        outputExpected?: any;
-    }[];
-    defaultCode: string;
-    solution: string;
-    courseId: string;
-    score: number;
-};
 
-export const formSchema = z.object({
+
+ const formSchema = z.object({
     title: z.string().min(1, {
         message: "required",
     }),
@@ -262,7 +248,7 @@ export default function DetailExercisePage() {
     };
 
     return (
-        <div>
+        <Suspense>
             <Stepper steps={steps} currentStep={currentStep} />
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto max-w-3xl min-h-screen">
@@ -296,6 +282,6 @@ export default function DetailExercisePage() {
                     {renderStepContent()}
                 </form>
             </Form>
-        </div>
+        </Suspense>
     );
 }

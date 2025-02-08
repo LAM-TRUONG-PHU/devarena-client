@@ -22,8 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
 import { ESkills } from "@/components/sort";
-import { IExercise } from "@/types/Exercise";
-import { TExerciseStudy } from "@/app/admin/arena/exercises/form/page";
+import { IExercise, TExerciseStudy } from "@/types/Exercise";
 
 const difficultyOptions = [
     { value: "easy", label: "Easy" },

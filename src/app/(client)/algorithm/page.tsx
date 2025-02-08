@@ -23,7 +23,7 @@ import { isValidLanguage } from "@/utils/is-valid-language";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 
 export default function AlgorithmPage() {
     const pathname = usePathname();
@@ -161,7 +161,7 @@ export default function AlgorithmPage() {
         applyFilters();
     }, [statusFilter.selected, difficultyFilter.selected, skillsFilter.selected, exercises]);
     return (
-        <>
+        <Suspense fallback={<div>Loading...</div>}>
             <AlertAchievementDialog open={open} onOpenChange={setOpen} yourPreAchievement={yourPreAchievement} />
 
             <div className="flex shrink-0 items-center justify-between lg:px-14  py-6 bg-white shadow-sm">
@@ -289,6 +289,6 @@ export default function AlgorithmPage() {
                 </>)}
 
             </div>
-        </>
+        </Suspense>
     );
 }

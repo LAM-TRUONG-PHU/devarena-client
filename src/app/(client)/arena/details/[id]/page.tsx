@@ -1,7 +1,7 @@
 "use client";
 import { usePrivate } from "@/hooks/usePrivateAxios";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { fetchExerciseCard } from "@/redux/slices/contestClientSlice";
+// import { fetchExerciseCard } from "@/redux/slices/contestClientSlice";
 import { IContest } from "@/types/IContest";
 import { useRouter } from "next/navigation";
 import { useEffect, use, useState } from "react";

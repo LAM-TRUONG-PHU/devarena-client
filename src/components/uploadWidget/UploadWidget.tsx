@@ -5,7 +5,10 @@ import React, { useEffect } from "react";
 const UploadWidget = () => {
   const initWidget = () => {
     // Kiểm tra xem window.cloudinary đã tồn tại
+    //@ts-ignore
     if (window.cloudinary) {
+          //@ts-ignore
+
       const myWidget = window.cloudinary.createUploadWidget(
         {
           cloudName: "dlfsdepfc",
@@ -16,6 +19,8 @@ const UploadWidget = () => {
           theme: "purple",
               maxImageWidth: 200, //Scales the image down to a width of 2000 pixels before uploading
         },
+            //@ts-ignore
+
         (error, result) => {
           if (!error && result && result.event === "success") {
             console.log("Done! Here is the image info: ", result.info);

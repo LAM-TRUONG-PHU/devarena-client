@@ -1,4 +1,3 @@
-import { TExerciseStudy } from "@/app/admin/study/[slug]/[exercise]/page";
 import { C } from "@/components/mastery";
 import { IExercise, IPersistTestCase, ITestCase, StatusCompile } from "@/types/Exercise";
 import { ICompileRes } from "@/types/ICompileRes";
