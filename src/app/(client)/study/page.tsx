@@ -92,7 +92,6 @@ export default function StudyPage() {
 
                     </div>
                 </>) : (<>
-                    <GetInProgresCourse courses={courses} />
                     <AllCourseSection courses={courses} /></>)}
 
             </div>

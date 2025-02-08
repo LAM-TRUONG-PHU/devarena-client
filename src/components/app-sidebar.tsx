@@ -43,9 +43,10 @@ import { SiCodecrafters } from "react-icons/si";
 
 type AppSidebarProps = {
     isSpecialPage?: boolean;
+    isClient?: boolean;
 } & React.ComponentProps<typeof Sidebar>;
 
-export function AppSidebar({ isSpecialPage, ...props }: AppSidebarProps) {
+export function AppSidebar({ isSpecialPage, isClient, ...props }: AppSidebarProps) {
     const pathname = usePathname();
     const data = {
         user: {
@@ -66,12 +67,12 @@ export function AppSidebar({ isSpecialPage, ...props }: AppSidebarProps) {
                 icon: BsDiagram2,
                 isActive: pathname.startsWith("/algorithm") || pathname.startsWith("/admin/algorithm"),
             },
-            {
-                title: "Arena",
-                url: pathname.startsWith("/admin") ? "/admin/arena" : "/arena",
-                icon: Trophy,
-                isActive: pathname.startsWith("/arena") || pathname.startsWith("/admin/arena"),
-            },
+            // {
+            //     title: "Arena",
+            //     url: pathname.startsWith("/admin") ? "/admin/arena" : "/arena",
+            //     icon: Trophy,
+            //     isActive: pathname.startsWith("/arena") || pathname.startsWith("/admin/arena"),
+            // },
         ],
     };
     return (
@@ -95,7 +96,7 @@ export function AppSidebar({ isSpecialPage, ...props }: AppSidebarProps) {
                 <NavMain items={data.navMain} />
             </SidebarContent>
             <SidebarFooter>
-                <NavUser  />
+                {!isClient && <NavUser />}
             </SidebarFooter>
 
             <SidebarRail />

@@ -166,7 +166,6 @@ export default function LanguagePage() {
     applyFilters();
   }, [statusFilter.selected, difficultyFilter.selected, skillsFilter.selected, exercises]);
   useEffect(() => {
-    console.log("yourPreAchievement", yourPreAchievement);
     if (yourPreAchievement) {
       setOpen(true);
     }

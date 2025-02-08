@@ -196,20 +196,6 @@ export default function LoginPage() {
                             </button>
                         </div>
 
-                        <FormField
-                            control={form.control}
-                            name="staySignedIn"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-row items-start space-x-3 space-y-0 ">
-                                    <FormControl>
-                                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                                    </FormControl>
-                                    <div className="space-y-1 leading-none">
-                                        <FormLabel className="text-foreground">Stay signed in</FormLabel>
-                                    </div>
-                                </FormItem>
-                            )}
-                        />
                         <Button type="submit" className="w-full text-white px-4 py-2 rounded-lg shadow mt-10" disabled={loading}>
                             {loading ? (<LoadingSpinner />) : "Login"}
                         </Button>

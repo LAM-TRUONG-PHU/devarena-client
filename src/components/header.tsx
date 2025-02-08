@@ -35,7 +35,7 @@ export default function Header(props: HeaderProps) {
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
     const [isMobile, setIsMobile] = useState(false);
-    const {data:session}= useSession()
+    const { data: session } = useSession()
     useEffect(() => {
         const handleResize = () => {
             setIsMobile(window.innerWidth <= 768); // Mobile width threshold
@@ -92,7 +92,7 @@ export default function Header(props: HeaderProps) {
                         <div className="flex gap-12">
                             <HoverUnderlineText text="Study" href="/study" />
                             <HoverUnderlineText text="Algorithm" href="/algorithm" />
-                            <HoverUnderlineText text="Arena" href="/arena" />
+                            {/* <HoverUnderlineText text="Arena" href="/arena" /> */}
                         </div>
                     </div>
                 ) : (

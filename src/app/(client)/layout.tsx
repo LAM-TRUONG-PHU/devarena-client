@@ -26,7 +26,7 @@ export default function RootLayout({
     const { data: session, status } = useSession()
     const router = useRouter()
     useEffect(() => {
-    
+
         if (session?.user?.role === "admin") {
             router.push("/admin")
         }
@@ -34,7 +34,7 @@ export default function RootLayout({
     return (
         <>
             <SidebarProvider>
-                {showSidebar && <AppSidebar isSpecialPage={isSpecialPage} />}
+                {showSidebar && <AppSidebar isSpecialPage={isSpecialPage} isClient />}
                 <SidebarInset>
                     <div className={`${showSidebar ? "min-h-screen" : "relative"}`}>
                         {isSpecialPage ? (
