@@ -111,7 +111,7 @@ export default function LoginPage() {
             <div className="w-full max-w-lg bg-white p-12 rounded-md shadow-lg">
                 <Image
                     className="dark:invert mx-auto"
-                    src="/logo.png"
+                    src="/logo1.png"
                     alt="DevArena logo"
                     width={150}
                     height={150}
