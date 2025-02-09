@@ -38,7 +38,7 @@ export function TabsTestCase() {
     dispatch(setActiveTestcaseTab(Object.entries(testCases)[0][1][0] != undefined ? Object.entries(testCases)[0][1][0]._id : ""));
   }, [Object.entries(testCases)[0][1][0] == undefined]);
 
-
+  console.log("testCases", testCases);
 
   const handleAddTab = () => {
     const key = currentExercise?.title || createSlug(segments[segments.length - 1]); // Use currentExercise title or fallback to URL slug

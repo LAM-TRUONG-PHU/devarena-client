@@ -4,7 +4,8 @@ import { usePathname } from 'next/navigation';
 import { UseFormReturn } from 'react-hook-form';
 import React from 'react'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { useAppSelector } from '@/redux/hooks';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { setDefaultCode } from '@/redux/slices/admin/exerciseStudySlice';
 
 type defaultCodeFormProps = {
     form: UseFormReturn<
@@ -18,6 +19,7 @@ export default function DefaultCodeForm(props: defaultCodeFormProps) {
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
     const { exercise } = useAppSelector((state) => state.exercises);
+    const dispatch = useAppDispatch();
     function handleEditorDidMount(editor: any, monaco: Monaco) {
         // Define a custom theme with background color #1D2432
         monaco.editor.defineTheme("customTheme", {
@@ -48,7 +50,11 @@ export default function DefaultCodeForm(props: defaultCodeFormProps) {
                                 `// Write your code here\n\n`
                             }
                             value={exercise?.defaultCode || field.value}
-                            onChange={(value) => field.onChange(value)}
+                            onChange={(value) => {
+                                field.onChange(value);
+                                dispatch(setDefaultCode(value));
+
+                            }}
                             theme="vs-dark"
                             onMount={handleEditorDidMount}
                         />

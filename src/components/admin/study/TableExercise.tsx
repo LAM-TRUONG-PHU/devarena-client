@@ -58,6 +58,8 @@ export function TableExercise(props: TableExerciseProps) {
     const [rowSelection, setRowSelection] = React.useState({});
     const router = useRouter();
     const pathname = usePathname();
+    const segments = pathname.split("/").filter(Boolean);
+
     const searchParams = useSearchParams();
     const courseId = searchParams.get("id");
     const dispatch = useAppDispatch();
@@ -159,7 +161,8 @@ export function TableExercise(props: TableExerciseProps) {
                                 router.push(`${pathname}/${createSlug(exercise.title)}?id=${exercise._id}`);
                             }}>Edit</DropdownMenuItem>
                             <DropdownMenuItem onClick={async () => {
-                                await axiosPrivate.delete(`/algorithm/${exercise._id}`).then(() => {
+
+                                await axiosPrivate.delete(`/${segments[1]}/${exercise._id}`).then(() => {
                                     dispatch(deleteExercise(exercise._id));
                                     toast({
                                         title: "Success",

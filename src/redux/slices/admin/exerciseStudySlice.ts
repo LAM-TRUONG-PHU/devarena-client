@@ -445,6 +445,13 @@ const exercisesStudySlice = createSlice({
         setSolutionCodeEntries(state, action: PayloadAction<IDefaultSolutionCode[]>) {
             state.solutionCodeEntries = action.payload;
         },
+        setDefaultCode(state, action: PayloadAction<string | undefined>) {
+            state.exercise.defaultCode = action.payload;
+        },
+        setSolutionCode(state, action: PayloadAction<string | undefined>) {
+            state.exercise.solution = action.payload;
+        }
+        ,
 
         setAlgoExercise(state, action: PayloadAction<Partial<IAlgoExercise>>) {
             state.algoExercise = action.payload;
@@ -560,6 +567,8 @@ export const {
     setEachTestCaseResultRunning,
     setCodeEntries,
     setSolutionCodeEntries,
+    setDefaultCode,
+    setSolutionCode,
     setAlgoExercise,
     setLanguage,
 } = exercisesStudySlice.actions;
