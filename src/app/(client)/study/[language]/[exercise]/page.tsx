@@ -218,12 +218,12 @@ export default function ExercisePage() {
         axiosPrivate
             .get(`/exercise-status/exercise/${searchParams.get("id")!}/submission`)
             .then((res) => {
-                dispatch(setSubList(res.data.data.submission));
+                if (res.data?.data?.submission) {
+                    dispatch(setSubList(res.data.data.submission));
+                }
             })
-            .catch((err) => {
-                console.error(err);
-            });
-    }, [loadingSubList == true, loading == true, compile == "Accepted"]);
+
+    }, [loadingSubList, loading, compile]);
 
     useEffect(() => {
         if (!code[`${exercise.title}`]) {
@@ -253,7 +253,6 @@ export default function ExercisePage() {
 
     useEffect(() => {
         const testCases = testCasesResult[exercise.title];
-        console.log("testCases Result", testCases);
         // Check if all test cases have finished running
         if (
             testCases &&
@@ -336,8 +335,8 @@ export default function ExercisePage() {
 
     return (
         <Suspense>
-            <div className="grid h-full grid-cols-3">
-                <div className="col-span-2 relative h-full">
+            <div className="grid h-full grid-cols-5">
+                <div className="col-span-3 relative h-full">
                     <div className="h-12 bg-[#EBEBF3] flex items-center px-8 relative">
                         <div className="absolute">
                             <ThemeSwitch toggleTheme={toggleTheme} />

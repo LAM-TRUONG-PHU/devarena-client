@@ -260,12 +260,13 @@ export default function ExercisePage() {
     axiosPrivate
       .get(`/exercise-status/exercise/${searchParams.get("id")!}/submission`)
       .then((res) => {
-        dispatch(setSubList(res.data.data.submission));
+        if (res.data?.data?.submission) {
+          dispatch(setSubList(res.data.data.submission));
+        }
       })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, [loadingSubList == true, loading == true, compile == "Accepted"]);
+
+  }, [loadingSubList, loading, compile]); // Adjusted dependencies
+
 
   useEffect(() => {
     const testCases = testCasesResult[algoExercise.title!];
