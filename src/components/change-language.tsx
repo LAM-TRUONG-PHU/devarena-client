@@ -25,6 +25,7 @@ export default function ChangeLanguage(props: ChangeLanguageProps) {
 
     useEffect(() => {
         props.setLanguage(language as ELanguages);
+        console.log(getLanguageTitle(capitalize(language) as ELanguages));
     }, [language]);
 
 
@@ -45,7 +46,11 @@ export default function ChangeLanguage(props: ChangeLanguageProps) {
                     <DropdownMenuRadioGroup value={
                         algoExercise.solutions?.find((solution) => solution.language === language)?.language
                     } onValueChange={
-                        (value) => setLanguage(value as string)
+                        (value) => {
+                            if (value === "C++")
+                                value = "Cpp";
+                            setLanguage(value as string);
+                        }
                     }>
                         {algoExercise.solutions?.map((solution, index) => {
                             return (

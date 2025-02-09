@@ -44,7 +44,9 @@ export default function TabsResult() {
                 (testCase) => testCase.statusCompile === StatusCompile.COMPILE_RUNNING
             );
 
+
             if (runningTest) {
+
                 if (lastRunningTestId.current !== runningTest._id) {
                     lastRunningTestId.current = runningTest._id; // Update last recorded running test ID
                     dispatch(setActiveResultTab(runningTest._id));
@@ -61,6 +63,10 @@ export default function TabsResult() {
     }, [testCasesResult, dispatch]);
 
     useEffect(() => {
+        console.log("activeResultTab", activeResultTab);
+    }, [activeResultTab]);
+
+    useEffect(() => {
         if (textAreaRef.current) {
             textAreaRef.current.scrollTop = textAreaRef.current.scrollHeight;
         }
@@ -69,7 +75,7 @@ export default function TabsResult() {
     return (
         <div>
             <Tabs
-                defaultValue={activeResultTab != "" ? Object.entries(testCasesResult)[0][1][0]._id : activeResultTab}
+                defaultValue={activeResultTab || Object.entries(testCasesResult)[0][1][0]._id}
                 value={activeResultTab}
                 onValueChange={
                     (value) => {

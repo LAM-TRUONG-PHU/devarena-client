@@ -1,29 +1,23 @@
 "use client";
-import React, { Suspense, useEffect, useRef, useState } from "react";
-import Editor, { Monaco } from "@monaco-editor/react";
-import ThemeSwitch from "@/components/theme-switch";
-import { VscDebugRestart } from "react-icons/vsc";
-import { SlOptionsVertical } from "react-icons/sl";
-import { MdFormatAlignLeft } from "react-icons/md";
-import { Button } from "@/components/ui/button";
-import { TbCloudShare } from "react-icons/tb";
-import { FaPlay } from "react-icons/fa6";
-import { usePathname, useSearchParams } from "next/navigation";
 import ChangeLanguage from "@/components/change-language";
-import { set } from "react-hook-form";
-import { getLanguageTitle } from "@/utils/get-language-title";
-import { ELanguages } from "@/types/language";
-import { getLanguageValue } from "@/utils/get-language-value";
-import { TabsExercise } from "@/components/tab/tabs-exercise";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { setCode, setSubmission, setSubmissionId, setCompile, setLoadingSubList, setLoadingTestCase, fetchAlgoExercise, setSubList, setTestCases, setTestCasesResult, updateOutputTestCaseResultSubmit, updateOutputCompiling, updateStatusTestCase, updateStatusTestCaseResult, setEachTestCaseResultRunning, setAllTestCasesResultRunning, setCodeAlgo, setLanguage } from "@/redux/slices/admin/exerciseStudySlice";
-import { usePrivate } from "@/hooks/usePrivateAxios";
-import { StatusCompile } from "@/types/Exercise";
-import useSocket from "@/socket/useSocket";
-import { useSession } from "next-auth/react";
-import { ICompileRes } from "@/types/ICompileRes";
-import { useToast } from "@/hooks/use-toast";
 import { LoadingSpinner } from "@/components/loading";
+import { TabsExercise } from "@/components/tab/tabs-exercise";
+import ThemeSwitch from "@/components/theme-switch";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { usePrivate } from "@/hooks/usePrivateAxios";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { fetchAlgoExercise, setAllTestCasesResultRunning, setCodeAlgo, setCompile, setEachTestCaseResultRunning, setLanguage, setLoadingSubList, setLoadingTestCase, setSubList, setSubmission, setSubmissionId, setTestCases, setTestCasesResult, updateOutputCompiling, updateOutputTestCaseResultSubmit, updateStatusTestCase, updateStatusTestCaseResult } from "@/redux/slices/admin/exerciseStudySlice";
+import useSocket from "@/socket/useSocket";
+import { StatusCompile } from "@/types/Exercise";
+import { ICompileRes } from "@/types/ICompileRes";
+import { getLanguageValue } from "@/utils/get-language-value";
+import Editor, { Monaco } from "@monaco-editor/react";
+import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { FaPlay } from "react-icons/fa6";
+import { TbCloudShare } from "react-icons/tb";
 
 const defaultValue = {
   "C++": `#include <iostream> \nusing namespace std; \nint main() { \n    cout << "Hello, World!"; \n    return 0; \n}`,
@@ -252,7 +246,7 @@ export default function ExercisePage() {
         dispatch(
           setTestCases({
             key: algoExercise.title!,
-            testCases: algoExercise.testcases.map((testcase, index) => ({
+            testCases: algoExercise.testcases.filter((testcase) => testcase.hidden === false).map((testcase, index) => ({
               _id: crypto.randomUUID(),
               input: testcase.input,
             })),

@@ -164,7 +164,6 @@ export default function DetailExercisePage() {
 
 
     useEffect(() => {
-        console.log("algoExercise", algoExercise);
 
         if (!algoExercise.variableName) {
             const inputLength = algoExercise?.testcases?.[0]?.input?.length;

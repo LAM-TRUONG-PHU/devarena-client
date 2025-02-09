@@ -1,6 +1,5 @@
 "use client";
 import { LoadingSpinner } from "@/components/loading";
-import { EStatus } from "@/components/sort";
 import { TabsExercise } from "@/components/tab/tabs-exercise";
 import ThemeSwitch from "@/components/theme-switch";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,6 @@ import {
     setEachTestCaseResultRunning,
     setLoadingSubList,
     setLoadingTestCase,
-    setRunningTestCase,
     setSubList,
     setSubmission,
     setSubmissionId,
@@ -24,7 +22,7 @@ import {
     updateOutputCompiling,
     updateOutputTestCaseResultSubmit,
     updateStatusTestCase,
-    updateStatusTestCaseResult,
+    updateStatusTestCaseResult
 } from "@/redux/slices/admin/exerciseStudySlice";
 import { useSocket } from "@/socket/useSocket";
 import { StatusCompile } from "@/types/Exercise";
@@ -36,10 +34,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import test from "node:test";
 import { Suspense, useEffect, useState } from "react";
 import { FaPlay } from "react-icons/fa6";
-import { MdFormatAlignLeft } from "react-icons/md";
-import { SlOptionsVertical } from "react-icons/sl";
 import { TbCloudShare } from "react-icons/tb";
-import { VscDebugRestart } from "react-icons/vsc";
 
 export default function ExercisePage() {
     const [theme, setTheme] = useState<"vs-dark" | "light">("vs-dark");
@@ -186,13 +181,18 @@ export default function ExercisePage() {
                     })
                 );
             } else if (exercise.testcases) {
+                console.log("exercise.testcases", exercise.testcases);
                 dispatch(
                     setTestCases({
                         key: exercise.title,
-                        testCases: exercise.testcases.map((testcase, index) => ({
-                            _id: crypto.randomUUID(),
-                            input: testcase.input,
-                        })),
+                        testCases: exercise.testcases.filter((testcase) => testcase.hidden === false).map((testcase, index) => {
+                            return {
+                                _id: crypto.randomUUID(),
+                                input: testcase.input,
+                            }
+                        }
+
+                        ),
                     })
                 );
             }
@@ -290,7 +290,6 @@ export default function ExercisePage() {
                 throw new Error("Code needs to have a public class and main function");
             }
 
-            console.log("code", code[`${exercise.title}`]);
 
             const convertedTestCases = Object.values(testCases[exercise.title])
                 .flat()
@@ -299,6 +298,7 @@ export default function ExercisePage() {
                         .map((item) => Object.values(item).map(String))
                         .flat()
                 );
+
 
             await compileCode(
                 code[`${exercise.title}`],
@@ -391,7 +391,7 @@ export default function ExercisePage() {
                         </div>
                     </div>
                 </div>
-                <div className="col-span-1 overflow-auto h-[calc(100vh-4rem)]">
+                <div className="col-span-2">
                     <TabsExercise />
                 </div>
             </div>

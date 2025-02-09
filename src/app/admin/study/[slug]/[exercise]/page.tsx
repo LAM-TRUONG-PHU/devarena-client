@@ -114,19 +114,8 @@ export default function DetailExercisePage() {
     }, [searchParams]);
 
     useEffect(() => {
-        // if (exercise?.testcases?.[0]?.input) {
 
-        //     const inputLength = exercise?.testcases?.[0]?.input?.length;
-        //     dispatch(setVariableCount(inputLength));
-        //     // console.log("exercise variablename", Array(inputLength).fill(
-        //     //     exercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0])
-        //     // ));
-        //     dispatch(setVariableName(Array(inputLength).fill(
-        //         exercise?.testcases?.[0]?.input?.map((input: any) => Object.keys(input)[0])
-        //     )));
-        // }
-
-        if (exercise && Object.keys(exercise).length > 1) {
+        if (exercise && Object.keys(exercise).length > 1 && segments[segments.length - 1] !== "exercise") {
             form.reset({
 
                 title: exercise.title || "",

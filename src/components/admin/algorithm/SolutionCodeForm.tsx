@@ -127,20 +127,7 @@ export default function SolutionCodeForm(props: defaultCodeFormProps) {
 
     return (
         <div className="mt-4 space-y-4">
-            <div className="flex gap-4 items-end justify-center">
-                <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                    <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Select Language" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {SUPPORTED_LANGUAGES.map((lang) => (
-                            <SelectItem key={lang.value} value={lang.value}>
-                                {lang.label}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
+
 
             {solutionCodeEntries.map((entry, index) => (
                 <div key={index} className="border rounded p-2"> {/* Added a container for each editor */}
