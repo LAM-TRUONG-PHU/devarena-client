@@ -31,7 +31,8 @@ import { capitalize } from "@/utils/capitalize";
 import Editor, { Monaco } from "@monaco-editor/react";
 import { useSession } from "next-auth/react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import test from "node:test";
+import { Suspense, useEffect, useState } from "react";
 import { FaPlay } from "react-icons/fa6";
 import { TbCloudShare } from "react-icons/tb";
 
@@ -334,9 +335,9 @@ export default function ExercisePage() {
     };
 
     return (
-        <>
-            <div className="grid h-full grid-cols-5">
-                <div className="col-span-3 relative h-full">
+        <Suspense>
+            <div className="grid h-full grid-cols-3">
+                <div className="col-span-2 relative h-full">
                     <div className="h-12 bg-[#EBEBF3] flex items-center px-8 relative">
                         <div className="absolute">
                             <ThemeSwitch toggleTheme={toggleTheme} />
@@ -394,6 +395,6 @@ export default function ExercisePage() {
                     <TabsExercise />
                 </div>
             </div>
-        </>
+        </Suspense>
     );
 }

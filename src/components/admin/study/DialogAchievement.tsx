@@ -1,3 +1,4 @@
+"use client";
 import { LoadingSpinner } from '@/components/loading';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -7,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ImagePlus } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
-import React, { useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import { z } from 'zod';
 import { usePrivate } from '@/hooks/usePrivateAxios';
 import { useSearchParams } from 'next/navigation';
@@ -26,7 +27,10 @@ const formSchema = z.object({
     image: z
         //Rest of validations done via react dropzone
         .instanceof(File)
-        .refine((file) => file.size !== 0, "Please upload an image"),
+        .refine((file) => file.size !== 0, "Please upload an image")
+        .optional(), // Thêm optional()
+
+        
 })
 
 const requiredScoreOptions = [
@@ -50,7 +54,7 @@ export default function DialogAchievement(props: TProps) {
         defaultValues: {
             title: "",
             requiredScore: 0,
-            image: new File([""], "filename"),
+            image: typeof window !== 'undefined' ? new File([""], "filename") : undefined,
         },
     });
     const [preview, setPreview] = React.useState<string | ArrayBuffer | null>("");
@@ -91,7 +95,7 @@ export default function DialogAchievement(props: TProps) {
             form.reset({
                 title: "",
                 requiredScore: 0,
-                image: new File([""], "filename"),
+                image: typeof window !== 'undefined' ? new File([""], "filename") : undefined,
             });
         }
     }, [props.achievement]);
@@ -176,7 +180,8 @@ export default function DialogAchievement(props: TProps) {
 
     }
     return (
-        <Dialog open={isDialogOpen} onOpenChange={(isOpen) => {
+        <Suspense fallback={<div>...</div>}>
+             <Dialog open={isDialogOpen} onOpenChange={(isOpen) => {
             setIsDialogOpen(isOpen);
             if (isOpen) {
                 form.reset(); // Reset the form when the dialog opens
@@ -327,5 +332,7 @@ export default function DialogAchievement(props: TProps) {
 
             </DialogContent>
         </Dialog>
+        </Suspense>
+       
     )
 }

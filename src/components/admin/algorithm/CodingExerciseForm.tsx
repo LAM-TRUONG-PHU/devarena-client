@@ -21,9 +21,8 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
-import { formSchema, TExerciseStudy } from "@/app/admin/study/[slug]/[exercise]/page";
 import { ESkills } from "@/components/sort";
-import { IExercise } from "@/types/Exercise";
+import { IExercise, TExerciseStudy } from "@/types/Exercise";
 import { TExerciseAlgo } from "@/app/admin/algorithm/[exercise]/page";
 
 const difficultyOptions = [

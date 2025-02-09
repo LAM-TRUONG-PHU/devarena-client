@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import {
   InputOTP,
   InputOTPGroup,
@@ -79,7 +79,7 @@ const VerifyForm = () => {
   }, [otp]);
 
   return (
-    <div>
+    <Suspense fallback={<p>loading</p>}>
       <div className="flex flex-col space-y-1.5 gap-4">
         <Label htmlFor="email">Email</Label>
         <div className="flex space-x-2">
@@ -116,7 +116,7 @@ const VerifyForm = () => {
         </InputOTP>
       </div>
       {loading && <p className="text-center mt-2">Đang xử lý...</p>}
-    </div>
+    </Suspense>
   );
 };
 

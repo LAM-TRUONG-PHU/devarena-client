@@ -5,17 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { usePrivate } from "@/hooks/usePrivateAxios";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { fetchAlgoExercises, fetchExercisesByCourse } from "@/redux/slices/admin/exerciseStudySlice";
+import { fetchAlgoExercises } from "@/redux/slices/admin/exerciseStudySlice";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
-import router from "next/router";
 import { useRouter } from "next/navigation"
-import { use, useEffect, useMemo } from "react";
+import { Suspense, use, useEffect, useMemo } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { TableAchievement } from "@/components/admin/study/TableAchievement";
 import { fetchAchievementsByRefId } from "@/redux/slices/achievementSlice";
 import { CategoryType } from "@/types/CategoryType";
-const page = ({ params }: { params: Promise<{ slug: string }> }) => {
+const Page = () => {
     const dispatch = useAppDispatch();
     const axiosPrivate = usePrivate();
     const { exercises, loading } = useAppSelector((state) => state.exercises);
@@ -35,7 +34,7 @@ const page = ({ params }: { params: Promise<{ slug: string }> }) => {
         }
     }, [status]);
     return (
-        <div>
+        <Suspense fallback={<p>Loading...</p>}>
             {/* <CodingExerciseForm language={slug}/> */}
             <div className="p-8 relative">
                 <Button
@@ -63,8 +62,8 @@ const page = ({ params }: { params: Promise<{ slug: string }> }) => {
                 </Tabs>
 
             </div>
-        </div>
+        </Suspense>
     );
 };
 
-export default page;
+export default Page;

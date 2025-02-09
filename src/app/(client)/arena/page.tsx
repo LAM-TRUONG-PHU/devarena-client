@@ -103,6 +103,7 @@ export default function ContestPage() {
             id="123"
           />
           <ContestCard
+
             status="completed"
             title="Hackathon Challenge 2024"
             date="Dec 15, 2024 10:00 AM GMT+7"
@@ -110,6 +111,7 @@ export default function ContestPage() {
             id="123"
           />
           <ContestCard
+          id="kdkd"
             status="completed"
             title="Hackathon Challenge 2024"
             date="Dec 15, 2024 10:00 AM GMT+7"

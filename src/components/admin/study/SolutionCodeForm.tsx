@@ -1,10 +1,11 @@
-import { TExerciseStudy } from '@/app/admin/study/[slug]/[exercise]/page';
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { setSolutionCode } from '@/redux/slices/admin/exerciseStudySlice';
-import { Editor, Monaco } from '@monaco-editor/react';
+import { Editor, Monaco } from '@monaco-editor/react'
 import { usePathname } from 'next/navigation';
 import { UseFormReturn } from 'react-hook-form';
+import React from 'react'
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { TExerciseStudy } from '@/types/Exercise';
+import { setSolutionCode } from '@/redux/slices/admin/exerciseStudySlice';
 
 type defaultSolutionFormProps = {
     form: UseFormReturn<

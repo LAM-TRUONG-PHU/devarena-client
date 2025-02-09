@@ -2,14 +2,14 @@
 
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import "@/app/globals.css";
+import "../globals.css";
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
 import Script from "next/script";
 import Header from "@/components/header";
 import DialogLoading from "@/components/dialog-loading";
 import { useSession } from "next-auth/react";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function AdminLayout({
@@ -26,6 +26,7 @@ export default function AdminLayout({
           }
       }, [session])
   return (
+    <Suspense fallback={<div>loading</div>}>
     <SidebarProvider>
       <AppSidebar />
       <Script
@@ -40,5 +41,6 @@ export default function AdminLayout({
         <Provider store={store}>{children}</Provider>
       </main>
     </SidebarProvider>
+    </Suspense>
   );
 }

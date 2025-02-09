@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/form";
 import { useAppSelector } from "@/redux/hooks";
 import { Textarea } from "@/components/ui/textarea"
-import { TExerciseStudy } from "@/app/admin/study/[slug]/[exercise]/page";
+import { TExerciseStudy } from "@/types/Exercise";
 
 type TestCaseFormProps = {
     form: UseFormReturn<

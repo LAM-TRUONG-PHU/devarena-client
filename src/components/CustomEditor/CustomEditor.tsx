@@ -4,7 +4,6 @@ import React, { Dispatch, LegacyRef, SetStateAction, useCallback, useEffect, use
 import dynamic from "next/dynamic";
 
 import "react-quill-new/dist/quill.snow.css"; // Default styling for React Quill
-import Script from "next/script";
 import "./style.css";
 import { useAppDispatch } from "@/redux/hooks";
 import { setContent } from "@/redux/slices/admin/StudyFormSlice";

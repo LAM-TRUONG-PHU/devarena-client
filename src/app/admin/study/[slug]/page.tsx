@@ -10,7 +10,7 @@ import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import router from "next/router";
 import { useRouter } from "next/navigation"
-import { use, useEffect, useMemo } from "react";
+import { Suspense, use, useEffect, useMemo } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { TableAchievement } from "@/components/admin/study/TableAchievement";
 import { fetchAchievementsByRefId } from "@/redux/slices/achievementSlice";
@@ -35,7 +35,7 @@ const page = ({ params }: { params: Promise<{ slug: string }> }) => {
     }, [status,]);
 
     return (
-        <div>
+        <Suspense>
             {/* <CodingExerciseForm language={slug}/> */}
             <div className="p-8 relative">
                 <Button
@@ -63,7 +63,7 @@ const page = ({ params }: { params: Promise<{ slug: string }> }) => {
                 </Tabs>
 
             </div>
-        </div>
+        </Suspense>
     );
 };
 

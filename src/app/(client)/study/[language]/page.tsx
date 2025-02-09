@@ -1,7 +1,7 @@
 "use client";
 import { Progress } from "@/components/ui/progress";
 import { ELanguages } from "@/types/language";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import { Loader2, Trophy } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -173,7 +173,7 @@ export default function LanguagePage() {
 
 
   return (
-    <>
+    <Suspense>
       <AlertAchievementDialog open={open} onOpenChange={setOpen} yourPreAchievement={yourPreAchievement} />
 
 
@@ -315,6 +315,6 @@ export default function LanguagePage() {
 
 
       </div>
-    </>
+    </Suspense>
   );
 }

@@ -1,5 +1,4 @@
 import React, { use, useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 import { EDifficulty } from "@/components/sort";
 import useSearchQuery from "@/hooks/use-search-query";

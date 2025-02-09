@@ -1,3 +1,4 @@
+"use client"
 import { Input } from "@/components/ui/input";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -15,7 +16,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import { DialogUpdateAvatar } from "./dialog-update-avatar";
 import { usePrivate } from "@/hooks/usePrivateAxios";
-import { File } from "lucide-react";
 import { useSession } from "next-auth/react";
 
 const personalInfoFormSchema = z.object({

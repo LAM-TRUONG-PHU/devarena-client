@@ -9,10 +9,10 @@ import {
     FormControl,
     FormMessage,
 } from "@/components/ui/form";
-import { TExerciseStudy } from "@/app/admin/study/[slug]/[exercise]/page";
 import { useAppSelector } from "@/redux/hooks";
 import { Textarea } from "@/components/ui/textarea"
 import { TExerciseAlgo } from "@/app/admin/algorithm/[exercise]/page";
+import { TExerciseStudy } from "@/types/Exercise";
 
 type TestCaseFormProps = {
     form?: UseFormReturn<

@@ -4,7 +4,7 @@ import { ChevronsUpDown, ClipboardList, ClipboardPen } from "lucide-react";
 import { GoTerminal } from "react-icons/go";
 import { TabsTestCase } from "./tabs-test-case";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../ui/carousel";
-import { JSX, use, useEffect, useRef, useState } from "react";
+import { JSX, Suspense, use, useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 
 import { usePathname, useSearchParams } from "next/navigation";
@@ -136,6 +136,7 @@ export function TabsExercise() {
     </CarouselItem>
   );
   return (
+    <Suspense>
     <Tabs
       defaultValue="task"
       value={activeTab}
@@ -448,5 +449,6 @@ export function TabsExercise() {
 
       </TabsContent>
     </Tabs>
+    </Suspense>
   );
 }

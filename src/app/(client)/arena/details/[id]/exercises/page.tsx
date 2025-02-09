@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { Suspense, useEffect } from "react";
 import ChallengeCard from "@/components/contest/challenge-card";
 import { useParams, usePathname, useSearchParams } from "next/navigation";
 import { Progress } from "@/components/ui/progress";
@@ -27,7 +27,7 @@ export default function ChallengePage() {
         .join(" ");
 
     return (
-        <>
+        <Suspense>
             <div className="flex shrink-0 items-center justify-between pr-14 pl-10 py-6 bg-white shadow-sm">
                 <div>
                     <h1 className="text-xl font-semibold">{title} </h1>
@@ -89,6 +89,6 @@ export default function ChallengePage() {
                     onClick={() => console.log("Clicked")}
                 /> */}
             </div>
-        </>
+        </Suspense>
     );
 }

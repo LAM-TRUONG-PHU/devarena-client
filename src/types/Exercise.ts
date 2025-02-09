@@ -70,3 +70,41 @@ interface ICode {
     language: string;
     code: string;
 }
+export type TExerciseStudy = {
+    title: string;
+    content: string;
+    difficulty: string;
+    tags: string[];
+    testcases: {
+        input: Record<string, any>[];
+        hidden: boolean;
+        outputExpected?: any;
+    }[];
+    defaultCode: string;
+    solution: string;
+    courseId: string;
+    score: number;
+};
+export type TExerciseArena = {
+  title: string;
+  content: string;
+  difficulty: string;
+  tags: string[];
+  testcases: {
+    input: Record<string, any>[];
+    hidden: boolean;
+    outputExpected?: any;
+  }[];
+  // defaultCode: string;
+  // solution: string;
+  defaultCode: {
+    code: string;
+    language: string;
+  }[];
+  solutions: {
+    code: string;
+    language: string;
+  }[];
+  contestId: string;
+  score: number;
+};

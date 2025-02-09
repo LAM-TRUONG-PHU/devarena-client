@@ -16,7 +16,7 @@ import { setCurrentStep, setVariableCount, setVariableName } from "@/redux/slice
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { languages } from "prismjs";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -43,7 +43,7 @@ export type TExerciseAlgo = {
     score: number;
 };
 
-export const formSchema = z.object({
+ const formSchema = z.object({
     title: z.string().min(1, {
         message: "required",
     }),
@@ -279,7 +279,7 @@ export default function DetailExercisePage() {
     };
 
     return (
-        <div>
+        <Suspense>
             <Stepper steps={steps} currentStep={currentStep} />
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto max-w-3xl min-h-screen">
@@ -313,6 +313,6 @@ export default function DetailExercisePage() {
                     {renderStepContent()}
                 </form>
             </Form>
-        </div>
+        </Suspense>
     );
 }

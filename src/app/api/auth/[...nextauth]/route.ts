@@ -6,7 +6,7 @@ import DiscordProvider from "next-auth/providers/discord";
 import { JWT } from "next-auth/jwt";
 import { mainInstance } from "@/axios/MainInstance";
 
-export const authOptions: AuthOptions = {
+ const authOptions: AuthOptions = {
     // Configure one or more authentication providers
     secret: process.env.NEXTAUTH_SECRET,
 

@@ -1,5 +1,5 @@
 "use client";
-import "@/app/globals.css";
+import "../globals.css";
 import { AppSidebar } from "@/components/app-sidebar";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
@@ -11,7 +11,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Provider } from "react-redux";
 import { Toaster } from "@/components/ui/toaster"
 import { useSession } from "next-auth/react";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { persistStore } from "redux-persist";
 
 persistStore(store)
@@ -32,7 +32,7 @@ export default function RootLayout({
         }
     }, [session])
     return (
-        <>
+        <Suspense>
             <SidebarProvider>
                 {showSidebar && <AppSidebar isSpecialPage={isSpecialPage} isClient />}
                 <SidebarInset>
@@ -51,7 +51,7 @@ export default function RootLayout({
                 </SidebarInset>
             </SidebarProvider>
 
-        </>
+        </Suspense>
 
 
     );

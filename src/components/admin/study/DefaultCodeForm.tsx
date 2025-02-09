@@ -1,4 +1,3 @@
-import { TExerciseStudy } from '@/app/admin/study/[slug]/[exercise]/page';
 import { Editor, Monaco } from '@monaco-editor/react'
 import { usePathname } from 'next/navigation';
 import { UseFormReturn } from 'react-hook-form';
@@ -7,6 +6,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/comp
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { setDefaultCode } from '@/redux/slices/admin/exerciseStudySlice';
 
+import { TExerciseStudy } from '@/types/Exercise';
 type defaultCodeFormProps = {
     form: UseFormReturn<
         TExerciseStudy,
