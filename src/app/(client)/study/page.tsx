@@ -36,14 +36,22 @@ export default function StudyPage() {
                 const res = await axiosPrivate.get(`/course/user/${session?.user.id}`);
                 const { coursesStatus }: { coursesStatus: ICourseStatus[] } = res.data.data;
 
-                setCourses(
-                    res.data.data.courses.map((course: ICourse) => {
-                        const courseStatus = coursesStatus.find((courseStatus) => courseStatus.courseId === course._id);
+
+                const coursesWithStatus = res.data.data.courses.map((course: ICourse) => {
+                    const courseStatus = coursesStatus.find((courseStatus) => courseStatus.courseId === course._id);
+                    if (courseStatus == undefined)
+                        return {
+                            ...course,
+                            status: EStatus.Unsolved,
+                        };
+                    else
                         return {
                             ...course,
                             status: courseStatus?.status === "completed" ? EStatus.Solved : EStatus.InProgress,
                         };
-                    })
+                });
+                setCourses(
+                    coursesWithStatus
                 );
             } catch (error) {
                 console.error("Error fetching courses:", error);
@@ -54,6 +62,7 @@ export default function StudyPage() {
 
         fetchCourses();
     }, [status]); // No dependency on `courses`
+
 
 
     return (
@@ -92,6 +101,7 @@ export default function StudyPage() {
 
                     </div>
                 </>) : (<>
+                    <GetInProgresCourse courses={courses} />
                     <AllCourseSection courses={courses} /></>)}
 
             </div>

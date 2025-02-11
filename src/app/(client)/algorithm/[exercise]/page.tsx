@@ -108,17 +108,14 @@ export default function ExercisePage() {
         dispatch(updateOutputTestCaseResultSubmit(resultSubmit));
       },
       onReconnect: (data: TestcaseRestore[]) => {
-        console.log("testcases reconnect", testCases[algoExercise.title!]);
         if (testCases[algoExercise.title!]) {
           // dispatch(setAllTestCasesResultRunning(algoExercise.title!));
           dispatch(setTestCasesResult({
             key: algoExercise.title!,
             testCases: testCases[algoExercise.title!].map((testCase, index) => {
               const found = data.find((item) => item.testcaseIndex == index);
-              console.log('found', found);
               if (found) {
                 if (found.hasOwnProperty('isCorrect')) {
-                  console.log('found property', found);
                   dispatch(updateStatusTestCaseResult({ key: algoExercise.title!, testCaseId: testCase._id, status: found.isCorrect ? StatusCompile.COMPILE_SUCCESS : StatusCompile.COMPILE_FAILED }));
                   return {
                     ...testCase,
@@ -127,7 +124,6 @@ export default function ExercisePage() {
                     outputExpected: found.outputExpected
                   }
                 } else {
-                  console.log("loading test case", algoExercise.title, index);
                   dispatch(setEachTestCaseResultRunning({
                     key: algoExercise.title!,
                     index: index
@@ -179,13 +175,6 @@ export default function ExercisePage() {
     const key = algoExercise.title || "";
     const algoCode = codeAlgo[key] || []; // Ensure it's an array
 
-    // console.log("codeAlgo", algoCode.length > 0
-    //   ? algoCode.some(item => item.language === getLanguageValue(language))
-    //   : "no code"
-    // );
-
-    // console.log("codeAlgo", algoCode);
-    console.log("title", algoCode)
     if (!algoCode || algoCode.length === 0) {
       dispatch(setCodeAlgo({
         key: algoExercise.title!, code: algoExercise.defaultCode?.find
@@ -199,38 +188,12 @@ export default function ExercisePage() {
         }));
       }
 
-    // console.log("code", algoExercise.defaultCode?.find
-    //   (item => item.language === getLanguageValue(language))?.code);
   }, [
     algoExercise.title,
     algoExercise.defaultCode,
     language,
     dispatch,
   ]);
-
-  // useEffect(() => {
-  //   // dispatch(setCode({
-  //   //   key: algoExercise.title!, code: algoExercise.defaultCode?.find
-  //   //     (item => item.language === getLanguageValue(language))?.code
-  //   // }));
-  //   dispatch(setCodeAlgo({
-  //     key: algoExercise.title!, code: algoExercise.defaultCode?.find
-  //       (item => item.language === getLanguageValue(language))?.code, language: getLanguageValue(language)
-  //   }));
-  // }, [language]);
-
-  useEffect(() => {
-    const key = algoExercise.title || "";
-
-    // if (codeAlgo[key] && Array.isArray(codeAlgo[key]) && codeAlgo[key].length > 0) {
-    //   console.log(
-    //     "codeAlgo",
-    //     codeAlgo[key].find(item => item.language === getLanguageValue(language))?.code
-    //   );
-    //   console.log("title ", codeAlgo[key]);
-    // }
-  }, [codeAlgo, language, algoExercise.title]);
-
 
   useEffect(() => {
     // Only run if testCases is empty and we have either persistTestCases or exercise.testcases
@@ -260,12 +223,13 @@ export default function ExercisePage() {
     axiosPrivate
       .get(`/exercise-status/exercise/${searchParams.get("id")!}/submission`)
       .then((res) => {
-        dispatch(setSubList(res.data.data.submission));
+        if (res.data?.data?.submission) {
+          dispatch(setSubList(res.data.data.submission));
+        }
       })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, [loadingSubList == true, loading == true, compile == "Accepted"]);
+
+  }, [loadingSubList, loading, compile]); // Adjusted dependencies
+
 
   useEffect(() => {
     const testCases = testCasesResult[algoExercise.title!];

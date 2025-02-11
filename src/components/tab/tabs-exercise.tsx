@@ -137,133 +137,145 @@ export function TabsExercise() {
   );
   return (
     <Suspense>
-    <Tabs
-      defaultValue="task"
-      value={activeTab}
-      onValueChange={(value) => {
-        setActiveTab(value);
-        dispatch(setCompile(null));
-      }}
-      className="w-full flex flex-col h-full relative"
-    >
-      <header className="flex sticky top-0  items-center border-foreground border-b-[0.5px] bg-white z-20">
-        <TabsList className="w-full max-w-lg  3xl:max-w-lg  mx-auto h-12 flex items-center ">
-          <Carousel
-            opts={{ align: "center" }}
-            className="w-full"
-            onDrag={(e) => {
-              e.preventDefault();
-            }}
-          >
-            <CarouselPrevious />
+      <Tabs
+        defaultValue="task"
+        value={activeTab}
+        onValueChange={(value) => {
+          setActiveTab(value);
+          dispatch(setCompile(null));
+        }}
+        className="w-full flex flex-col h-full relative"
+      >
+        <header className="flex sticky top-0  items-center border-foreground border-b-[0.5px] bg-white z-20">
+          <TabsList className="w-full max-w-lg  3xl:max-w-lg  mx-auto h-12 flex items-center ">
+            <Carousel
+              opts={{ align: "center" }}
+              className="w-full"
+              onDrag={(e) => {
+                e.preventDefault();
+              }}
+            >
+              <CarouselPrevious />
 
-            <CarouselContent>
-              {renderTabsTrigger("task", <ClipboardList size={20} />, "Task")}
+              <CarouselContent>
+                {renderTabsTrigger("task", <ClipboardList size={20} />, "Task")}
 
-              {isExerciseLoaded &&
-                renderTabsTrigger("test-case", <MdOutlineTask size={20} />, "Test Case")}
-              {renderTabsTrigger("result", <GoTerminal size={20} />, "Results")}
-              {
-                renderTabsTrigger(
-                  "instruction",
-                  <MdOutlineIntegrationInstructions size={20} />,
-                  "Instruction"
-                )}
+                {isExerciseLoaded &&
+                  renderTabsTrigger("test-case", <MdOutlineTask size={20} />, "Test Case")}
+                {renderTabsTrigger("result", <GoTerminal size={20} />, "Results")}
+                {
+                  renderTabsTrigger(
+                    "instruction",
+                    <MdOutlineIntegrationInstructions size={20} />,
+                    "Instruction"
+                  )}
 
-              {renderTabsTrigger("submission", <FaHistory size={20} />, "Submission")}
-              {(compile == "Accepted" ||
-                compile == "Compile Error" ||
-                compile == "Wrong Answer") &&
-                renderTabsTrigger("compile", <FaHistory size={20} />, compile)}
-            </CarouselContent>
-            <CarouselNext />
-          </Carousel>
-        </TabsList>
-      </header>
+                {renderTabsTrigger("submission", <FaHistory size={20} />, "Submission")}
+                {(compile == "Accepted" ||
+                  compile == "Compile Error" ||
+                  compile == "Wrong Answer") &&
+                  renderTabsTrigger("compile", <FaHistory size={20} />, compile)}
+              </CarouselContent>
+              <CarouselNext />
+            </Carousel>
+          </TabsList>
+        </header>
 
-      <TabsContent value="task" className="flex-1 p-4">
-        <div
-          dangerouslySetInnerHTML={{
-            __html: currentExercise.content!,
-          }} className="max-h-[80vh] overflow-auto"
-        ></div>
-      </TabsContent>
-      <TabsContent value="instruction" className="flex-1 overflow-auto">
-        <div className="max-h-[82vh] overflow-auto">
-          {"solution" in currentExercise ? (
-            <PrismCode code={currentExercise?.solution ?? ""} language={segments[1]} />
-          ) : "solutions" in currentExercise ? (
+        <TabsContent value="task" className="flex-1 p-4">
+          <div
+            dangerouslySetInnerHTML={{
+              __html: currentExercise.content!,
+            }} className="max-h-[80vh] overflow-auto"
+          ></div>
+        </TabsContent>
+        <TabsContent value="instruction" className="flex-1 overflow-auto">
+          <div className="max-h-[82vh] overflow-auto">
+            {"solution" in currentExercise ? (
+              <PrismCode code={currentExercise?.solution ?? ""} language={segments[1]} />
+            ) : "solutions" in currentExercise ? (
 
-            <>
-              <Tabs value={activeSolutionTab} onValueChange={setActiveSolutionTab} className="w-full">
-                <TabsList className="flex gap-4">
-                  {currentExercise.solutions?.map((solution, index) => {
-                    return (
-                      <TabsTrigger value={solution.language} key={index}>
-                        {solution.language}
-                      </TabsTrigger>
-                    );
-                  })}
+              <>
+                <Tabs value={activeSolutionTab} onValueChange={setActiveSolutionTab} className="w-full">
+                  <TabsList className="flex gap-4">
+                    {currentExercise.solutions?.map((solution, index) => {
+                      return (
+                        <TabsTrigger value={solution.language} key={index}>
+                          {solution.language}
+                        </TabsTrigger>
+                      );
+                    })}
 
-                </TabsList>
-                <div>
-                  {currentExercise.solutions?.map((solution) => {
-                    return (
-                      <TabsContent key={solution.language} value={solution.language} className="p-4">
-                        <PrismCode code={solution.code} language={solution.language} />
-                      </TabsContent>
-                    );
-                  })}
-                </div>
-              </Tabs>
+                  </TabsList>
+                  <div>
+                    {currentExercise.solutions?.map((solution) => {
+                      return (
+                        <TabsContent key={solution.language} value={solution.language} className="p-4">
+                          <PrismCode code={solution.code} language={solution.language} />
+                        </TabsContent>
+                      );
+                    })}
+                  </div>
+                </Tabs>
 
 
-              {/* {currentExercise.solutions?.map((solution, index) => (
+                {/* {currentExercise.solutions?.map((solution, index) => (
                 <PrismCode key={index} code={solution.code} language={solution.language} />
               ))} */}
-            </>
+              </>
 
-          ) : null}
-        </div>
-      </TabsContent>
-
-      {
-        <TabsContent value="test-case" className="flex-1">
-          <TabsTestCase />
+            ) : null}
+          </div>
         </TabsContent>
-      }
+
+        {
+          <TabsContent value="test-case" className="flex-1">
+            <TabsTestCase />
+          </TabsContent>
+        }
 
 
-      <TabsContent value="result" className="mt-4 ">
+        <TabsContent value="result" className="mt-4 ">
 
 
-        {testCasesResult?.[currentExercise.title!]?.length ? (
-          testCasesResult[currentExercise.title!][0].hasOwnProperty("output") ? (
-            <div className="max-h-[82vh] overflow-auto">
-              <TabsResult />
-            </div>
-          ) : loadingTestCase ? (
-            <div className="flex flex-col space-y-3  px-4 ">
-              <header className="flex items-center bg-transparent ">
-                <div
-                  className="flex flex-wrap gap-4 bg-transparent justify-start pb-4"
+          {testCasesResult?.[currentExercise.title!]?.length ? (
+            testCasesResult[currentExercise.title!][0].hasOwnProperty("output") ? (
+              <div className="max-h-[82vh] overflow-auto">
+                <TabsResult />
+              </div>
+            ) : loadingTestCase ? (
+              <div className="flex flex-col space-y-3  px-4 ">
+                <header className="flex items-center bg-transparent ">
+                  <div
+                    className="flex flex-wrap gap-4 bg-transparent justify-start pb-4"
 
-                >
-                  <Skeleton className="flex items-center w-32 h-8 justify-center whitespace-nowrap rounded-xl px-3 py-1  font-medium ring-offset-background" />
-                  <Skeleton className="flex items-center w-32 h-8 justify-center whitespace-nowrap rounded-xl px-3 py-1  font-medium ring-offset-background" />
-                  <Skeleton className="flex items-center w-32 h-8 justify-center whitespace-nowrap rounded-xl px-3 py-1  font-medium ring-offset-background" />
+                  >
+                    <Skeleton className="flex items-center w-32 h-8 justify-center whitespace-nowrap rounded-xl px-3 py-1  font-medium ring-offset-background" />
+                    <Skeleton className="flex items-center w-32 h-8 justify-center whitespace-nowrap rounded-xl px-3 py-1  font-medium ring-offset-background" />
+                    <Skeleton className="flex items-center w-32 h-8 justify-center whitespace-nowrap rounded-xl px-3 py-1  font-medium ring-offset-background" />
 
 
+                  </div>
+
+                </header>
+                <div className="space-y-2 ">
+                  <Skeleton className="h-44 w-full rounded-xl" />
                 </div>
-
-              </header>
-              <div className="space-y-2 ">
-                <Skeleton className="h-44 w-full rounded-xl" />
+                <div className="space-y-2 ">
+                  <Skeleton className="h-44 w-full rounded-xl" />
+                </div>
               </div>
-              <div className="space-y-2 ">
-                <Skeleton className="h-44 w-full rounded-xl" />
+            ) : (
+              <div className="text-center">
+                <div className="flex justify-center my-4">
+                  <ClipboardPen size={60} />
+                </div>
+                <div className="font-semibold text-lg">Run tests to check your code</div>
+                <p>
+                  Run your code against tests to verify its correctness, <br />
+                  and view the results here.
+                </p>
               </div>
-            </div>
+            )
           ) : (
             <div className="text-center">
               <div className="flex justify-center my-4">
@@ -275,99 +287,74 @@ export function TabsExercise() {
                 and view the results here.
               </p>
             </div>
-          )
-        ) : (
-          <div className="text-center">
-            <div className="flex justify-center my-4">
-              <ClipboardPen size={60} />
-            </div>
-            <div className="font-semibold text-lg">Run tests to check your code</div>
-            <p>
-              Run your code against tests to verify its correctness, <br />
-              and view the results here.
-            </p>
+          )}
+        </TabsContent>
+
+        <TabsContent value="submission" className="flex-1">
+          <div className="max-h-[80vh] overflow-auto">
+            <TabSubmission />
           </div>
-        )}
-      </TabsContent>
-
-      <TabsContent value="submission" className="flex-1">
-        <TabSubmission />
-      </TabsContent>
-      <TabsContent value="compile" className="flex-1 p-4 bg-white space-y-2">
-        <div className="max-h-[80vh] overflow-auto">
-          <div className="space-y-2">
-            {loading ? (<LoadingSpinner />) : (<>
-              <div className="flex items-center space-x-1">
-                <div
-                  className={`${compile == "Accepted" ? "text-green_primary" : "text-red_primary"
-                    } font-semibold text-lg`}
-                >
-                  {compile}
-                </div>
-                {(compile == "Accepted" || compile == "Wrong Answer") && (
-                  <div className="text-sm ">{"result" in submission ? submission.result : resultSubmit.result} testcases passed</div>
-                )}
-              </div>
-              <div className="flex items-center gap-1">
-                <Avatar className="h-6 w-6">
-                  <AvatarImage src={session?.user.avatar ?? avatarDefault} alt={""} className="rounded-full object-cover" />
-                  <AvatarFallback> {"Avatar"}</AvatarFallback>
-                </Avatar>
-
-                <div className="text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{session?.user.username} </span>
-                  submitted at {'createdAt' in submission ? formatDate(submission.createdAt) : resultSubmit?.submittedAt}
-                </div>
-              </div>
-              <div className="p-4 !bg-gray-100 !rounded-xl">
-                {compile == "Accepted" ? (
-                  <div>
-                    <div className="flex gap-1 items-center">
-                      <FaRegClock />
-                      <div>Runtime</div>
-                    </div>
-                    <div className="flex items-center">
-                      <div>
-                        <span className="font-semibold text-lg">
-                          {
-                            Number(('totalTime' in submission ? submission.totalTime : resultSubmit?.totalRuntime!) / 1000).toFixed(2)}
-                        </span>{" "}
-                        s{" "}
-                      </div>
-                      <Separator orientation="vertical" className="mx-2 h-6" />
-                      <div>
-                        Beats
-                        <span className="font-semibold text-lg">
-                          {" "}{Number("compareTime" in submission ? submission.compareTime : resultSubmit?.compareTime).toFixed(2)}
-                        </span>{" "}
-                        %
-                      </div>
-                    </div>
-                    <ChartRuntime />
+        </TabsContent>
+        <TabsContent value="compile" className="flex-1 p-4 bg-white space-y-2">
+          <div className="max-h-[80vh] overflow-auto">
+            <div className="space-y-2">
+              {loading ? (<LoadingSpinner />) : (<>
+                <div className="flex items-center space-x-1">
+                  <div
+                    className={`${compile == "Accepted" ? "text-green_primary" : "text-red_primary"
+                      } font-semibold text-lg`}
+                  >
+                    {compile}
                   </div>
-                ) : compile == "Wrong Answer" ? (
-                  <>
-                    <div className="font-semibold text-lg">Output</div>
+                  {(compile == "Accepted" || compile == "Wrong Answer") && (
+                    <div className="text-sm ">{"result" in submission ? submission.result : resultSubmit.result} testcases passed</div>
+                  )}
+                </div>
+                <div className="flex items-center gap-1">
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage src={session?.user.avatar ?? avatarDefault} alt={""} className="rounded-full object-cover" />
+                    <AvatarFallback> {"Avatar"}</AvatarFallback>
+                  </Avatar>
 
-                    <div
-                      className="bg-white w-full text-gray-800 p-4 flex flex-col gap-4"
-                    >
-                      {"testcase" in submission ? submission.testcase?.input.map((obj, index) => {
-                        const key = Object.keys(obj)[0]; // Extract key from object
-                        const value = obj[key]; // Extract value
-                        return (
-                          <div key={index}>
-                            <div>{key} =</div>
-                            <input
-                              disabled
-                              type="text"
-                              value={value} // Display initial value
-                              className="w-full p-3 rounded-xl bg-[#000a200d] outline-none"
-                            />
-                          </div>
-                        );
-                      }) :
-                        resultSubmit.testcase?.input.map((obj, index) => {
+                  <div className="text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">{session?.user.username} </span>
+                    submitted at {'createdAt' in submission ? formatDate(submission.createdAt) : resultSubmit?.submittedAt}
+                  </div>
+                </div>
+                <div className="p-4 !bg-gray-100 !rounded-xl">
+                  {compile == "Accepted" ? (
+                    <div>
+                      <div className="flex gap-1 items-center">
+                        <FaRegClock />
+                        <div>Runtime</div>
+                      </div>
+                      <div className="flex items-center">
+                        <div>
+                          <span className="font-semibold text-lg">
+                            {
+                              Number(('totalTime' in submission ? submission.totalTime : resultSubmit?.totalRuntime!) / 1000).toFixed(2)}
+                          </span>{" "}
+                          s{" "}
+                        </div>
+                        <Separator orientation="vertical" className="mx-2 h-6" />
+                        <div>
+                          Beats
+                          <span className="font-semibold text-lg">
+                            {" "}{Number("compareTime" in submission ? submission.compareTime : resultSubmit?.compareTime).toFixed(2)}
+                          </span>{" "}
+                          %
+                        </div>
+                      </div>
+                      <ChartRuntime />
+                    </div>
+                  ) : compile == "Wrong Answer" ? (
+                    <>
+                      <div className="font-semibold text-lg">Output</div>
+
+                      <div
+                        className="bg-white w-full text-gray-800 p-4 flex flex-col gap-4"
+                      >
+                        {"testcase" in submission ? submission.testcase?.input.map((obj, index) => {
                           const key = Object.keys(obj)[0]; // Extract key from object
                           const value = obj[key]; // Extract value
                           return (
@@ -381,74 +368,89 @@ export function TabsExercise() {
                               />
                             </div>
                           );
-                        })}
-                      <div className="grid w-full gap-1.5">
-                        <Label htmlFor="message-2">Output</Label>
-                        <Textarea
-                          title="Output"
-                          readOnly
-                          className="w-full p-3 rounded-xl"
-                          value={"testcase" in submission ? submission.testcase?.output : resultSubmit.testcase?.output}
+                        }) :
+                          resultSubmit.testcase?.input.map((obj, index) => {
+                            const key = Object.keys(obj)[0]; // Extract key from object
+                            const value = obj[key]; // Extract value
+                            return (
+                              <div key={index}>
+                                <div>{key} =</div>
+                                <input
+                                  disabled
+                                  type="text"
+                                  value={value} // Display initial value
+                                  className="w-full p-3 rounded-xl bg-[#000a200d] outline-none"
+                                />
+                              </div>
+                            );
+                          })}
+                        <div className="grid w-full gap-1.5">
+                          <Label htmlFor="message-2">Output</Label>
+                          <Textarea
+                            title="Output"
+                            readOnly
+                            className="w-full p-3 rounded-xl"
+                            value={"testcase" in submission ? submission.testcase?.output : resultSubmit.testcase?.output}
 
-                        />
+                          />
+                        </div>
+
+                        <div className="grid w-full gap-1.5">
+                          <Label htmlFor="message-2">Expected</Label>
+                          <Textarea
+                            readOnly
+                            title="Expected"
+                            className="w-full p-3 rounded-xl"
+                            value={"testcase" in submission ? submission.testcase?.outputExpected : resultSubmit.testcase?.outputExpected}
+
+                          />
+                        </div>
+
                       </div>
-
-                      <div className="grid w-full gap-1.5">
-                        <Label htmlFor="message-2">Expected</Label>
-                        <Textarea
-                          readOnly
-                          title="Expected"
-                          className="w-full p-3 rounded-xl"
-                          value={"testcase" in submission ? submission.testcase?.outputExpected : resultSubmit.testcase?.outputExpected}
-
-                        />
-                      </div>
-
-                    </div>
-
-
-                  </>
-                ) : (
-                  <div>
-                    <PrismCode code={"errorCode" in submission ? submission.errorCode! : resultSubmit.codeFailed || ""} language={"java"} />
-                  </div>
-                )}
-              </div></>)}
-
-          </div>
-
-          <div>
-            <div className="font-medium">Code | {capitalize(segments[1])}</div>
-            {loading ? <Skeleton className="h-40 w-full rounded-xl" />
-              : (
-                <div className="">
-                  {"solution" in currentExercise ? (
-                    <PrismCode code={"code" in submission ? submission.code : code[`${currentExercise.title}`]} language={getLanguageValue(language)} />
-                  ) : "solutions" in currentExercise ? (
-
-                    <>
-                      <PrismCode code={"code" in submission ? submission.code : codeAlgo[currentExercise.title!]?.find(
-                        (entry) => entry.language === getLanguageValue(language)
-                      )?.code!} language={getLanguageValue(language)} />
 
 
                     </>
+                  ) : (
+                    <div>
+                      <PrismCode code={"errorCode" in submission ? submission.errorCode! : resultSubmit.codeFailed || ""} language={"java"} />
+                    </div>
+                  )}
+                </div></>)}
 
-                  ) : null}
-                </div>
-              )}
+            </div>
+
+            <div>
+              <div className="font-medium">Code | {capitalize(segments[1])}</div>
+              {loading ? <Skeleton className="h-40 w-full rounded-xl" />
+                : (
+                  <div className="">
+                    {"solution" in currentExercise ? (
+                      <PrismCode code={"code" in submission ? submission.code : code[`${currentExercise.title}`]} language={getLanguageValue(language)} />
+                    ) : "solutions" in currentExercise ? (
+
+                      <>
+                        <PrismCode code={"code" in submission ? submission.code : codeAlgo[currentExercise.title!]?.find(
+                          (entry) => entry.language === getLanguageValue(language)
+                        )?.code!} language={getLanguageValue(language)} />
 
 
-            {/* (
+                      </>
+
+                    ) : null}
+                  </div>
+                )}
+
+
+              {/* (
               <PrismCode code={"code" in submission ? submission.code : code[`${currentExercise.title}`]} language={"java"} />
               )} */}
 
 
+            </div>
           </div>
-        </div>
 
-      </TabsContent>
-    </Tabs>
+        </TabsContent>
+      </Tabs>
     </Suspense>
   );
 }
