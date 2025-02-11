@@ -32,7 +32,7 @@ export default function InProcessingCard(props: InProgressingCardProps) {
         </div>
 
         <Button onClick={props.onClick} className="px-4 py-6">
-          <span>Study</span>
+          <span>Continue Studying</span>
         </Button>
       </div>
     </div>

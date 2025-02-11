@@ -21,15 +21,15 @@ const GetInProgresCourse = (props: GetInProgresCourseProps) => {
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
       {
-        props.courses.filter((course) => course.status === EStatus.InProgress).map((course) => (
-          <InProcessingCard
-            key={course._id}
-            onClick={async () => {
-              router.push(`/study/${course.language.toLowerCase()}?id=${course._id}`);
-            }}
-            language={course.language}
-            exercises={course.totalExercises || 0} progress={0} />
-        ))}
+      props.courses.filter((course) => course.status === EStatus.InProgress).map((course) => (
+        <InProcessingCard
+          key={course._id}
+          onClick={async () => {
+            router.push(`/study/${course.language.toLowerCase()}?id=${course._id}`);
+          }}
+          language={course.language}
+          exercises={course.totalExercises || 0} progress={0} />
+      ))}
 
     </div>
   );

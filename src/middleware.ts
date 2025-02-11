@@ -6,7 +6,7 @@ export default withAuth(
   function middleware(request: NextRequestWithAuth) {
     // Lấy pathname từ URL
     const pathname = request.nextUrl.pathname;
-    
+
     // Nếu người dùng chưa đăng nhập và không phải là route auth/*
     if (!request.nextauth.token && !pathname.startsWith("/auth")) {
       // Chuyển hướng đến trang signin
@@ -39,6 +39,6 @@ export default withAuth(
 export const config = {
   matcher: [
     // Match all routes except api, _next/static, _next/image, favicon.ico
-    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(png|jpg|jpeg|gif|svg|webp)).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };

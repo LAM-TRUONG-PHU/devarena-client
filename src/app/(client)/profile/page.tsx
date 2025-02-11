@@ -10,6 +10,8 @@ import { PieChart, User } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import CalendarHeatmap from 'react-calendar-heatmap';
+import 'react-calendar-heatmap/dist/styles.css';
 
 interface ITag {
   [key: string]: number;  // The keys are strings, and the values are numbers
@@ -19,6 +21,11 @@ interface IAchievement {
   title: string;
   requiredScore: number;
   image: string;
+}
+
+interface ISubmission {
+  date: string;
+  submissionCount: number;
 }
 export default function ProfilePage() {
   // const [currentAvatar, setCurrentAvatar] = useState<string>("/avatar.jpg");
@@ -37,6 +44,8 @@ export default function ProfilePage() {
     []
   );
 
+  const [submissions, setSubmissions] = useState<ISubmission[]>([]);
+
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -48,7 +57,7 @@ export default function ProfilePage() {
             setDifficulties(res.data.data.difficulties);
             setAchievements(res.data.data.achievements);
             setTags(res.data.data.tags);
-            console.log(res.data.data);
+            setSubmissions(res.data.data.submissions);
           }
         )
       } catch (error) {
@@ -110,7 +119,7 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-        <div className="lg:col-span-2 ">
+        <div className="lg:col-span-2  space-y-8">
           <div className="flex gap-8">
             <div className="flex-1">
               <div className="card-bg hover:scale-100 h-full space-y-16">
@@ -190,9 +199,46 @@ export default function ProfilePage() {
 
                 </div>
               </div>
+
+
+
             </div>
 
           </div>
+          <CalendarHeatmap
+            startDate={new Date('2025-01-01')}
+            endDate={new Date('2025-12-31')}
+            values={submissions}
+            onMouseOver={(e, value) => {
+              console.log(value);
+            }}
+            titleForValue={(value) => {
+              return value
+                ? `📅 Date: ${value.date}\n🔥 Submissions: ${value.submissionCount}`
+                : 'No submissions';
+            }}
+
+            classForValue={(value) => {
+              if (!value) {
+                return 'color-empty';
+              }
+
+              if (value.submissionCount <= 5)
+                return `color-github-1`;
+              if (value.submissionCount <= 10)
+                return `color-github-2`;
+              if (value.submissionCount <= 15)
+                return `color-github-3`;
+              if (value.submissionCount <= 20)
+                return `color-github-4`;
+              if (value.submissionCount <= 25)
+                return `color-github-5`;
+
+              return `color-github-6`;
+            }}
+
+
+          />
         </div>
       </div>
     </div>
