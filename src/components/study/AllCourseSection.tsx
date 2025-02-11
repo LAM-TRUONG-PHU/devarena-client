@@ -22,7 +22,7 @@ const AllCourseSection = (props: AllCourseSectionProps) => {
         <div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {(
-                    props.courses.filter((course) => course.status === EStatus.InProgress).map((course) => (
+                    props.courses.filter((course) => course.status === EStatus.Unsolved).map((course) => (
                         <StudyCard
                             key={course._id}
                             onClick={async () => {

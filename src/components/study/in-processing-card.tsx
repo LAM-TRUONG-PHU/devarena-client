@@ -20,18 +20,21 @@ export default function InProcessingCard(props: InProgressingCardProps) {
         {props.language === ELanguages.Cpp && <Cpp.TierFinal />}
         {props.language === ELanguages.Java && <Java.TierFinal />}
       </div>
-      <div className="space-y-1">
-        <div className="text-xl font-semibold">
-          {getLanguageTitle(props.language as ELanguages)}
-        </div>
-        <div className="flex gap-1">
-          <FaDumbbell className="size-4 mr-1" />
-          <span className="text-sm font-medium">
-            {props.exercises} exercises
-          </span>
+      <div className="space-y-4">
+        <div className="space-y-1">
+          <div className="text-xl font-semibold">
+            {getLanguageTitle(props.language as ELanguages)}
+          </div>
+          <div className="flex gap-1">
+            <FaDumbbell className="size-4 mr-1" />
+            <span className="text-sm font-medium">
+              {props.exercises} exercises
+            </span>
+          </div>
         </div>
 
-        <Button onClick={props.onClick} className="px-4 py-6">
+
+        <Button onClick={props.onClick} className="px-4 py-6 ">
           <span>Continue Studying</span>
         </Button>
       </div>

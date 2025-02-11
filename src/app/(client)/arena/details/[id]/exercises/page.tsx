@@ -17,7 +17,7 @@ export default function ChallengePage() {
     const params = useSearchParams();
     const id = params.get("id");
     useEffect(() => {
-      dispatch(fetchContestExercises({ axiosInstance: axiosInstance, contestId: id as string}));
+        dispatch(fetchContestExercises({ axiosInstance: axiosInstance, contestId: id as string }));
     }, [id]);
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
@@ -76,18 +76,7 @@ export default function ChallengePage() {
                         />
                     ))
                 }
-                {/* <ChallengeCard
-                    title={"#1: Multiples of 3 and 5"}
-                    date="12th March 2022"
-                    buttonText="View Challenge"
-                    onClick={() => console.log("Clicked")}
-                />
-                <ChallengeCard
-                    title={"#2: Multiples of 3 and 5"}
-                    date="12th March 2022"
-                    buttonText="View Challenge"
-                    onClick={() => console.log("Clicked")}
-                /> */}
+
             </div>
         </Suspense>
     );

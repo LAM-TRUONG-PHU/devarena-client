@@ -186,7 +186,7 @@ export const useSocket = ({
       socket.off("complete_submit");
       socket.off("restoreExecution");
 
-      
+
     };
   }, [uniqueId, onCompiling, onOutput, onError, onWaitingInput, onCompleted, onReconnect]);
 
