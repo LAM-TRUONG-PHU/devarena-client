@@ -18,12 +18,13 @@ import { getSession, signIn, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation"; // New import
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaDiscord, FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { set } from "store";
 import { z } from "zod";
+
 const formSchema = z.object({
     username: z.string().min(1, {
         message: "required",
@@ -111,7 +112,7 @@ export default function LoginPage() {
             <div className="w-full max-w-lg bg-white p-12 rounded-md shadow-lg">
                 <Image
                     className="dark:invert mx-auto"
-                    src="/logo1.png"
+                    src="/logo.png"
                     alt="DevArena logo"
                     width={150}
                     height={150}

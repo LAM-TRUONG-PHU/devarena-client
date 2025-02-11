@@ -18,10 +18,8 @@ import { Eye, EyeOffIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
-import { FaDiscord, FaGithub } from "react-icons/fa6";
-import { FcGoogle } from "react-icons/fc";
 import { z } from "zod";
 const formSchema = z
     .object({
@@ -92,10 +90,11 @@ export default function SignUpPage() {
                 <div className="space-y-4">
                     <Image
                         className="dark:invert"
-                        src="/logo2.png"
+                        src="/logo1.png"
                         alt="DevArena logo"
                         width={300}
                         height={300}
+                        
                     />
                     <h1 className="scroll-m-20 text-4xl font-medium tracking-tight lg:text-xl">
                         🏆 Level Up Your Coding Skills
