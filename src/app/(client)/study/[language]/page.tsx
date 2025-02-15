@@ -133,7 +133,7 @@ export default function LanguagePage() {
 
 
     getExercisesByUserAndCourse();
-  }, [status, session?.user.id, courseId, axiosPrivate, dispatch]);
+  }, [status, axiosPrivate, dispatch]);
 
   useEffect(() => {
     const applyFilters = () => {

@@ -16,6 +16,7 @@ import { usePathname } from "next/navigation";
 import { createSlug } from "@/lib/helper";
 import { create } from "domain";
 import { Textarea } from "../ui/textarea";
+import { C } from "../mastery";
 
 export function TabsTestCase() {
   const dispatch = useAppDispatch();
@@ -35,10 +36,18 @@ export function TabsTestCase() {
   // }, [testCases]);
 
   useEffect(() => {
-    dispatch(setActiveTestcaseTab(Object.entries(testCases)[0][1][0] != undefined ? Object.entries(testCases)[0][1][0]._id : ""));
-  }, [Object.entries(testCases)[0][1][0] == undefined]);
+    if (testCases && Object.entries(testCases).length > 0) {
+      const key = currentExercise?.title || createSlug(segments[segments.length - 1]);
+      console.log("key", key);
+      console.log("testCases", testCases);
+      const currentTestCases = testCases[key] || [];
+      console.log("currentTestCases", currentTestCases);
+      if (currentTestCases.length > 0 || !activeTestcaseTab) {
+        dispatch(setActiveTestcaseTab(currentTestCases[0]._id));
+      }
+    }
+  }, []);
 
-  console.log("testCases", testCases);
 
   const handleAddTab = () => {
     const key = currentExercise?.title || createSlug(segments[segments.length - 1]); // Use currentExercise title or fallback to URL slug
@@ -83,7 +92,7 @@ export function TabsTestCase() {
 
   return (
     <Tabs
-      defaultValue={activeTestcaseTab != "" ? Object.entries(testCases)[0][1][0] != undefined ? Object.entries(testCases)[0][1][0]._id : activeTestcaseTab : activeTestcaseTab}
+      defaultValue={activeTestcaseTab || Object.entries(testCases)[0][1][0]._id}
       value={activeTestcaseTab}
       onValueChange={(value) => {
         dispatch(setActiveTestcaseTab(value));

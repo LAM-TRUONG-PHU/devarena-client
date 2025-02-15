@@ -37,7 +37,6 @@ export const fetchAchievementsByRefIdAndRequiredScore = createAsyncThunk<{
     async ({ axiosInstance, id, totalSolvedScore }, { rejectWithValue }) => {
         try {
             const response = await axiosInstance.get(`/achievement/refId/${id}/score/${totalSolvedScore}`);
-            console.log("res", response.data);
             return response.data;
         } catch (error: any) {
             return rejectWithValue(error.response.data);

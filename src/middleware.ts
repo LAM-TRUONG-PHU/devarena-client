@@ -38,7 +38,8 @@ export default withAuth(
 // Định nghĩa các route áp dụng middleware
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|webp)).*)",
+    // Match all routes except api, _next/static, _next/image, favicon.ico
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };
 

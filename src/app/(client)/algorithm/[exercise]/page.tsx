@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { usePrivate } from "@/hooks/usePrivateAxios";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { fetchAlgoExercise, setAllTestCasesResultRunning, setCodeAlgo, setCompile, setEachTestCaseResultRunning, setLanguage, setLoadingSubList, setLoadingTestCase, setSubList, setSubmission, setSubmissionId, setTestCases, setTestCasesResult, updateOutputCompiling, updateOutputTestCaseResultSubmit, updateStatusTestCase, updateStatusTestCaseResult } from "@/redux/slices/admin/exerciseStudySlice";
+import { fetchAlgoExercise, removeAllTestCasesResult, setAllTestCasesResultRunning, setCodeAlgo, setCompile, setEachTestCaseResultRunning, setExercise, setLanguage, setLoadingSubList, setLoadingTestCase, setSubList, setSubmission, setSubmissionId, setTestCases, setTestCasesResult, updateOutputCompiling, updateOutputTestCaseResultSubmit, updateStatusTestCase, updateStatusTestCaseResult } from "@/redux/slices/admin/exerciseStudySlice";
 import useSocket from "@/socket/useSocket";
 import { StatusCompile } from "@/types/Exercise";
 import { ICompileRes } from "@/types/ICompileRes";
 import { getLanguageValue } from "@/utils/get-language-value";
 import Editor, { Monaco } from "@monaco-editor/react";
+import { RotateCcw } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -50,7 +51,7 @@ export default function ExercisePage() {
 
   const dispatch = useAppDispatch();
   const { toast } = useToast();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   const { connected, compileCode, submitCode, stopExecution, isConnected } =
     useSocket({
@@ -157,20 +158,24 @@ export default function ExercisePage() {
     });
 
   useEffect(() => {
-    dispatch(setCompile(null));
-    dispatch(setLoadingTestCase(false));
-    dispatch(setLoadingSubList(false));
-    // dispatch(setRunningTestCase(""));
-    dispatch(setSubmissionId(""));
-    dispatch(setSubmission({}));
-    dispatch(
-      fetchAlgoExercise({
-        axiosInstance: axiosPrivate,
-        id: searchParams.get("id")!,
-      })
-    );
+    if (status == "authenticated") {
+      dispatch(setCompile(null));
+      dispatch(setLoadingTestCase(false));
+      dispatch(setLoadingSubList(false));
+      // dispatch(setRunningTestCase(""));
+      dispatch(setExercise({}));
+      dispatch(removeAllTestCasesResult());
+      dispatch(setSubmissionId(""));
+      dispatch(setSubmission({}));
+      dispatch(
+        fetchAlgoExercise({
+          axiosInstance: axiosPrivate,
+          id: searchParams.get("id")!,
+        })
+      );
+    }
 
-  }, []);
+  }, [status]);
   useEffect(() => {
     const key = algoExercise.title || "";
     const algoCode = codeAlgo[key] || []; // Ensure it's an array
@@ -369,6 +374,15 @@ export default function ExercisePage() {
                 }
               } />
             </div>
+            <Button onClick={() => {
+              dispatch(setCodeAlgo({
+                key: algoExercise.title!, code: algoExercise.defaultCode?.find
+                  (item => item.language === getLanguageValue(language))?.code, language: getLanguageValue(language)
+              }))
+            }} className="!w-fit !p-2" >
+              <RotateCcw />
+            </Button>
+
 
           </div>
           <Editor
