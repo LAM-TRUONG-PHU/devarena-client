@@ -9,7 +9,7 @@ import { IResultSubmit } from "@/types/IResultSubmit";
 import { now } from "next-auth/client/_utils";
 import { setTestCases } from "@/redux/slices/ExerciseStatusSlice";
 // Cấu hình socket với các options cần thiết
-const socket = io("http://localhost:3001", {
+const socket = io("https://devArena.store", {
   transports: ["websocket", "polling"],
   path: "/socket.io/",
   reconnection: true,

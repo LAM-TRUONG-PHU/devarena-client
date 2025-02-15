@@ -1,26 +1,6 @@
 "use client";
 
 import * as React from "react";
-import {
-    AudioWaveform,
-    BookOpen,
-    Bot,
-    Calendar,
-    Command,
-    Frame,
-    GalleryVerticalEnd,
-    Home,
-    Inbox,
-    Map,
-    PieChart,
-    Search,
-    Settings,
-    Settings2,
-    SquareTerminalIcon,
-    NotebookPenIcon,
-    Trophy,
-    SquareTerminal,
-} from "lucide-react";
 import { BsDiagram2 } from "react-icons/bs";
 
 import Image from "next/image";
@@ -32,12 +12,11 @@ import {
     SidebarContent,
     SidebarFooter,
     SidebarHeader,
-    SidebarMenu,
     SidebarMenuButton,
-    SidebarRail,
+    SidebarRail
 } from "@/components/ui/sidebar";
-import NavUser from "./nav-user";
 import { SiCodecrafters } from "react-icons/si";
+import NavUser from "./nav-user";
 
 // This is sample data.
 
