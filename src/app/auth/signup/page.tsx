@@ -90,7 +90,7 @@ export default function SignUpPage() {
                 <div className="space-y-4">
                     <Image
                         className="dark:invert"
-                        src="/logo1.png"
+                        src="https://res.cloudinary.com/dlfsdepfc/image/upload/v1739701395/logo1_nclmbo.png"
                         alt="DevArena logo"
                         width={300}
                         height={300}
