@@ -9,10 +9,10 @@ import { CheckCircle, ClipboardPen, XCircle } from "lucide-react";
 import { Spinner } from "../ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { LoadingSpinner } from "../loading";
-import { setActiveResultTab, setActiveTab, setCompile } from "@/redux/slices/admin/exerciseStudySlice";
+import { setActiveResultTab, setActiveTab, setCompile, setLoadingTestCase } from "@/redux/slices/admin/exerciseStudySlice";
 
 export default function TabsResult() {
-    const { testCasesResult, activeResultTab } = useAppSelector(
+    const { testCasesResult, activeResultTab, exercise } = useAppSelector(
         (state) => state.exercises
     );
     const dispatch = useAppDispatch();
@@ -35,36 +35,55 @@ export default function TabsResult() {
     };
 
     useEffect(() => {
+        if (testCasesResult && Object.entries(testCasesResult).length > 0) {
+            const currentExerciseKey = exercise.title;
+            const currentTestCasesResult = Object.entries(testCasesResult).find(
+                ([key]) => createSlug(key) === segments[segments.length - 1] || key === currentExerciseKey)
+            if (currentTestCasesResult) {
+                dispatch(setActiveResultTab(currentTestCasesResult[1][0]._id));
+            }
+        }
+        console.log("activeResultTab", activeResultTab);
+    }, []);
+    useEffect(() => {
         if (!testCasesResult || Object.keys(testCasesResult).length === 0) return;
 
-        let foundRunningTest = false;
+        dispatch(setLoadingTestCase(false));
 
-        for (const [, testCaseGroup] of Object.entries(testCasesResult)) {
+        const currentExerciseKey = exercise.title;
+        const currentTestCasesResult = Object.entries(testCasesResult).find(
+            ([key]) => createSlug(key) === segments[segments.length - 1] || key === currentExerciseKey)
+
+        console.log("Object.entries(testCasesResult", Object.entries(testCasesResult));
+        console.log("currentTestCasesResult", currentTestCasesResult);
+        for (const [key, testCaseGroup] of Object.entries(testCasesResult)) {
+            if (createSlug(key) !== segments[segments.length - 1] && key !== currentExerciseKey) {
+                continue;
+            }
             const runningTest = testCaseGroup.find(
                 (testCase) => testCase.statusCompile === StatusCompile.COMPILE_RUNNING
             );
 
 
-            if (runningTest) {
 
+
+
+            if (runningTest) {
                 if (lastRunningTestId.current !== runningTest._id) {
-                    lastRunningTestId.current = runningTest._id; // Update last recorded running test ID
+                    lastRunningTestId.current = runningTest._id;
                     dispatch(setActiveResultTab(runningTest._id));
                 }
-                foundRunningTest = true;
-                break; // Stop after finding the first running test case
+                break; // ✅ Stop checking once we find a running test
             }
         }
 
-        // Reset lastRunningTestId if no running test is found (prevents flickering)
-        if (!foundRunningTest) {
-            lastRunningTestId.current = null;
-        }
+
     }, [testCasesResult, dispatch]);
 
-    useEffect(() => {
-        console.log("activeResultTab", activeResultTab);
-    }, [activeResultTab]);
+
+    // useEffect(() => {
+    //     console.log("activeResultTab", activeResultTab);
+    // }, [activeResultTab]);
 
     useEffect(() => {
         if (textAreaRef.current) {
@@ -75,7 +94,7 @@ export default function TabsResult() {
     return (
         <div>
             <Tabs
-                defaultValue={activeResultTab || Object.entries(testCasesResult)[0][1][0]._id}
+                defaultValue={activeResultTab || Object.entries(testCasesResult)?.[0]?.[1]?.[0]?._id || ""}
                 value={activeResultTab}
                 onValueChange={
                     (value) => {

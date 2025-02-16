@@ -22,7 +22,7 @@ interface ISubmission {
 
 interface ExerciseState {
     exercises: IExercise[];
-    exercise: IExercise;
+    exercise: Partial<IExercise>;
     algoExercise: Partial<IAlgoExercise>;
     codeEntries: IDefaultSolutionCode[];
     solutionCodeEntries: IDefaultSolutionCode[];
@@ -166,7 +166,7 @@ const exercisesStudySlice = createSlice({
     reducers: {
         setAllTestCasesResultRunning: (state, action: PayloadAction<string>) => {
             const key = action.payload;
-            console.log(key)
+            console.log("setAllTestCasesResultRunning", key);
             if (state.testCasesResult[key]) {
                 state.testCasesResult[key] = state.testCasesResult[key].map(testCase => ({
                     ...testCase,
@@ -177,6 +177,7 @@ const exercisesStudySlice = createSlice({
         // set test cases rusult running if it is not running
         setEachTestCaseResultRunning: (state, action: PayloadAction<{ key: string, index: number }>) => {
             const { key, index } = action.payload;
+            console.log("setEachTestCaseResultRunning", key, index);
             if (state.testCasesResult[key] && state.testCasesResult[key][index]) {
                 state.testCasesResult[key][index] = {
                     ...state.testCasesResult[key][index],
@@ -211,7 +212,7 @@ const exercisesStudySlice = createSlice({
         setCurrentExercise(state, action: PayloadAction<IExercise | null>) {
             state.currentExercise = action.payload;
         },
-        setExercise(state, action: PayloadAction<IExercise>) {
+        setExercise(state, action: PayloadAction<Partial<IExercise>>) {
             state.exercise = action.payload;
         },
         updateExercise(state, action: PayloadAction<IExercise>) {
@@ -232,6 +233,9 @@ const exercisesStudySlice = createSlice({
         },
         setTestCasesResult(state, action: PayloadAction<{ key: string; testCases: ITestCase[] }>) {
             state.testCasesResult[action.payload.key] = action.payload.testCases;
+        },
+        removeAllTestCasesResult: (state,) => {
+            state.testCasesResult = {}
         },
         addTestCase: (state, action: PayloadAction<{ key: string; testCase: ITestCase }>) => {
             if (!state.testCases[action.payload.key] || !state.persistTestCases[action.payload.key]) {
@@ -256,6 +260,7 @@ const exercisesStudySlice = createSlice({
         },
         setRunningTestCase: (state, action: PayloadAction<string>) => {
             const key = action.payload;
+            console.log("Set running test case:", key);
             if (state.testCasesResult[key]) {
                 state.testCasesResult[key] = state.testCasesResult[key].map((testCase) => ({
                     ...testCase,
@@ -570,6 +575,8 @@ export const {
     setSolutionCode,
     setAlgoExercise,
     setLanguage,
+    removeAllTestCasesResult,
+
 } = exercisesStudySlice.actions;
 
 export default exercisesStudySlice.reducer;

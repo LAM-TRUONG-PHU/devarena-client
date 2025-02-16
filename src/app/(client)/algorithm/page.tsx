@@ -50,12 +50,6 @@ export default function AlgorithmPage() {
     }, 0);
     const [open, setOpen] = useState(false);
 
-
-    useEffect(() => {
-        if (yourPreAchievement) {
-            setOpen(true);
-        }
-    }, [yourPreAchievement])
     useEffect(() => {
         const getExercisesByUserAndCourse = async () => {
             try {
@@ -64,7 +58,6 @@ export default function AlgorithmPage() {
                         `/algorithm/user/${session?.user.id}`
                     );
 
-                    console.log("response", response.data.data);
 
 
                     const { exercisesStatus }: { exercisesStatus: IExerciseStatus[] } =

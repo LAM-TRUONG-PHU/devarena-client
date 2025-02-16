@@ -24,7 +24,7 @@ import { capitalize } from "@/utils/capitalize";
 import { Textarea } from "../ui/textarea";
 import { IExercise, StatusCompile } from "@/types/Exercise";
 import { usePrivate } from "@/hooks/usePrivateAxios";
-import { setCompile, setLoading, setSubList, setSubmission } from "@/redux/slices/admin/exerciseStudySlice";
+import { setCompile, setLoading, setLoadingTestCase, setSubList, setSubmission } from "@/redux/slices/admin/exerciseStudySlice";
 import { Skeleton } from "../ui/skeleton";
 import { Label } from "../ui/label";
 import { useSession } from "next-auth/react";
@@ -66,9 +66,23 @@ export function TabsExercise() {
   const [activeTab, setActiveTab] = useState("task");
   const [activeSolutionTab, setActiveSolutionTab] = useState("java");
   const { data: session } = useSession()
+  const [isLoadingTimedOut, setIsLoadingTimedOut] = useState(false);
 
+  // useEffect(() => {
+  //   if (!loadingTestCase) {
+  //     setIsLoadingTimedOut(false); // Reset timeout state if loading stops
+  //     return; // Exit early to prevent setting a timeout
+  //   }
 
-  useEffect(() => { console.log("currentExercise", currentExercise) }, [currentExercise]);
+  //   const timeout = setTimeout(() => {
+  //     setIsLoadingTimedOut(true);
+  //     dispatch(setLoadingTestCase(false)); // Ensure it doesn't override an external change
+  //     setActiveTab("compile");
+  //   }, 10000); // 10 seconds
+
+  //   return () => clearTimeout(timeout); // Cleanup timeout on unmount or when loadingTestCase changes
+  // }, [loadingTestCase, dispatch]);
+
 
   const formatDate = (isoString: string) => {
     const date = new Date(isoString);
@@ -242,7 +256,7 @@ export function TabsExercise() {
               <div className="max-h-[82vh] overflow-auto">
                 <TabsResult />
               </div>
-            ) : loadingTestCase ? (
+            ) : loadingTestCase && !isLoadingTimedOut ? (
               <div className="flex flex-col space-y-3  px-4 ">
                 <header className="flex items-center bg-transparent ">
                   <div
@@ -338,7 +352,7 @@ export function TabsExercise() {
                         </div>
                         <Separator orientation="vertical" className="mx-2 h-6" />
                         <div>
-                          Beats
+                          In top
                           <span className="font-semibold text-lg">
                             {" "}{Number("compareTime" in submission ? submission.compareTime : resultSubmit?.compareTime).toFixed(2)}
                           </span>{" "}
@@ -412,7 +426,7 @@ export function TabsExercise() {
                     </>
                   ) : (
                     <div>
-                      <PrismCode code={"errorCode" in submission ? submission.errorCode! : resultSubmit.codeFailed || ""} language={"java"} />
+                      <PrismCode code={"errorCode" in submission ? submission.errorCode! : resultSubmit.codeFailed || "Runtime error"} language={"java"} />
                     </div>
                   )}
                 </div></>)}

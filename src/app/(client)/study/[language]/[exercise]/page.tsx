@@ -8,6 +8,7 @@ import { usePrivate } from "@/hooks/usePrivateAxios";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
     fetchExercise,
+    removeAllTestCasesResult,
     setAllTestCasesResultRunning,
     setCode,
     setCompile,
@@ -35,6 +36,7 @@ import test from "node:test";
 import { Suspense, useEffect, useState } from "react";
 import { FaPlay } from "react-icons/fa6";
 import { TbCloudShare } from "react-icons/tb";
+import { RotateCcw } from 'lucide-react';
 
 export default function ExercisePage() {
     const [theme, setTheme] = useState<"vs-dark" | "light">("vs-dark");
@@ -59,7 +61,7 @@ export default function ExercisePage() {
     } = useAppSelector((state) => state.exercises);
     const language = capitalize(segments[1]);
 
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const { toast } = useToast();
     const { connected, compileCode, submitCode, stopExecution, isConnected } =
         useSocket({
@@ -68,25 +70,25 @@ export default function ExercisePage() {
             onOutput: (output: ICompileRes) => {
                 dispatch(
                     updateStatusTestCase({
-                        key: exercise.title,
+                        key: exercise.title!!,
                         index: output.testCaseIndex,
                         res: output,
                     })
                 );
-                // dispatch(updateStatusTestCaseResult({ key: exercise.title, testCaseId: output.testCaseIndex.toString(), status: StatusCompile.COMPILE_SUCCESS }));
+                // dispatch(updateStatusTestCaseResult({ key: exercise.title!, testCaseId: output.testCaseIndex.toString(), status: StatusCompile.COMPILE_SUCCESS }));
             },
             onOutputCompile(data: any) {
                 dispatch(updateOutputCompiling({
                     index: data.testCaseIndex,
                     output: data.chunk,
-                    key: exercise.title,
+                    key: exercise.title!!,
 
                 }))
             },
             onCompleted() {
-                testCasesResult[exercise.title].forEach((testCase) => {
+                testCasesResult[exercise.title!!].forEach((testCase) => {
                     if (testCase.statusCompile === StatusCompile.COMPILE_SUCCESS) {
-                        dispatch(updateStatusTestCaseResult({ key: exercise.title, testCaseId: testCase._id, status: StatusCompile.COMPILE_SUCCESS }));
+                        dispatch(updateStatusTestCaseResult({ key: exercise.title!!, testCaseId: testCase._id, status: StatusCompile.COMPILE_SUCCESS }));
                     }
                 });
                 toast({
@@ -117,18 +119,18 @@ export default function ExercisePage() {
                 dispatch(updateOutputTestCaseResultSubmit(resultSubmit));
             },
             onReconnect: (data: TestcaseRestore[]) => {
-                console.log("testcases reconnect", testCases[exercise.title]);
-                if (testCases[exercise.title]) {
-                    // dispatch(setAllTestCasesResultRunning(exercise.title));
+                console.log("testcases reconnect", testCases[exercise.title!]);
+                if (testCases[exercise.title!]) {
+                    // dispatch(setAllTestCasesResultRunning(exercise.title!));
                     dispatch(setTestCasesResult({
-                        key: exercise.title,
-                        testCases: testCases[exercise.title].map((testCase, index) => {
+                        key: exercise.title!,
+                        testCases: testCases[exercise.title!].map((testCase, index) => {
                             const found = data.find((item) => item.testcaseIndex == index);
                             // console.log('found', found);
                             if (found) {
                                 if (found.hasOwnProperty('isCorrect')) {
                                     console.log('found property', found);
-                                    dispatch(updateStatusTestCaseResult({ key: exercise.title, testCaseId: testCase._id, status: found.isCorrect ? StatusCompile.COMPILE_SUCCESS : StatusCompile.COMPILE_FAILED }));
+                                    dispatch(updateStatusTestCaseResult({ key: exercise.title!, testCaseId: testCase._id, status: found.isCorrect ? StatusCompile.COMPILE_SUCCESS : StatusCompile.COMPILE_FAILED }));
                                     return {
                                         ...testCase,
                                         output: found.value,
@@ -136,9 +138,9 @@ export default function ExercisePage() {
                                         outputExpected: found.outputExpected
                                     }
                                 } else {
-                                    console.log("loading test case", exercise.title, index);
+                                    console.log("loading test case", exercise.title!, index);
                                     dispatch(setEachTestCaseResultRunning({
-                                        key: exercise.title,
+                                        key: exercise.title!,
                                         index: index
                                     }))
                                     return {
@@ -172,19 +174,19 @@ export default function ExercisePage() {
 
     useEffect(() => {
         // Only run if testCases is empty and we have either persistTestCases or exercise.testcases
-        if (!testCases[exercise.title] || testCases[exercise.title].length === 0) {
-            if (persistTestCases[exercise.title] != undefined && persistTestCases[exercise.title].length > 0) {
+        if (!testCases[exercise.title!] || testCases[exercise.title!].length === 0) {
+            if (persistTestCases[exercise.title!] != undefined && persistTestCases[exercise.title!].length > 0) {
                 dispatch(
                     setTestCases({
-                        key: exercise.title,
-                        testCases: persistTestCases[exercise.title],
+                        key: exercise.title!,
+                        testCases: persistTestCases[exercise.title!],
                     })
                 );
             } else if (exercise.testcases) {
                 console.log("exercise.testcases", exercise.testcases);
                 dispatch(
                     setTestCases({
-                        key: exercise.title,
+                        key: exercise.title!,
                         testCases: exercise.testcases.filter((testcase) => testcase.hidden === false).map((testcase, index) => {
                             return {
                                 _id: crypto.randomUUID(),
@@ -197,22 +199,26 @@ export default function ExercisePage() {
                 );
             }
         }
-    }, [exercise.testcases, exercise.title, dispatch, persistTestCases]);
+    }, [exercise.testcases, exercise.title!, dispatch, persistTestCases]);
 
     useEffect(() => {
-        dispatch(setCompile(null));
-        dispatch(setLoadingTestCase(false));
-        dispatch(setLoadingSubList(false));
-        // dispatch(setRunningTestCase(""));
-        dispatch(setSubmissionId(""));
-        dispatch(setSubmission({}));
-        dispatch(
-            fetchExercise({
-                axiosInstance: axiosPrivate,
-                id: searchParams.get("id")!,
-            })
-        );
-    }, []);
+        if (status === "authenticated") {
+            dispatch(setCompile(null));
+            dispatch(setLoadingTestCase(false));
+            dispatch(setLoadingSubList(false));
+            // dispatch(setRunningTestCase(""));
+            dispatch(removeAllTestCasesResult());
+            dispatch(setSubmissionId(""));
+            dispatch(setSubmission({}));
+            dispatch(
+                fetchExercise({
+                    axiosInstance: axiosPrivate,
+                    id: searchParams.get("id")!,
+                })
+            );
+        }
+
+    }, [status]);
 
     useEffect(() => {
         axiosPrivate
@@ -226,13 +232,13 @@ export default function ExercisePage() {
     }, [loadingSubList, loading, compile]);
 
     useEffect(() => {
-        if (!code[`${exercise.title}`]) {
-            dispatch(setCode({ key: exercise.title, code: exercise.defaultCode }));
+        if (!code[`${exercise.title!}`]) {
+            dispatch(setCode({ key: exercise.title!, code: exercise.defaultCode }));
         }
     }, [
-        exercise.title,
+        exercise.title!,
         exercise.defaultCode,
-        code[`${exercise.title}`],
+        code[`${exercise.title!}`],
         dispatch,
     ]);
 
@@ -252,7 +258,7 @@ export default function ExercisePage() {
     }
 
     useEffect(() => {
-        const testCases = testCasesResult[exercise.title];
+        const testCases = testCasesResult[exercise.title!];
         // Check if all test cases have finished running
         if (
             testCases &&
@@ -265,32 +271,32 @@ export default function ExercisePage() {
         ) {
             dispatch(setLoadingTestCase(false)); // Stop loading when all test cases finish
         }
-    }, [testCasesResult, exercise.title]); // Runs when testCasesResult updates
+    }, [testCasesResult, exercise.title!]); // Runs when testCasesResult updates
 
     const handleRun = async () => {
         try {
             dispatch(
                 setTestCasesResult({
-                    key: exercise.title,
-                    testCases: testCases[exercise.title],
+                    key: exercise.title!,
+                    testCases: testCases[exercise.title!],
                 })
             );
 
-            dispatch(setAllTestCasesResultRunning(exercise.title)); // Only set running here, not in useEffect
+            dispatch(setAllTestCasesResultRunning(exercise.title!)); // Only set running here, not in useEffect
             dispatch(setCompile("Test Result"));
             dispatch(setLoadingTestCase(true)); // Start loading
 
             if (
                 language.toLowerCase() === "java" &&
-                !code[`${exercise.title}`].includes("public class") ||
+                !code[`${exercise.title!}`].includes("public class") ||
                 language.toLowerCase() === "java" &&
-                !code[`${exercise.title}`].includes("public static void main")
+                !code[`${exercise.title!}`].includes("public static void main")
             ) {
                 throw new Error("Code needs to have a public class and main function");
             }
 
 
-            const convertedTestCases = Object.values(testCases[exercise.title])
+            const convertedTestCases = Object.values(testCases[exercise.title!])
                 .flat()
                 .map((testCase) =>
                     testCase.input
@@ -300,7 +306,7 @@ export default function ExercisePage() {
 
 
             await compileCode(
-                code[`${exercise.title}`],
+                code[`${exercise.title!}`],
                 convertedTestCases,
                 searchParams.get("id")! || "",
                 language.toLowerCase(),
@@ -320,7 +326,7 @@ export default function ExercisePage() {
         dispatch(setSubmission({}));
 
         await submitCode(
-            code[`${exercise.title}`],
+            code[`${exercise.title!}`],
             searchParams.get("id")! || "",
             session?.user.id || "",
             language.toLowerCase()
@@ -348,15 +354,20 @@ export default function ExercisePage() {
                                 {capitalize(segments[1])}
                             </Button>
                         </div>
+                        <Button onClick={() => {
+                            dispatch(setCode({ key: exercise.title!, code: exercise.defaultCode }))
+                        }} className="!w-fit !p-2" >
+                            <RotateCcw />
+                        </Button>
 
                     </div>
                     <Editor
                         height={"calc(100svh - 7rem)"}
                         defaultLanguage={segments[1]}
                         theme={theme}
-                        value={code[`${exercise.title}`] ?? ""}
+                        value={code[`${exercise.title!}`] ?? ""}
                         onChange={(value) =>
-                            dispatch(setCode({ key: exercise.title, code: value }))
+                            dispatch(setCode({ key: exercise.title!, code: value }))
                         }
                         onMount={handleEditorDidMount}
                     />
