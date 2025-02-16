@@ -43,7 +43,13 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|images|favicon.ico|public|auth).*)' 
+    '/admin/:path*',
+    
+    // Protect các routes khác trong (client)
+    '/profile/:path*',
+    '/study/:path*',
+    '/algorithm/:path*',
+    '/account-management/:path*',
 
    ],
 };
