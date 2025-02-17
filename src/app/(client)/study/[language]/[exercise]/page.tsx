@@ -371,7 +371,7 @@ export default function ExercisePage() {
                         }
                         onMount={handleEditorDidMount}
                     />
-                    <div className="absolute bottom-8 right-8">
+                    <div className="absolute bottom-8 right-8 z-10">
                         <div className="flex gap-4">
                             <Button
                                 variant={theme == "vs-dark" ? "run-dark" : "run-light"}
